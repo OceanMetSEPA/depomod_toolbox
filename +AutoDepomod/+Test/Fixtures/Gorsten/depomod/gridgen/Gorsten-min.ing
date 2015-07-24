@@ -1,0 +1,44 @@
+   {** this is an information file for the grid generation module **}
+      {** minor grid info files(.ing)}
+        {** **}
+"C:\SEPA Consent\DATA\Gorsten\depomod\gridgen\Gorsten-maj.dat"  majorfilename
+"C:\SEPA Consent\DATA\Gorsten\depomod\gridgen\Gorsten-min.dat"        minorfilename       {specify file name for minor grid}
+      { * comment * }
+      { ** here is master grid information ** }
+      { * comment * }
+      40   ngridimaj
+      40   ngridjmaj
+    25.0   gridlimaj
+    25.0   gridljmaj
+      24   nsourcemaj
+       0   ieqsourcedist
+      { **ieqsourcedist = 0  (specify all)** }
+   253   246   239   232   245   238   232   225   231   224   217   223   216   210   181   174   168   161   154   174   167   160   153   146   si[1..24]
+   287   280   273   265   294   287   280   272   227   220   213   234   227   220   190   182   175   168   160   197   189   182   175   167   sj[1..24]
+      { *********sampling station positions****** }
+       0   numsstation
+  sstationi[1.. 0]
+  sstationj[1.. 0]
+  statname[1.. 0]
+        { * comment * }
+      { ** here is minor grid information ** 
+      { * comment * }
+      39  ngridi
+      39   ngridj
+    25.0   gridli
+    25.0   gridlj
+       1   starti
+       1   startj
+      { * comment * }
+      { ** here is velgrid information ** }
+      { * comment * }
+       0  ivelgrid
+       0  nonodes
+  nodei[1.. 0]
+  nodej[1.. 0]
+   nodename[1..0]
+       0    isurfout
+       1    icommasur
+       0    istatsur
+       5    diffsymsur
+#   eofmarker {End of file marker}

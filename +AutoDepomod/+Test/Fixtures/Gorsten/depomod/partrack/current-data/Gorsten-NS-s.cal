@@ -1,0 +1,7 @@
+GorstenNorth-hourly-file-created-from:GorstenNorth-HG.xls
+dT=3600s  nT=360    depth=27.2m         surface-meter@22.3m Tide=2.26mVar=3.0W
+NSN                           SNS
+-3     variation {+=variation east, -=variation west}
+ 1     ispddir {0 = data are easting/northing components, 1 = data are speed/dir
+ 5    6     espdcol ndircol {espdcol=column for easting or speed,ndircol=column for northing or dir}
+#   eofmarker {End of file marker}
