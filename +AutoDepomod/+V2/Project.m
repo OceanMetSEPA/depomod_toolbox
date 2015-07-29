@@ -107,6 +107,9 @@ classdef Project < AutoDepomod.Project
                 P.currentFilePath('s', 'S'), P.currentFilePath('m', 'S'), P.currentFilePath('b', 'S'));
             P.NSNCurrents = AutoDepomod.V2.Currents.Profile.fromFile(...
                 P.currentFilePath('s', 'N'), P.currentFilePath('m', 'N'), P.currentFilePath('b', 'N'));
+            
+            P.SNSCurrents.project = P;
+            P.NSNCurrents.project = P;
         end
                 
         function saveCurrents(P)
