@@ -179,7 +179,7 @@ classdef Base < AutoDepomod.Run.Base
 
         function m = get.modelFile(R)
             if isempty(R.modelFile)
-                R.modelFile = AutoDepomod.PropertiesFile(R.modelPath);
+                R.modelFile = AutoDepomod.V2.PropertiesFile(R.modelPath);
             end
             
             m = R.modelFile;
@@ -187,7 +187,7 @@ classdef Base < AutoDepomod.Run.Base
 
         function c = get.configurationFile(R)
             if isempty(R.configurationFile)
-                R.configurationFile = AutoDepomod.PropertiesFile(R.configPath);
+                R.configurationFile = AutoDepomod.V2.PropertiesFile(R.configPath);
             end
             
             c = R.configurationFile;

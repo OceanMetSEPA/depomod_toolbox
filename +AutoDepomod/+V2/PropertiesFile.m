@@ -1,12 +1,13 @@
 classdef PropertiesFile < dynamicprops
         
     properties
+        path = '';
     end
     
     methods
         function PF = PropertiesFile(filePath)
             if exist('filePath', 'var')
-                PF.importFromFile(filePath)
+                PF.fromFile(filePath)
             end           
         end
         
@@ -42,18 +43,18 @@ classdef PropertiesFile < dynamicprops
             end
         end
         
-        function importFromFile(PF, path)
-            file = readTxtFile(path);
+        function fromFile(PF, filePath)
+            file = readTxtFile(filePath);
             
             for i = 1:length(file)
-               if  isequal(file{i}(1), '#')
-                   continue;
-               else
+               if  regexp(file{i}, '.*=.*')
                    [strs, ~] = strsplit(file{i}, '=');
                                       
                    PF.addProperty(strs{1}, strs{2});
                end                
             end
+
+            PF.path = filePath;
         end
        
     end
