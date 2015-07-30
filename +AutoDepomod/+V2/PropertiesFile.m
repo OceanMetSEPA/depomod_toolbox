@@ -56,6 +56,58 @@ classdef PropertiesFile < dynamicprops
 
             PF.path = filePath;
         end
+        
+        function sizeInBytes = toFile(PF, filePath)
+            if ~exist('filePath', 'var')
+                filePath = PF.path;
+                warning('No file path given. Existing source file will be overwritten.')
+            end
+            
+            dps = PF.dynamicPropertyNames;
+            
+%             fid = fopen(filePath, 'w');
+            
+            function pc = abcd(resultVector, value)
+                if isequal(class(value), 'struct')
+                    fn = fieldnames(value)
+                    for n = 1:length(fn)
+                       resultVector(end+1) = {fn{n}}
+                       nextValue = strjoin(resultVector, ''').(''')
+                       nextValue = sprintf('''%s''', nextValue)
+                       
+                       disp('FFFF')
+                       sprintf('PF.(%s)', nextValue)
+                       eval(sprintf('PF.(%s)', nextValue))
+                       abcd(resultVector, eval(sprintf('PF.(%s)', nextValue)))
+                       resultVector(end) = [];
+                    end
+                else
+                    disp('NNNNNNNNNNNNN')
+                    string = [strjoin(resultVector, '.'), '=', value]
+%                     fprintf(fid, [TF.headerString, '\n']);
+                end
+                
+            end
+            
+            for i = 1:length(dps)
+                if any(strcmp(dps{i}, {'startOfDataMarker', 'endOfDataMarker'}))
+                    continue
+                end
+                
+                resultVector = {dps{i}};
+                abcd(resultVector, PF.(dps{i}))
+                
+                
+            end
+%             fclose(fid);
+        end
+        
+        function dp = dynamicPropertyNames(IPF)
+            m = metaclass(IPF);
+            allProperties = properties(IPF);
+            classDefProperties = {m.PropertyList.Name};
+            dp = setdiff(allProperties', classDefProperties); % note transposition operator
+        end
        
     end
     
