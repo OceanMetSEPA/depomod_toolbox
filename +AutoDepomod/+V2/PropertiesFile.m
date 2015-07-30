@@ -7,7 +7,7 @@ classdef PropertiesFile < dynamicprops
     methods
         function PF = PropertiesFile(filePath)
             if exist('filePath', 'var')
-                PF.fromFile(filePath)
+                PF.fromFile(filePath);
             end           
         end
         
