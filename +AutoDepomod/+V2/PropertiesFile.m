@@ -65,41 +65,35 @@ classdef PropertiesFile < dynamicprops
             
             dps = PF.dynamicPropertyNames;
             
-%             fid = fopen(filePath, 'w');
+            fid = fopen(filePath, 'w');
             
-            function pc = abcd(resultVector, value)
+            function writePropertyStructToFile(propertyVector, value)
                 if isequal(class(value), 'struct')
-                    fn = fieldnames(value)
+                    fn = fieldnames(value);
+                    
                     for n = 1:length(fn)
-                       resultVector(end+1) = {fn{n}}
-                       nextValue = strjoin(resultVector, ''').(''')
-                       nextValue = sprintf('''%s''', nextValue)
+                       propertyVector(end+1) = fn(n);                       
+                       nextValue = strjoin( ...
+                           cellfun(@(x) sprintf('(''%s'')', x), propertyVector, 'UniformOutput', 0), ...
+                           '.');
                        
-                       disp('FFFF')
-                       sprintf('PF.(%s)', nextValue)
-                       eval(sprintf('PF.(%s)', nextValue))
-                       abcd(resultVector, eval(sprintf('PF.(%s)', nextValue)))
-                       resultVector(end) = [];
+                       writePropertyStructToFile(propertyVector, eval(sprintf('PF.%s', nextValue)))
+                       propertyVector(end) = [];
                     end
                 else
-                    disp('NNNNNNNNNNNNN')
-                    string = [strjoin(resultVector, '.'), '=', value]
-%                     fprintf(fid, [TF.headerString, '\n']);
+                    lineString = [strjoin(propertyVector, '.'), '=', value];
+                    fprintf(fid, [lineString, '\n']);
                 end
-                
             end
             
             for i = 1:length(dps)
-                if any(strcmp(dps{i}, {'startOfDataMarker', 'endOfDataMarker'}))
-                    continue
-                end
-                
-                resultVector = {dps{i}};
-                abcd(resultVector, PF.(dps{i}))
-                
-                
+                writePropertyStructToFile(dps(i), PF.(dps{i}))
             end
-%             fclose(fid);
+            
+            fclose(fid);
+            
+            fileInfo    = dir(filePath);
+            sizeInBytes = fileInfo.bytes;
         end
         
         function dp = dynamicPropertyNames(IPF)

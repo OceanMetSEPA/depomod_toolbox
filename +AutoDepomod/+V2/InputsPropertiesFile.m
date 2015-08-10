@@ -41,6 +41,24 @@ classdef InputsPropertiesFile < AutoDepomod.V2.PropertiesFile
             % Now read just the tabular data
             IPF.data = csvread(IPF.path, dataStartIdx, 0, [dataStartIdx, 0, dataEndIdx, 5]);
         end
+        
+        function sizeInBytes = toFile(IPF, filePath)
+            toFile@AutoDepomod.V2.PropertiesFile(IPF, filePath);
+                        
+            fid = fopen(filePath, 'a');
+            fprintf(fid, ['#', IPF.startOfDataMarker, '\n']);
+            fclose(fid);
+
+            dlmwrite(filePath, IPF.data, ...
+                '-append', ...
+                'delimiter', ',', ....
+                'precision', '%.9f'...
+            );
+        
+            fid = fopen(filePath, 'w');
+            fprintf(fid, ['#', IPF.endOfDataMarker, '\n']);
+            fclose(fid);
+        end
     end
     
 end
