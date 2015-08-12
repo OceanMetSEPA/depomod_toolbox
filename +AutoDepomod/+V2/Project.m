@@ -35,6 +35,10 @@ classdef Project < AutoDepomod.Project
             p = [P.depomodPath, '\bathymetry'];
         end
         
+        function i = inputsPath(P)
+            i = [P.depomodPath, '\inputs'];
+        end
+        
         function p = intermediatePath(P)
             p = [P.depomodPath, '\intermediate'];
         end

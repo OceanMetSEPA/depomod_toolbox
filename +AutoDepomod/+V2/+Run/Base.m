@@ -76,6 +76,7 @@ classdef Base < AutoDepomod.Run.Base
     properties
         modelFile@AutoDepomod.V2.PropertiesFile
         configurationFile@AutoDepomod.V2.PropertiesFile
+        inputsFile@AutoDepomod.V2.InputsPropertiesFile
     end
     
     methods
@@ -123,6 +124,47 @@ classdef Base < AutoDepomod.Run.Base
 
             p = strcat(R.project.intermediatePath, '\', R.configFileRoot, ['-g', num2str(index), '.sur']);
         end
+         
+        function cpn = cagesPath(R)
+            cpn = [R.project.intermediatePath, '\', R.configFileRoot, '.xml'];
+        end
+         
+        function i = inputsFilePath(R)
+            i = [R.project.inputsPath, '\', R.configFileRoot, '-allCages.depomodinputsproperties'];
+        end
+        
+        function initializeCages(R)
+            R.cages = AutoDepomod.Layout.Site.fromXMLFile(R.cagesPath); 
+        end
+        
+        function initializeLog(R)
+            logfile = R.project.log(R.typeCode, R.tide); % typeCode defined in subclasses
+            R.log = logfile.run(R.runNumber);
+        end
+
+        function m = get.modelFile(R)
+            if isempty(R.modelFile)
+                R.modelFile = AutoDepomod.V2.PropertiesFile(R.modelPath);
+            end
+            
+            m = R.modelFile;
+        end
+
+        function c = get.configurationFile(R)
+            if isempty(R.configurationFile)
+                R.configurationFile = AutoDepomod.V2.PropertiesFile(R.configPath);
+            end
+            
+            c = R.configurationFile;
+        end
+
+        function i = get.inputsFile(R)
+            if isempty(R.inputsFile)
+                R.inputsFile = AutoDepomod.V2.InputsPropertiesFile(R.inputsFilePath);
+            end
+            
+            i = R.inputsFile;
+        end
         
         function cmd = execute(R, varargin)
             % Invokes Depomod on the model run configuration, overwriting
@@ -162,35 +204,6 @@ classdef Base < AutoDepomod.Run.Base
                       'The parent directory must be named after the project.' ...
                       ]);
             end
-        end
-         
-        function cpn = cagesPath(R)
-            cpn = [R.project.intermediatePath, '\', R.configFileRoot, '.xml'];
-        end
-        
-        function initializeCages(R)
-            R.cages = AutoDepomod.Layout.Site.fromXMLFile(R.cagesPath); 
-        end
-        
-        function initializeLog(R)
-            logfile = R.project.log(R.typeCode, R.tide); % typeCode defined in subclasses
-            R.log = logfile.run(R.runNumber);
-        end
-
-        function m = get.modelFile(R)
-            if isempty(R.modelFile)
-                R.modelFile = AutoDepomod.V2.PropertiesFile(R.modelPath);
-            end
-            
-            m = R.modelFile;
-        end
-
-        function c = get.configurationFile(R)
-            if isempty(R.configurationFile)
-                R.configurationFile = AutoDepomod.V2.PropertiesFile(R.configPath);
-            end
-            
-            c = R.configurationFile;
         end
          
         

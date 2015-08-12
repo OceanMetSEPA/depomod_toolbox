@@ -43,8 +43,13 @@ classdef InputsPropertiesFile < AutoDepomod.V2.PropertiesFile
         end
         
         function sizeInBytes = toFile(IPF, filePath)
+            if ~exist('filePath', 'var')
+                filePath = IPF.path;
+                warning('No file path given. Existing source file will be overwritten.')
+            end
+                
             toFile@AutoDepomod.V2.PropertiesFile(IPF, filePath);
-                        
+                    
             fid = fopen(filePath, 'a');
             fprintf(fid, ['#', IPF.startOfDataMarker, '\n']);
             fclose(fid);
@@ -55,7 +60,7 @@ classdef InputsPropertiesFile < AutoDepomod.V2.PropertiesFile
                 'precision', '%.9f'...
             );
         
-            fid = fopen(filePath, 'w');
+            fid = fopen(filePath, 'a');
             fprintf(fid, ['#', IPF.endOfDataMarker, '\n']);
             fclose(fid);
         end
