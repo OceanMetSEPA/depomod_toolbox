@@ -146,6 +146,10 @@ classdef Base < AutoDepomod.Run.Base
             AutoDepomod.FileUtils.replaceInFile(R.configPath, oldString, newString);
         end
         
+        function newProject = exportFiles(R, exportPath, varargin)
+            newProject = AutoDepomod.V2.Java.export(R, exportPath, varargin{:})
+        end
+        
         function cmd = execute(R, varargin)
             % Invokes Depomod on the model run configuration, overwriting
             % any output files  

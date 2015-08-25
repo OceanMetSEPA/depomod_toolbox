@@ -88,16 +88,22 @@ classdef Java
         function str = run(J, varargin)
             str = J.runCommandStringWithOptions(varargin{:});
             commandStringOnly = 0;
+            useCurrentRelease = 0;
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
                 case 'commandStringOnly'
                   commandStringOnly = varargin{i+1};
+                case 'useCurrentRelease'
+                  useCurrentRelease = varargin{i+1};
               end
             end
             
             if ~commandStringOnly
-                J.makeRunRelease;
+                if ~useCurrentRelease
+                    J.makeRunRelease;
+                end
+                
                 system(str);
             end
         end

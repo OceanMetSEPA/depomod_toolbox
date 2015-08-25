@@ -129,6 +129,14 @@ classdef Project < AutoDepomod.Project
                 );
             end
         end
+        
+        function exportedProject = exportFiles(P, exportPath, varargin)
+            runs = P.allRuns;
+            
+            for r = 1:runs.size
+                exportedProject = runs.item(r).exportFiles(exportPath, varargin{:}); 
+            end
+        end
     end
     
 end

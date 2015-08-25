@@ -77,6 +77,8 @@ classdef Base < AutoDepomod.Run.Base
         modelFile@AutoDepomod.V2.PropertiesFile
         configurationFile@AutoDepomod.V2.PropertiesFile
         inputsFile@AutoDepomod.V2.InputsPropertiesFile
+        exportedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile
+        consolidatedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile
     end
     
     methods
@@ -133,6 +135,14 @@ classdef Base < AutoDepomod.Run.Base
             i = [R.project.inputsPath, '\', R.configFileRoot, '-allCages.depomodinputsproperties'];
         end
         
+        function c = consolidatedTimeSeriesFilePath(R)
+            c = [R.project.intermediatePath, '\', R.configFileRoot, '-consolidated-g1.depomodtimeseries'];
+        end
+        
+        function e = exportedTimeSeriesFilePath(R)
+            e = [R.project.intermediatePath, '\', R.configFileRoot, '-consolidated-g1.depomodtimeseries'];
+        end
+        
         function initializeCages(R)
             R.cages = AutoDepomod.Layout.Site.fromXMLFile(R.cagesPath); 
         end
@@ -165,6 +175,22 @@ classdef Base < AutoDepomod.Run.Base
             
             i = R.inputsFile;
         end
+
+        function e = get.exportedTimeSeriesFile(R)
+            if isempty(R.exportedTimeSeriesFile)
+                R.exportedTimeSeriesFile = AutoDepomod.V2.TimeSeriesFile(R.exportedTimeSeriesFilePath);
+            end
+            
+            e = R.exportedTimeSeriesFile;
+        end
+
+        function c = get.consolidatedTimeSeriesFile(R)
+            if isempty(R.consolidatedTimeSeriesFile)
+                R.consolidatedTimeSeriesFile = AutoDepomod.V2.TimeSeriesFile(R.consolidatedTimeSeriesFilePath);
+            end
+            
+            c = R.consolidatedTimeSeriesFile;
+        end
         
         function cmd = execute(R, varargin)
             % Invokes Depomod on the model run configuration, overwriting
@@ -176,6 +202,7 @@ classdef Base < AutoDepomod.Run.Base
                 jv = AutoDepomod.V2.Java;
                 
                 commandStringOnly = 0;
+                useCurrentRelease = 0;
             
                 for i = 1:2:length(varargin)
                   switch varargin{i}
@@ -183,6 +210,8 @@ classdef Base < AutoDepomod.Run.Base
                       release = varargin{i+1};
                     case 'commandStringOnly'
                       commandStringOnly = varargin{i+1};
+                    case 'useCurrentRelease'
+                      useCurrentRelease = varargin{i+1};
                   end
                 end
             
@@ -191,6 +220,7 @@ classdef Base < AutoDepomod.Run.Base
                 end
                 
                 cmd = jv.run(...
+                    'useCurrentRelease', useCurrentRelease, ...
                     'commandStringOnly', commandStringOnly, ...
                     'siteName', R.project.name, ...
                     'dataPath', dataPath, ...
