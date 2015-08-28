@@ -128,7 +128,7 @@ classdef Base < AutoDepomod.Run.Base
         end
          
         function cpn = cagesPath(R)
-            cpn = [R.project.intermediatePath, '\', R.configFileRoot, '.xml'];
+            cpn = [R.project.cagesPath, '\', R.configFileRoot, '.xml'];
         end
          
         function i = inputsFilePath(R)

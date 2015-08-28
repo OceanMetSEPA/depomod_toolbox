@@ -27,6 +27,10 @@ classdef Project < AutoDepomod.Project
             p = [P.depomodPath, '\models'];
         end
         
+        function p = cagesPath(P)
+            p = [P.depomodPath, '\cages'];
+        end
+        
         function p = flowmetryPath(P)
             p = [P.depomodPath, '\flowmetry'];
         end
@@ -120,15 +124,8 @@ classdef Project < AutoDepomod.Project
             depths = {'s','m','b'};
             
             for i = 1:length(depths)
-                AutoDepomod.V2.Currents.TimeSeries.toFile(...
-                        P.SNSCurrents.(depths{i}),...
-                        P.currentFilePath(depths{i}, 'S')...
-                    );
-                
-                AutoDepomod.V2.Currents.TimeSeries.toFile(...
-                        P.NSNCurrents.(depths{i}),...
-                        P.currentFilePath(depths{i}, 'N')...
-                    );
+                P.SNSCurrents.(depths{i}).toFile(P.currentFilePath(depths{i}, 'S'));
+                P.NSNCurrents.(depths{i}).toFile(P.currentFilePath(depths{i}, 'N'));
             end            
         end
      

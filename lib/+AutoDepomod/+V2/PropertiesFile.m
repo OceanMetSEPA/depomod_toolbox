@@ -63,10 +63,6 @@ classdef PropertiesFile < dynamicprops
                 warning('No file path given. Existing source file will be overwritten.')
             end
             
-            dps = PF.dynamicPropertyNames;
-            
-            fid = fopen(filePath, 'w');
-            
             function writePropertyStructToFile(propertyVector, value)
                 if isequal(class(value), 'struct')
                     fn = fieldnames(value);
@@ -85,6 +81,10 @@ classdef PropertiesFile < dynamicprops
                     fprintf(fid, [lineString, '\n']);
                 end
             end
+            
+            dps = PF.dynamicPropertyNames;
+            
+            fid = fopen(filePath, 'w');
             
             for i = 1:length(dps)
                 writePropertyStructToFile(dps(i), PF.(dps{i}))
