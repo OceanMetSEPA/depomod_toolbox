@@ -1,4 +1,4 @@
-classdef Collection < handle
+classdef Collection < dynamicprops
     % Wrapper class for a list of model runs. This class principally 
     % enables single runs to be accessed using chainable function
     % invocations, e.g.
@@ -184,6 +184,8 @@ classdef Collection < handle
         function newRun = new(C, varargin)
             if C.size == 0
                 error('Cannot create new run. No runs in collection to use as template');
+            elseif C.project.version == 1
+                error('Cannot create new run. Not supported for version 1 projects.')
             end
             
             highestRunNumber = C.highestRunNumber;
@@ -203,7 +205,8 @@ classdef Collection < handle
             newModelFilename = newModelPaths{end};
 
             newRun = AutoDepomod.Run.initializeAsSubclass(C.project, newModelFilename);
-            C.list{end+1} = newRun;
+
+            C.list{C.size+1,1} = newRun;
             
             modelFile = newRun.modelFile;
             modelFile.Model.run.number=num2str(newRunNumber);
