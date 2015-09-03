@@ -73,6 +73,10 @@ classdef Base < AutoDepomod.Run.Base
         FilenameRegex = '^(.+)\-(BcnstFI|E|T)\-(S|N)\-(\d+)(g\d+)?\.(cfg|cfh|fil|flx|inp|inr|sur|out|plu|put|prn)$';
     end
     
+    properties
+        sur@AutoDepomod.Sur.Base;
+    end
+    
     methods
         function R = Base(project, cfgFileName)
             
@@ -119,13 +123,15 @@ classdef Base < AutoDepomod.Run.Base
             cpn = [cagesDirectory, '\', cageFileName];
         end
         
-        function initializeCages(R)
-            R.cages = AutoDepomod.Layout.Site.fromCSV(R.cagesPath);
-        end
-        
-        function initializeLog(R)
-            logfile = R.project.log(R.typeCode); % typeCode defined in subclasses
-            R.log = logfile.run(R.runNumber);
+        function s = get.sur(R)
+            % Returns an instance of Depomod.Outputs.Sur representing the
+            % model run sur file
+            
+            if isempty(R.sur)
+                R.sur = R.initializeSur(R.surPath);
+            end
+            
+            s = R.sur; 
         end
          
         function coeffs = dispersionCoefficients(R)
@@ -186,6 +192,15 @@ classdef Base < AutoDepomod.Run.Base
                       'The parent directory must be named after the project.' ...
                       ]);
             end
+        end
+        
+        function initializeCages(R)
+            R.cages = AutoDepomod.Layout.Site.fromCSV(R.cagesPath);
+        end
+        
+        function initializeLog(R)
+            logfile = R.project.log(R.typeCode); % typeCode defined in subclasses
+            R.log = logfile.run(R.runNumber);
         end
        
     end

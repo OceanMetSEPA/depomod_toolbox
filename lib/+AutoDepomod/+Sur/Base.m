@@ -25,7 +25,11 @@ classdef (Abstract) Base < handle
                 end
             elseif version == 2
                 if ~isempty(regexp(path, '-EMBZ-', 'ONCE')) || ~isempty(regexp(path, '-TFBZ-', 'ONCE'))
-                    sc = 'AutoDepomod.Sur.Residue';
+                    if ~isempty(regexp(path, '-solids-', 'ONCE')) || ~isempty(regexp(path, '-carbon-', 'ONCE'))
+                        sc = 'AutoDepomod.Sur.Benthic';
+                    else
+                        sc = 'AutoDepomod.Sur.Residue';
+                    end
                 elseif ~isempty(regexp(path, '-NONE-', 'ONCE'))
                     sc = 'AutoDepomod.Sur.Benthic';
                 else
@@ -56,7 +60,7 @@ classdef (Abstract) Base < handle
             %   sc: an instance of a subclass of Depomod.Outputs.Sur.Base
             %   corresponding the appropriate subclass (BenthicSur, ResidueSur).
             % 
-            
+
             version    = 1;
             easting    = [];
             northing   = [];

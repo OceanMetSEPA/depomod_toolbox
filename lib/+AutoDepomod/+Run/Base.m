@@ -177,7 +177,6 @@ classdef (Abstract) Base < handle
         cfgFileName; % filename of cfg file, indicates run number
         runNumber;   % model run number
         log;         % property for memoizing log information for this run, saves multiple calls
-        sur;         % property for memoizing sur information for this run, saves multiple calls
         cages;
         tide;
     end
@@ -197,17 +196,6 @@ classdef (Abstract) Base < handle
         function bool = isTFBZ(R)
             % Returns true if the model run is a TFBZ run
             bool = ~isempty(regexp(class(R), 'TFBZ', 'ONCE'));
-        end
-        
-        function s = get.sur(R)
-            % Returns an instance of Depomod.Outputs.Sur representing the
-            % model run sur file
-            
-            if isempty(R.sur)
-                R.sur = R.initializeSur(0);
-            end
-            
-            s = R.sur; 
         end
         
         function t = get.tide(R)
@@ -231,7 +219,7 @@ classdef (Abstract) Base < handle
             c = R.cages;
         end
         
-        function s = initializeSur(R, index) 
+        function s = initializeSur(R, surPath) 
             % Returns an instance of Depomod.Outputs.Sur representing the
             % model run sur file associated with the passed in index. The
             % index relates to the G-model status of the sur file, as
@@ -239,11 +227,11 @@ classdef (Abstract) Base < handle
             
             [e, n] = R.project.southWest;
             version = R.project.version;
-            
+                        
             if ~isempty(e) && ~isempty(n) && ~isnan(e) && ~isnan(n)
-                s = AutoDepomod.Sur.Base.fromFile(R.surPath(index), 'version', version, 'Easting', num2str(e), 'Northing', num2str(n));
+                s = AutoDepomod.Sur.Base.fromFile(surPath, 'version', version, 'Easting', num2str(e), 'Northing', num2str(n));
             else
-                s = AutoDepomod.Sur.Base.fromFile(R.surPath(index), 'version', version);
+                s = AutoDepomod.Sur.Base.fromFile(surPath, 'version', version);
             end
         end
     end

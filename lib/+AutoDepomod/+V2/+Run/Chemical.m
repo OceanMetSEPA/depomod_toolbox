@@ -51,12 +51,29 @@ classdef Chemical < AutoDepomod.V2.Run.Base
     %
     
     properties
+        chemicalSur@AutoDepomod.Sur.Residue
     end
     
     methods     
         function CR = Chemical(project, cfgFileName)
             CR = CR@AutoDepomod.V2.Run.Base(project, cfgFileName);
         end  
+        
+        function p = chemicalSurPath(R)
+            p = R.surPath('chemical');
+        end
+        
+        function cs = get.chemicalSur(R)
+            if isempty(R.chemicalSur)
+                R.chemicalSur = R.initializeSur(R.chemicalSurPath);
+            end
+            
+            cs = R.chemicalSur;
+        end
+        
+        function s = sur(R) % shortcut method/backwards compatibility
+            s = R.chemicalSur;
+        end
         
         function cm = consentMass(CR)
             % Returns the consent mass for the model run

@@ -57,7 +57,7 @@ classdef EmBZ < AutoDepomod.V1.Run.Chemical
         % The quantity which is estiamted to be in the environment as of the 118 day mark (which is the 
         % compliance interval). It is a function of the excretion rate and the decay rate.
         exportFactor = 0.74;
-        surWithDecay;
+        surWithDecay@AutoDepomod.Sur.Residue;
     end
     
     methods      
@@ -97,7 +97,7 @@ classdef EmBZ < AutoDepomod.V1.Run.Chemical
             % 1-indexed model run sur file, i.e. including decay
             
             if isempty(EBR.surWithDecay)
-               EBR.surWithDecay = EBR.initializeSur(1);
+               EBR.surWithDecay = EBR.initializeSur(EBR.surPath(1));
             end
             
             s = EBR.surWithDecay;

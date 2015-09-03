@@ -79,6 +79,8 @@ classdef Base < AutoDepomod.Run.Base
         inputsFile@AutoDepomod.V2.InputsPropertiesFile
         exportedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile
         consolidatedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile
+        solidsSur@AutoDepomod.Sur.Benthic
+        carbonSur@AutoDepomod.Sur.Benthic
     end
     
     methods
@@ -115,16 +117,28 @@ classdef Base < AutoDepomod.Run.Base
             p = strcat(R.project.modelsPath, '\', R.configFileRoot, '-Configuration.properties');
         end
         
-        function p = surPath(R, index)
-            % Returns the path to the model run sur file. By default, the
-            % 0-index sur file path is returned. Pass in the index to
-            % return a different surfile (e.g. 1, for EmBZ decay)
+        function p = surPath(R, type, index)
             
             if ~exist('index', 'var')
                 index = 0; % Default is the 0 indexed sur file
             end
+            
+            oldStylePath = strcat(R.project.intermediatePath, '\', R.configFileRoot, ['-g', num2str(index), '.sur']);
+            newStylePath = strcat(R.project.intermediatePath, '\', R.configFileRoot, ['-', type, '-g', num2str(index), '.sur']);
 
-            p = strcat(R.project.intermediatePath, '\', R.configFileRoot, ['-g', num2str(index), '.sur']);
+            if exist(oldStylePath, 'file')
+                p = oldStylePath;
+            else
+                p = newStylePath;
+            end
+        end
+        
+        function p = solidsSurPath(R)
+            p = R.surPath('solids');
+        end
+        
+        function p = carbonSurPath(R)
+            p = R.surPath('carbon');
         end
          
         function cpn = cagesPath(R)
@@ -141,15 +155,6 @@ classdef Base < AutoDepomod.Run.Base
         
         function e = exportedTimeSeriesFilePath(R)
             e = [R.project.intermediatePath, '\', R.configFileRoot, '-consolidated-g1.depomodtimeseries'];
-        end
-        
-        function initializeCages(R)
-            R.cages = AutoDepomod.Layout.Site.fromXMLFile(R.cagesPath); 
-        end
-        
-        function initializeLog(R)
-            logfile = R.project.log(R.typeCode, R.tide); % typeCode defined in subclasses
-            R.log = logfile.run(R.runNumber);
         end
 
         function m = get.modelFile(R)
@@ -190,6 +195,26 @@ classdef Base < AutoDepomod.Run.Base
             end
             
             c = R.consolidatedTimeSeriesFile;
+        end
+        
+        function s = sur(R) % shortcut method/backwards compatibility
+            s = R.solidsSur;
+        end
+        
+        function ss = get.solidsSur(R)
+            if isempty(R.solidsSur)
+                R.solidsSur = R.initializeSur(R.solidsSurPath);
+            end
+            
+            ss = R.solidsSur;
+        end
+        
+        function cs = get.carbonSur(R)
+            if isempty(R.carbonSur)
+                R.carbonSur = R.initializeSur(R.carbonSurPath);
+            end
+            
+            cs = R.carbonSur;
         end
         
         function cmd = execute(R, varargin)
@@ -235,7 +260,15 @@ classdef Base < AutoDepomod.Run.Base
                       ]);
             end
         end
-         
+                 
+        function initializeCages(R)
+            R.cages = AutoDepomod.Layout.Site.fromXMLFile(R.cagesPath); 
+        end
+        
+        function initializeLog(R)
+            logfile = R.project.log(R.typeCode, R.tide); % typeCode defined in subclasses
+            R.log = logfile.run(R.runNumber);
+        end
         
 %         function coeffs = dispersionCoefficients(R)
 %             cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
