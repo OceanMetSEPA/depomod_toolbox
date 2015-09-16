@@ -80,6 +80,18 @@ classdef (Abstract) Project < dynamicprops
             
             dirs = strsplit(P.path, '\\');
             pp   = strjoin(dirs(1:end-1), '\');
+            
+            if P.isRemotePath
+                pp = ['\', pp];
+            end
+        end
+        
+        function bool = isRemotePath(P)
+            bool = 0;
+            
+            if regexp(P.path, '^\\\\')
+                bool = 1
+            end
         end
         
         function p = depomodPath(P)
