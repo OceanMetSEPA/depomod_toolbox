@@ -64,6 +64,8 @@ classdef Java < AutoDepomod.Java
             modelParametersFile    = '';
             modelLocationFile      = '';
             modelConfigurationFile = '';
+            modelDefaultsFilePath  = '';
+            maxBioMassLimit        = '';
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
@@ -83,6 +85,10 @@ classdef Java < AutoDepomod.Java
                   modelLocationFile = varargin{i+1};
                 case 'modelConfigurationFile'
                   modelConfigurationFile = varargin{i+1};
+                case 'modelDefaultsFilePath'
+                  modelDefaultsFilePath = varargin{i+1};
+                case 'maxBioMassLimit'
+                  maxBioMassLimit = varargin{i+1};
               end
             end
             
@@ -94,7 +100,14 @@ classdef Java < AutoDepomod.Java
                 ' /modelConfigurationFile "', modelConfigurationFile, '"', ...
                 ];
             
-%             options = [options, ' /modelDefaultsFilePath "C:\Users\andrew.berkeley\Documents\Aquaculture\AutoDepomod\Testing\Config\SEPA-Defaults_finite-C-decay.properties"'];
+            
+            if ~isempty(modelDefaultsFilePath)
+                options = [options, ' /modelDefaultsFilePath "', modelDefaultsFilePath, '"'];
+            end
+            
+            if ~isempty(maxBioMassLimit)
+                options = [options, ' /maxBioMassLimit', maxBioMassLimit];
+            end
             
             if verbose
                 options = [options, ' /verbose'];
@@ -107,6 +120,8 @@ classdef Java < AutoDepomod.Java
             if logOutput
                 options = [options, ' /logOutput'];
             end
+            
+            options
         end
     end
     

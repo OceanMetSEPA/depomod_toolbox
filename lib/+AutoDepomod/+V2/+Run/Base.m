@@ -228,6 +228,9 @@ classdef Base < AutoDepomod.Run.Base
                 
                 commandStringOnly = 0;
                 useCurrentRelease = 0;
+                modelDefaultsFilePath = '';
+                
+                varargin{:}
             
                 for i = 1:2:length(varargin)
                   switch varargin{i}
@@ -237,6 +240,8 @@ classdef Base < AutoDepomod.Run.Base
                       commandStringOnly = varargin{i+1};
                     case 'useCurrentRelease'
                       useCurrentRelease = varargin{i+1};
+                    case 'modelDefaultsFilePath'
+                      modelDefaultsFilePath = varargin{i+1};
                   end
                 end
             
@@ -247,6 +252,7 @@ classdef Base < AutoDepomod.Run.Base
                 cmd = jv.run(...
                     'useCurrentRelease', useCurrentRelease, ...
                     'commandStringOnly', commandStringOnly, ...
+                    'modelDefaultsFilePath', modelDefaultsFilePath, ...
                     'siteName', R.project.name, ...
                     'dataPath', dataPath, ...
                     'modelParametersFile',    R.cfgFileName, ...
