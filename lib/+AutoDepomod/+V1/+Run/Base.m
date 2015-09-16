@@ -51,15 +51,15 @@ classdef Base < AutoDepomod.Run.Base
     methods (Static = true)
         
         function runNo = parseRunNumber(filename)
-            runNo = AutoDepomod.Run.Base.parseRunNumber(filename, 2);
+            runNo = AutoDepomod.Run.Base.parseRunNumber(filename, 1);
         end
         
-        function [bool, sitename, type, tide, number, filetype, ext] = isValidConfigFileName(filename)
-            [bool, sitename, type, tide, number, filetype, ext] = AutoDepomod.Run.Base.isValidConfigFileName(filename, 2);            
+        function [bool, sitename, type, tide, number, g, ext] = isValidConfigFileName(filename)
+            [bool, sitename, type, tide, number, g, ext] = AutoDepomod.Run.Base.isValidConfigFileName(filename, 1);            
         end
         
-        function [sitename, type, tide, number, filetype, ext] = cfgFileParts(filename)
-            [sitename, type, tide, number, filetype, ext] = AutoDepomod.Run.Base.cfgFileParts(filename, 2);
+        function [sitename, type, tide, number, g, ext] = cfgFileParts(filename)
+            [sitename, type, tide, number, g, ext] = AutoDepomod.Run.Base.cfgFileParts(filename, 1);
         end
         
         function str = dispersionCoefficientReplaceString(dim,value)
@@ -70,25 +70,24 @@ classdef Base < AutoDepomod.Run.Base
     % Instance
     
     properties (Constant = true, Hidden = true)
-        FilenameRegex = '^(.+)\-(NONE|EMBZ|TFBZ)\-(S|N)\-(\d+)-(\w+)?\.(properties)$';
+        FilenameRegex = '^(.+)\-(BcnstFI|E|T)\-(S|N)\-(\d+)(g\d+)?\.(cfg|cfh|fil|flx|inp|inr|sur|out|plu|put|prn)$';
     end
     
     properties
-        modelFile@AutoDepomod.V2.PropertiesFile
-        configurationFile@AutoDepomod.V2.PropertiesFile
+        sur@AutoDepomod.Sur.Base;
     end
     
     methods
         function R = Base(project, cfgFileName)
             
             R.project     = project;
-            R.cfgFileName = cfgFileName; % this property is the -Model.properties file in V2
+            R.cfgFileName = cfgFileName;
                                               
-            R.runNumber = AutoDepomod.V2.Run.Base.parseRunNumber(R.cfgFileName);
+            R.runNumber = AutoDepomod.V1.Run.Base.parseRunNumber(R.cfgFileName);
             
             if isempty(R.runNumber)
                 errName = 'AutoDepomod:Run:MissingRunNumber';
-                errDesc = 'Cannot instantiate Run object. cfgFileName filename has unexpected format, cannot locate run number.';
+                errDesc = 'Cannot instantiate Run object. cfgFileName has unexpected format, cannot locate run number.';
                 err = MException(errName, errDesc);
                 
                 throw(err)
@@ -97,19 +96,12 @@ classdef Base < AutoDepomod.Run.Base
         
         function name = configFileRoot(R)
             % Returns just the filename for the model run cfg file, omitting the extension
-            [~, filename, ~] = fileparts(R.cfgFileName);
-            name = strrep(filename, '-Model','');
-            
-        end
-        
-        function p = modelPath(R)
-            % Returns full path for the model run cfg file
-            p = strcat(R.project.modelsPath, '\', R.cfgFileName);
+            [~, name, ~] = fileparts(R.cfgFileName);
         end
         
         function p = configPath(R)
             % Returns full path for the model run cfg file
-            p = strcat(R.project.modelsPath, '\', R.configFileRoot, '-Configuration.properties');
+            p = strcat(R.project.partrackPath, '\', R.cfgFileName);
         end
         
         function p = surPath(R, index)
@@ -121,7 +113,47 @@ classdef Base < AutoDepomod.Run.Base
                 index = 0; % Default is the 0 indexed sur file
             end
 
-            p = strcat(R.project.intermediatePath, '\', R.configFileRoot, ['-g', num2str(index), '.sur']);
+            p = strcat(R.project.resusPath, '\', R.configFileRoot, ['g', num2str(index), '.sur']);
+        end
+                 
+        function cpn = cagesPath(R)
+            cagesDirectory = R.project.resusPath;
+            cageFileName = strrep(R.cfgFileName, '.cfg', '_CAGES.csv');
+            
+            cpn = [cagesDirectory, '\', cageFileName];
+        end
+        
+        function s = get.sur(R)
+            % Returns an instance of Depomod.Outputs.Sur representing the
+            % model run sur file
+            
+            if isempty(R.sur)
+                R.sur = R.initializeSur(R.surPath);
+            end
+            
+            s = R.sur; 
+        end
+         
+        function coeffs = dispersionCoefficients(R)
+            cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
+            coeffs = cfgData.DispersionCoefficients;
+        end
+        
+        function coeff = dispersionCoefficient(R,dim)
+            coeffs = R.dispersionCoefficients;
+            coeff = coeffs{find(cellfun(@(x) isequal(x, dim) , coeffs(:, 1))), 2};
+        end
+        
+        function setDispersionCoefficient(R, dim, value)
+            currentValue = R.dispersionCoefficient(dim);
+            oldString = AutoDepomod.V1.Run.Base.dispersionCoefficientReplaceString(dim, currentValue);
+            newString = AutoDepomod.V1.Run.Base.dispersionCoefficientReplaceString(dim, value);
+            
+            AutoDepomod.FileUtils.replaceInFile(R.configPath, oldString, newString);
+        end
+        
+        function newProject = exportFiles(R, exportPath, varargin)
+            newProject = AutoDepomod.V2.Java.export(R, exportPath, varargin{:})
         end
         
         function cmd = execute(R, varargin)
@@ -131,7 +163,7 @@ classdef Base < AutoDepomod.Run.Base
             if AutoDepomod.Java.isValidProject(R.project)
                 dataPath = R.project.parentPath;
                 
-                jv = AutoDepomod.V2.Java;
+                jv = AutoDepomod.V1.Java;
                 
                 commandStringOnly = 0;
             
@@ -149,12 +181,10 @@ classdef Base < AutoDepomod.Run.Base
                 end
                 
                 cmd = jv.run(...
-                    'commandStringOnly', commandStringOnly, ...
-                    'siteName', R.project.name, ...
-                    'dataPath', dataPath, ...
-                    'modelParametersFile',    R.cfgFileName, ...
-                    'modelLocationFile',      [R.project.name, '-Location.properties'], ...
-                    'modelConfigurationFile', [R.configFileRoot, '-Configuration.properties'] ...
+                    'commandStringOnly', commandStringOnly, ...,
+                    'siteName',    R.project.name, ...
+                    'cfgFileName', R.cfgFileName, ...
+                    'dataPath',    dataPath ...
                     );
             else
                error('AutoDepomod:Java', ...
@@ -163,55 +193,16 @@ classdef Base < AutoDepomod.Run.Base
                       ]);
             end
         end
-         
-        function cpn = cagesPath(R)
-            cpn = [R.project.intermediatePath, '\', R.configFileRoot, '.xml'];
-        end
         
         function initializeCages(R)
-            R.cages = AutoDepomod.Layout.Site.fromXMLFile(R.cagesPath); 
+            R.cages = AutoDepomod.Layout.Site.fromCSV(R.cagesPath);
         end
         
         function initializeLog(R)
-            logfile = R.project.log(R.typeCode, R.tide); % typeCode defined in subclasses
+            logfile = R.project.log(R.typeCode); % typeCode defined in subclasses
             R.log = logfile.run(R.runNumber);
         end
-
-        function m = get.modelFile(R)
-            if isempty(R.modelFile)
-                R.modelFile = AutoDepomod.PropertiesFile(R.modelPath);
-            end
-            
-            m = R.modelFile;
-        end
-
-        function c = get.configurationFile(R)
-            if isempty(R.configurationFile)
-                R.configurationFile = AutoDepomod.PropertiesFile(R.configPath);
-            end
-            
-            c = R.configurationFile;
-        end
-         
-        
-%         function coeffs = dispersionCoefficients(R)
-%             cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
-%             coeffs = cfgData.DispersionCoefficients;
-%         end
-%         
-%         function coeff = dispersionCoefficient(R,dim)
-%             coeffs = R.dispersionCoefficients;
-%             coeff = coeffs{find(cellfun(@(x) isequal(x, dim) , coeffs(:, 1))), 2};
-%         end
-%         
-%         function setDispersionCoefficient(R, dim, value)
-%             currentValue = R.dispersionCoefficient(dim);
-%             oldString = AutoDepomod.V1.Run.Base.dispersionCoefficientReplaceString(dim, currentValue);
-%             newString = AutoDepomod.V1.Run.Base.dispersionCoefficientReplaceString(dim, value);
-%             
-%             AutoDepomod.FileUtils.replaceInFile(R.configPath, oldString, newString);
-%         end
-                
+       
     end
 
 end

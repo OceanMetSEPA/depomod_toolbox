@@ -25,7 +25,11 @@ classdef (Abstract) Base < handle
                 end
             elseif version == 2
                 if ~isempty(regexp(path, '-EMBZ-', 'ONCE')) || ~isempty(regexp(path, '-TFBZ-', 'ONCE'))
-                    sc = 'AutoDepomod.Sur.Residue';
+                    if ~isempty(regexp(path, '-solids-', 'ONCE')) || ~isempty(regexp(path, '-carbon-', 'ONCE'))
+                        sc = 'AutoDepomod.Sur.Benthic';
+                    else
+                        sc = 'AutoDepomod.Sur.Residue';
+                    end
                 elseif ~isempty(regexp(path, '-NONE-', 'ONCE'))
                     sc = 'AutoDepomod.Sur.Benthic';
                 else
@@ -56,7 +60,7 @@ classdef (Abstract) Base < handle
             %   sc: an instance of a subclass of Depomod.Outputs.Sur.Base
             %   corresponding the appropriate subclass (BenthicSur, ResidueSur).
             % 
-            
+
             version    = 1;
             easting    = [];
             northing   = [];
@@ -458,8 +462,13 @@ classdef (Abstract) Base < handle
             % interpolatedGrid property of the Sur instance. This supports
             % the valueAt() method.
             
-            [x, y] = ndgrid(S.X,S.Y);
-            S.interpolatedGrid = griddedInterpolant(x, y, S.Z', 'cubic'); % transpose Z - griddedInterpolant and surf appear to handle origin/coords differently
+            if S.X(2)-S.X(1) > 0 % handle ascending versus descending (v1/v2)
+                [x, y] = ndgrid(S.X,S.Y);
+                S.interpolatedGrid = griddedInterpolant(x, y, S.Z', 'cubic');
+            else
+                [x, y] = ndgrid(S.X(end:-1:1),S.Y(end:-1:1));
+                S.interpolatedGrid = griddedInterpolant(x, y, S.Z(end:-1:1,end:-1:1)', 'cubic'); % transpose Z - griddedInterpolant and surf appear to handle origin/coords differently
+            end
         end
         
         function val = valueAt(S,x,y)
@@ -572,7 +581,7 @@ classdef (Abstract) Base < handle
             if plot
                 figure('visible', 'on');
             else
-                figure('visible', 'off')
+                figure('visible', 'off');
             end
             
             [c,h] = contourf(S.X, S.Y, S.Z,[level level]);

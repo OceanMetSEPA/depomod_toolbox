@@ -57,13 +57,29 @@ classdef EmBZ < AutoDepomod.V2.Run.Chemical
         % The quantity which is estiamted to be in the environment as of the 118 day mark (which is the 
         % compliance interval). It is a function of the excretion rate and the decay rate.
         exportFactor = 0.74;
-        surWithDecay;
+        chemicalSurWithDecay@AutoDepomod.Sur.Residue;
     end
     
     methods      
         function EBR = EmBZ(project, cfgFileName)
             EBR = EBR@AutoDepomod.V2.Run.Chemical(project, cfgFileName);
         end  
+         
+        function p = chemicalSurWithDecayPath(R)
+            p = R.surPath('chemical', 1);
+        end
+        
+        function cs = get.chemicalSurWithDecay(R)
+            if isempty(R.chemicalSurWithDecay)
+                R.chemicalSurWithDecay = R.initializeSur(R.chemicalSurWithDecayPath);
+            end
+            
+            cs = R.chemicalSurWithDecay;
+        end
+        
+        function s = surWithDecay(R) % shortcut method/backwards compatibility
+            s = R.chemicalSurWithDecay;
+        end
         
         function p = prnPath(EBR, index)
             % Returns the path to the model run prn file. By default, the
@@ -90,17 +106,6 @@ classdef EmBZ < AutoDepomod.V2.Run.Chemical
             % decay
             
             p = EBR.initializePrn(1);
-        end
-        
-        function s = get.surWithDecay(EBR) 
-            % Returns an instance of Depomod.Outputs.Sur representing the
-            % 1-indexed model run sur file, i.e. including decay
-            
-            if isempty(EBR.surWithDecay)
-               EBR.surWithDecay = EBR.initializeSur(1);
-            end
-            
-            s = EBR.surWithDecay;
         end
         
         function p = initializePrn(EBR, index)            

@@ -27,12 +27,20 @@ classdef Project < AutoDepomod.Project
             p = [P.depomodPath, '\models'];
         end
         
+        function p = cagesPath(P)
+            p = [P.depomodPath, '\cages'];
+        end
+        
         function p = flowmetryPath(P)
             p = [P.depomodPath, '\flowmetry'];
         end
         
         function p = bathymetryPath(P)
             p = [P.depomodPath, '\bathymetry'];
+        end
+        
+        function i = inputsPath(P)
+            i = [P.depomodPath, '\inputs'];
         end
         
         function p = intermediatePath(P)
@@ -107,21 +115,17 @@ classdef Project < AutoDepomod.Project
                 P.currentFilePath('s', 'S'), P.currentFilePath('m', 'S'), P.currentFilePath('b', 'S'));
             P.NSNCurrents = AutoDepomod.V2.Currents.Profile.fromFile(...
                 P.currentFilePath('s', 'N'), P.currentFilePath('m', 'N'), P.currentFilePath('b', 'N'));
+            
+            P.SNSCurrents.project = P;
+            P.NSNCurrents.project = P;
         end
                 
         function saveCurrents(P)
             depths = {'s','m','b'};
             
             for i = 1:length(depths)
-                AutoDepomod.V2.Currents.TimeSeries.toFile(...
-                        P.SNSCurrents.(depths{i}),...
-                        P.currentFilePath(depths{i}, 'S')...
-                    );
-                
-                AutoDepomod.V2.Currents.TimeSeries.toFile(...
-                        P.NSNCurrents.(depths{i}),...
-                        P.currentFilePath(depths{i}, 'N')...
-                    );
+                P.SNSCurrents.(depths{i}).toFile(P.currentFilePath(depths{i}, 'S'));
+                P.NSNCurrents.(depths{i}).toFile(P.currentFilePath(depths{i}, 'N'));
             end            
         end
      

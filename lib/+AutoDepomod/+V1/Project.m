@@ -113,6 +113,9 @@ classdef Project < AutoDepomod.Project
         function initializeCurrents(P)
             [P.SNSCurrents, P.NSNCurrents] = AutoDepomod.V1.Currents.Profile.fromFile(...
                 P.currentFilePath('s'), P.currentFilePath('m'), P.currentFilePath('b'));
+            
+            P.SNSCurrents.project = P;
+            P.NSNCurrents.project = P;
         end
         
         function saveCurrents(P)
@@ -124,6 +127,14 @@ classdef Project < AutoDepomod.Project
                     P.NSNCurrents.(depths{i}),...
                     P.currentFilePath(depths{i})...
                 );
+            end
+        end
+        
+        function exportedProject = exportFiles(P, exportPath, varargin)
+            runs = P.allRuns;
+            
+            for r = 1:runs.size
+                exportedProject = runs.item(r).exportFiles(exportPath, varargin{:}); 
             end
         end
     end

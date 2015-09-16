@@ -4,6 +4,8 @@ classdef Profile < AutoDepomod.Currents.Profile
         s@AutoDepomod.V2.Currents.TimeSeries;
         m@AutoDepomod.V2.Currents.TimeSeries;
         b@AutoDepomod.V2.Currents.TimeSeries;
+        
+        project@AutoDepomod.V2.Project;
     end
     
     methods (Static = true)

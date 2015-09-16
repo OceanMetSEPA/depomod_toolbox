@@ -57,15 +57,6 @@ classdef (Abstract) Project < dynamicprops
             P = AutoDepomod.Project.create([p,'\',name]);
         end
         
-%         function p = path2RootPath(fullPath)
-%             % Converts a directory path for a location within a
-%             % modelling package into the modelling packages root path, i.e.
-%             % retains only the directory paths up to the /depomod
-%             % directory
-%             
-%             p = strsplit(fullPath, {'\\DEPOMOD','\\depomod','\\Depomod'});
-%             p = p{1};
-%         end 
     end
     
     methods  
@@ -214,14 +205,74 @@ classdef (Abstract) Project < dynamicprops
            end            
         end
         
-        function clonedProject = clone(P, namespace)
-            if P.isDataProject
-                clonedProject = AutoDepomod.Data.clone(P, namespace);
-            else
-                error('AutoDepomod:DataError', ...
-                    'Cloning can only be done on projects in the standard data directory');
-            end
+        function ar = allRuns(P)
+           ar = AutoDepomod.Run.Collection(P);
         end
+        
+        function clonedProject = cloneFiles(P, clonePath)
+            % Function uses new parent directory as argument but appends
+            % name as final residing directory for project. This makes it
+            % similar to .exportFiles() function
+            clonePath = [clonePath, '\', P.name];
+            
+            if isdir(clonePath)
+              disp([clonePath, ' already exists. Removing...'])
+              disp('    Removing...')
+
+              rmdir(clonePath, 's');
+            end
+
+            disp('Copying AutoDepomod files: ');
+            disp(['    FROM: ', P.path]);
+            disp(['    TO:   ', clonePath]);
+
+            mkdir(clonePath);
+
+            copyfile(P.path, clonePath, 'f');
+
+            disp('Replacing absolute path references in files under new namespace...')
+
+            % Replace all absolute path references within new tree to reflect new
+            % location
+            %
+            if P.version == 1
+                % list all files within the new directory tree as a CELL ARRAY
+                filesToSub = fileFinder(clonePath, {'.cfg','.cfh','maj.dat','min.dat','min.ing','.log', '.inp','.inr','.out','.txt'}, 'sub', 1, 'type', 'or');
+
+                for i = 1:length(filesToSub)        
+                  if ~isdir(filesToSub{i})
+                    disp(['    Updating ', filesToSub{i}, '...']);
+
+                    % Add trailing slash to substitution terms. This avoids 
+                    % ambiguity where the two paths share a common prefix (e.g.
+                    % /DATA) and prevents potential multiple concatenation
+                    %
+                    AutoDepomod.FileUtils.replaceInFile(filesToSub{i}, [P.path, '\'], [clonePath, '\']); 
+                  end
+                end
+            else
+                filesToSub = fileFinder(clonePath, {'-Location.properties'}, 'sub', 1, 'type', 'or');
+                rootPathString  = strrep(strrep(P.path, '\', '\\'), ':', '\:');
+                clonePathString = strrep(strrep(clonePath, '\', '\\'), ':', '\:');
+
+                disp(['    Updating ', filesToSub, '...']);
+                AutoDepomod.FileUtils.replaceInFile(filesToSub, rootPathString, clonePathString);
+            end
+
+            disp(['Clone of ', P.name, ' completed.']);
+
+            clonedProject = AutoDepomod.Project.create(clonePath);
+        end
+        
+%         function clonedProject = clone2DataNamespace(P, namespace)
+%             if P.isDataProject
+%                 clonePath     = AutoDepomod.Data.namespacePath(P.path, namespace);
+%                 clonedProject = AutoDepomod.Project.clone(P, clonePath);
+%             else
+%                 error('AutoDepomod:DataError', ...
+%                     'Cloning can only be done on projects in the standard data directory');
+%             end
+%         end
         
         function bool = isDataProject(P)
             bool = 0;

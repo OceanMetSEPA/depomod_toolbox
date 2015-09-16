@@ -14,6 +14,7 @@ classdef (Abstract) Profile
             AutoDepomod.FileUtils.isRCMPackageAvailable;
             
             p = RCM.Current.Profile('WaterDepth', P.s.SiteDepth*-1);
+            
             p.addBin(P.b.toRCMTimeSeries(varargin{:}));
             p.addBin(P.m.toRCMTimeSeries(varargin{:}));
             p.addBin(P.s.toRCMTimeSeries(varargin{:}));

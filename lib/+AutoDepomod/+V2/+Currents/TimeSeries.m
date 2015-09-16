@@ -45,7 +45,7 @@ classdef TimeSeries < AutoDepomod.Currents.TimeSeries
             ts = AutoDepomod.V2.Currents.TimeSeries(data{1}, data{2}, data{3}, constructorArgs{:});            
         end
         
-        function sizeInBytes = toFile(c, fileName)
+        function sizeInBytes = writeToFile(c, fileName)
             
             MACHINEFORMAT = 'ieee-be';
             PERMISSION    = 'w';
@@ -90,6 +90,10 @@ classdef TimeSeries < AutoDepomod.Currents.TimeSeries
             TS.v    = v;
             
             TS.setSpeedAndDirection;
+        end
+        
+        function sizeInBytes = toFile(TS, filePath)
+            sizeInBytes = AutoDepomod.V2.Currents.TimeSeries.writeToFile(TS, filePath);
         end
         
     end

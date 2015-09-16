@@ -1,4 +1,4 @@
-classdef Collection
+classdef Collection < dynamicprops
     % Wrapper class for a list of model runs. This class principally 
     % enables single runs to be accessed using chainable function
     % invocations, e.g.
@@ -166,6 +166,51 @@ classdef Collection
             if exist('index', 'var')
                 run = C.list{index};
             end
+        end
+        
+        function rns = runNumbers(C)
+            rns = [];
+            
+            for r = 1:C.size
+                rns(r) = str2num(C.list{r}.runNumber);
+            end
+        end
+        
+        function hrn = highestRunNumber(C)
+            rns = sort(C.runNumbers);
+            hrn = rns(end);
+        end
+        
+        function newRun = new(C, varargin)
+            if C.size == 0
+                error('Cannot create new run. No runs in collection to use as template');
+            elseif C.project.version == 1
+                error('Cannot create new run. Not supported for version 1 projects.')
+            end
+            
+            highestRunNumber = C.highestRunNumber;
+            newRunNumber     = highestRunNumber + 1;
+            
+            templateRun = C.number(highestRunNumber);
+            
+            newConfigPath = regexprep(templateRun.configPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]);
+            newModelPath  = regexprep(templateRun.modelPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]);
+            
+            copyfile(templateRun.cagesPath, regexprep(templateRun.cagesPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]));
+            copyfile(templateRun.modelPath, newModelPath);
+            copyfile(templateRun.inputsFilePath, regexprep(templateRun.inputsFilePath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]));
+            copyfile(templateRun.configPath, newConfigPath);
+            
+            newModelPaths = strsplit(newModelPath, '\');
+            newModelFilename = newModelPaths{end};
+
+            newRun = AutoDepomod.Run.initializeAsSubclass(C.project, newModelFilename);
+
+            C.list{C.size+1,1} = newRun;
+            
+            modelFile = newRun.modelFile;
+            modelFile.Model.run.number=num2str(newRunNumber);
+            modelFile.toFile;
         end
         
     end
