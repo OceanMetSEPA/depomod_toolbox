@@ -85,6 +85,21 @@ classdef Site
                 end
             end
         end
+        
+        function [meanE, meanN] = meanCagePosition(S)
+            cumE = 0;
+            cumN = 0;
+            
+            for i = 1:S.size
+                [meanGroupE, meanGroupN] = S.group(i).meanCagePosition;
+                
+                cumE = cumE + meanGroupE;
+                cumN = cumN + meanGroupN;
+            end
+
+            meanE = cumE/S.size;
+            meanN = cumN/S.size;
+        end
     end
     
 end
