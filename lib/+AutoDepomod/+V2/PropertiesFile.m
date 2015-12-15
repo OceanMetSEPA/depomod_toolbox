@@ -47,6 +47,10 @@ classdef PropertiesFile < dynamicprops
             file = readTxtFile(filePath);
             
             for i = 1:length(file)
+               if  regexp(file{i}, '^#')
+                   continue
+               end
+               
                if  regexp(file{i}, '.*=.*')
                    [strs, ~] = strsplit(file{i}, '=');
                                       
@@ -77,7 +81,7 @@ classdef PropertiesFile < dynamicprops
                        propertyVector(end) = [];
                     end
                 else
-                    lineString = [strjoin(propertyVector, '.'), '=', value];
+                    lineString = [strjoin(propertyVector, '.'), '=', strtrim(value)];
                     fprintf(fid, [lineString, '\n']);
                 end
             end

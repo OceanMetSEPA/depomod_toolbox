@@ -58,6 +58,10 @@ classdef Project < AutoDepomod.Project
             p = strcat(P.depomodPath(), '\resus');           
         end
         
+        function p = gridgenPath(P)
+            p = strcat(P.depomodPath, '\gridgen');
+        end
+        
         function p = logFilePath(P, type)
             % Returns the absolute path of the package's logfile according
             % to the type passed in: 'B', 'E' or 'T'
@@ -71,6 +75,10 @@ classdef Project < AutoDepomod.Project
             else
                p = [];
             end
+        end
+        
+        function p = bathymetryDataPath(P)
+            p =  [P.gridgenPath, '\', P.name, '-min.dat'];
         end
         
         function lf = log(P, type)

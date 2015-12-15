@@ -12,6 +12,7 @@ classdef Java
     methods (Static =true)
         
         function switchRunRelease(releaseDir, exDir)
+            
             if exist(releaseDir, 'dir')
 
                 if exist(exDir, 'dir')

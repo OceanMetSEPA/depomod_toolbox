@@ -74,18 +74,23 @@ classdef Base < AutoDepomod.Run.Base
     end
     
     properties
-        modelFile@AutoDepomod.V2.PropertiesFile
-        configurationFile@AutoDepomod.V2.PropertiesFile
-        inputsFile@AutoDepomod.V2.InputsPropertiesFile
-        exportedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile
-        consolidatedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile
-        solidsSur@AutoDepomod.Sur.Benthic
-        carbonSur@AutoDepomod.Sur.Benthic
+        modelFile@AutoDepomod.V2.PropertiesFile;
+        configurationFile@AutoDepomod.V2.PropertiesFile;
+        inputsFile@AutoDepomod.V2.InputsPropertiesFile;
+        iterationInputsFile@AutoDepomod.V2.InputsPropertiesFile;
+        exportedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile;
+        consolidatedTimeSeriesFile@AutoDepomod.V2.TimeSeriesFile;
+        solidsSur@AutoDepomod.Sur.Benthic;
+        carbonSur@AutoDepomod.Sur.Benthic;
+        iterationRunNumber = [];
+    end
+    
+    properties (Hidden = true)
+        clearRunFileProperties = 0;
     end
     
     methods
-        function R = Base(project, cfgFileName)
-            
+        function R = Base(project, cfgFileName, varargin)
             R.project     = project;
             R.cfgFileName = cfgFileName; % this property is the -Model.properties file in V2
                                               
@@ -98,13 +103,25 @@ classdef Base < AutoDepomod.Run.Base
                 
                 throw(err)
             end
+            
+            R.iterationRunNumber = R.runNumber;
+            
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'iterationRunNumber'
+                  R.iterationRunNumber = varargin{i+1};
+              end
+            end
         end
         
         function name = configFileRoot(R)
             % Returns just the filename for the model run cfg file, omitting the extension
             [~, filename, ~] = fileparts(R.cfgFileName);
             name = strrep(filename, '-Model','');
-            
+        end
+        
+        function name = iterationRunFileRoot(R)
+            name = strrep(R.configFileRoot, ['-', num2str(R.runNumber)], ['-', num2str(R.iterationRunNumber)]);
         end
         
         function p = modelPath(R)
@@ -123,8 +140,8 @@ classdef Base < AutoDepomod.Run.Base
                 index = 0; % Default is the 0 indexed sur file
             end
             
-            oldStylePath = strcat(R.project.intermediatePath, '\', R.configFileRoot, ['-g', num2str(index), '.sur']);
-            newStylePath = strcat(R.project.intermediatePath, '\', R.configFileRoot, ['-', type, '-g', num2str(index), '.sur']);
+            oldStylePath = strcat(R.project.intermediatePath, '\', R.iterationRunFileRoot, ['-g', num2str(index), '.sur']);
+            newStylePath = strcat(R.project.intermediatePath, '\', R.iterationRunFileRoot, ['-', type, '-g', num2str(index), '.sur']);
 
             if exist(oldStylePath, 'file')
                 p = oldStylePath;
@@ -148,14 +165,37 @@ classdef Base < AutoDepomod.Run.Base
         function i = inputsFilePath(R)
             i = [R.project.inputsPath, '\', R.configFileRoot, '-allCages.depomodinputsproperties'];
         end
+         
+        function i = iterationInputsFilePath(R)
+            i = [R.project.intermediatePath, '\', R.iterationRunFileRoot, '-allCages.depomodinputsproperties'];
+        end
         
         function c = consolidatedTimeSeriesFilePath(R)
-            c = [R.project.intermediatePath, '\', R.configFileRoot, '-consolidated-g1.depomodtimeseries'];
+            c = [R.project.intermediatePath, '\', R.iterationRunFileRoot, '-consolidated-g1.depomodtimeseries'];
         end
         
         function e = exportedTimeSeriesFilePath(R)
-            e = [R.project.intermediatePath, '\', R.configFileRoot, '-consolidated-g1.depomodtimeseries'];
+            e = [R.project.intermediatePath, '\', R.iterationRunFileRoot, '-consolidated-g1.depomodtimeseries'];
         end
+        
+        function set.iterationRunNumber(R, number)
+            R.iterationRunNumber = number;
+            R.refreshRunFileproperties;
+        end
+        
+        function refreshRunFileproperties(R)
+            R.clearRunFileProperties = 1;
+            
+            R.inputsFile;
+            R.iterationInputsFile;
+            R.exportedTimeSeriesFile;
+            R.consolidatedTimeSeriesFile;
+            R.solidsSur;
+            R.carbonSur;
+            
+            R.clearRunFileProperties = 0;
+        end
+            
 
         function m = get.modelFile(R)
             if isempty(R.modelFile)
@@ -174,24 +214,39 @@ classdef Base < AutoDepomod.Run.Base
         end
 
         function i = get.inputsFile(R)
-            if isempty(R.inputsFile)
+            if isempty(R.inputsFile) | R.clearRunFileProperties
                 R.inputsFile = AutoDepomod.V2.InputsPropertiesFile(R.inputsFilePath);
             end
             
             i = R.inputsFile;
         end
 
+        function i = get.iterationInputsFile(R)
+            if isempty(R.iterationInputsFile) | R.clearRunFileProperties
+                if exist(R.iterationInputsFilePath, 'file')
+                    R.iterationInputsFile = AutoDepomod.V2.InputsPropertiesFile(R.iterationInputsFilePath);
+                
+                end
+            end
+            
+            i = R.iterationInputsFile;
+        end
+
         function e = get.exportedTimeSeriesFile(R)
-            if isempty(R.exportedTimeSeriesFile)
-                R.exportedTimeSeriesFile = AutoDepomod.V2.TimeSeriesFile(R.exportedTimeSeriesFilePath);
+            if isempty(R.exportedTimeSeriesFile) | R.clearRunFileProperties
+                if exist(R.exportedTimeSeriesFilePath, 'file')
+                    R.exportedTimeSeriesFile = AutoDepomod.V2.TimeSeriesFile(R.exportedTimeSeriesFilePath);
+                end
             end
             
             e = R.exportedTimeSeriesFile;
         end
 
         function c = get.consolidatedTimeSeriesFile(R)
-            if isempty(R.consolidatedTimeSeriesFile)
-                R.consolidatedTimeSeriesFile = AutoDepomod.V2.TimeSeriesFile(R.consolidatedTimeSeriesFilePath);
+            if isempty(R.consolidatedTimeSeriesFile) | R.clearRunFileProperties
+                if exist(R.consolidatedTimeSeriesFilePath, 'file')
+                    R.consolidatedTimeSeriesFile = AutoDepomod.V2.TimeSeriesFile(R.consolidatedTimeSeriesFilePath);
+                end
             end
             
             c = R.consolidatedTimeSeriesFile;
@@ -202,19 +257,28 @@ classdef Base < AutoDepomod.Run.Base
         end
         
         function ss = get.solidsSur(R)
-            if isempty(R.solidsSur)
-                R.solidsSur = R.initializeSur(R.solidsSurPath);
+            if isempty(R.solidsSur) | R.clearRunFileProperties
+                if exist(R.solidsSurPath, 'file')
+                    R.solidsSur = R.initializeSur(R.solidsSurPath);
+                end
             end
             
             ss = R.solidsSur;
         end
         
         function cs = get.carbonSur(R)
-            if isempty(R.carbonSur)
-                R.carbonSur = R.initializeSur(R.carbonSurPath);
+            if isempty(R.carbonSur) | R.clearRunFileProperties
+                if exist(R.carbonSurPath, 'file')
+                    R.carbonSur = R.initializeSur(R.carbonSurPath);
+                end
             end
             
             cs = R.carbonSur;
+        end
+        
+        function b = biomass(R)
+            % Returns the modelled biomass in t
+            b = str2num(R.iterationInputsFile.FeedInputs.biomass);
         end
         
         function cmd = execute(R, varargin)
@@ -229,9 +293,8 @@ classdef Base < AutoDepomod.Run.Base
                 commandStringOnly = 0;
                 useCurrentRelease = 0;
                 modelDefaultsFilePath = '';
-                
-                varargin{:}
-            
+                singleRunOnly = 1;
+                            
                 for i = 1:2:length(varargin)
                   switch varargin{i}
                     case 'release'
@@ -242,6 +305,8 @@ classdef Base < AutoDepomod.Run.Base
                       useCurrentRelease = varargin{i+1};
                     case 'modelDefaultsFilePath'
                       modelDefaultsFilePath = varargin{i+1};
+                    case 'singleRunOnly'
+                      singleRunOnly = varargin{i+1};
                   end
                 end
             
@@ -250,6 +315,7 @@ classdef Base < AutoDepomod.Run.Base
                 end
                 
                 cmd = jv.run(...
+                    'singleRunOnly', singleRunOnly, ...
                     'useCurrentRelease', useCurrentRelease, ...
                     'commandStringOnly', commandStringOnly, ...
                     'modelDefaultsFilePath', modelDefaultsFilePath, ...
@@ -272,27 +338,8 @@ classdef Base < AutoDepomod.Run.Base
         end
         
         function initializeLog(R)
-            logfile = R.project.log(R.typeCode, R.tide); % typeCode defined in subclasses
-            R.log = logfile.run(R.runNumber);
+            R.log = R.project.log(R.typeCode, R.tide); % R.iterationRunNumber presumably added at some point
         end
-        
-%         function coeffs = dispersionCoefficients(R)
-%             cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
-%             coeffs = cfgData.DispersionCoefficients;
-%         end
-%         
-%         function coeff = dispersionCoefficient(R,dim)
-%             coeffs = R.dispersionCoefficients;
-%             coeff = coeffs{find(cellfun(@(x) isequal(x, dim) , coeffs(:, 1))), 2};
-%         end
-%         
-%         function setDispersionCoefficient(R, dim, value)
-%             currentValue = R.dispersionCoefficient(dim);
-%             oldString = AutoDepomod.V1.Run.Base.dispersionCoefficientReplaceString(dim, currentValue);
-%             newString = AutoDepomod.V1.Run.Base.dispersionCoefficientReplaceString(dim, value);
-%             
-%             AutoDepomod.FileUtils.replaceInFile(R.configPath, oldString, newString);
-%         end
                 
     end
 

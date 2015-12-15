@@ -134,6 +134,11 @@ classdef Base < AutoDepomod.Run.Base
             s = R.sur; 
         end
          
+        function b = biomass(R)
+            % Returns the modelled biomass in t
+            b = R.log.EqvBiomass;
+        end
+         
         function coeffs = dispersionCoefficients(R)
             cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
             coeffs = cfgData.DispersionCoefficients;

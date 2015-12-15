@@ -8,6 +8,7 @@ classdef (Abstract) Project < dynamicprops
         TFBZRuns@AutoDepomod.Run.Collection;
         SNSCurrents@AutoDepomod.Currents.Profile;
         NSNCurrents@AutoDepomod.Currents.Profile;
+        bathymetry@AutoDepomod.Bathymetry;
     end
     
      methods (Static = true)
@@ -154,6 +155,15 @@ classdef (Abstract) Project < dynamicprops
             ms = P.SNSCurrents.(depth).meanSpeed;
         end
         
+        function b = get.bathymetry(P)
+            % Lazy load to save time and memory
+            if isempty(P.bathymetry)
+                P.bathymetry = AutoDepomod.Bathymetry(P.bathymetryDataPath);
+            end
+
+            b = P.bathymetry;
+        end
+        
         function r = get.benthicRuns(P)
             % Lazy load to save time and memory
             if isempty(P.benthicRuns)
@@ -251,16 +261,6 @@ classdef (Abstract) Project < dynamicprops
 
             clonedProject = AutoDepomod.Project.create(clonePath);
         end
-        
-%         function clonedProject = clone2DataNamespace(P, namespace)
-%             if P.isDataProject
-%                 clonePath     = AutoDepomod.Data.namespacePath(P.path, namespace);
-%                 clonedProject = AutoDepomod.Project.clone(P, clonePath);
-%             else
-%                 error('AutoDepomod:DataError', ...
-%                     'Cloning can only be done on projects in the standard data directory');
-%             end
-%         end
         
         function bool = isDataProject(P)
             bool = 0;

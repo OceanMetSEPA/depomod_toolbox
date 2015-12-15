@@ -6,6 +6,7 @@ classdef Project < AutoDepomod.Project
     
     properties
         location@AutoDepomod.V2.PropertiesFile;
+        domain@AutoDepomod.V2.PropertiesFile;
     end
     
     methods (Static = true)
@@ -51,6 +52,10 @@ classdef Project < AutoDepomod.Project
             p = [P.depomodPath, '\results'];
         end
         
+        function p = bathymetryDataPath(P)
+            p =  [P.bathymetryPath, '\', P.name, '.depomodbathymetrygridgendata'];
+        end
+        
         function p = locationPropertiesPath(P)
             dirContents = dir(P.modelsPath);
             locationFile = find(cellfun(@(x) ~isempty(strfind(x, '-Location')), {dirContents.name}));
@@ -78,7 +83,7 @@ classdef Project < AutoDepomod.Project
             % package's logfile which corresponds to the passed in type, 'B', 'E' or 'T'
             
             lfpath = P.logFilePath(type, tide);
-            lf = AutoDepomod.(['V', num2str(P.version)]).LogFile(lfpath);
+            lf = AutoDepomod.V2.PropertiesFile(lfpath);
         end
         
         function lf = benthicLog(P, tide)
@@ -108,6 +113,14 @@ classdef Project < AutoDepomod.Project
         
         function p = gridgenIniPath(P)
            p = [P.bathymetryPath, '\', P.name, '.depomodbathymetrygridgenini'];
+        end
+        
+        function d = get.domain(P)
+            if isempty(P.domain)
+                P.domain = AutoDepomod.V2.PropertiesFile(P.gridgenIniPath);
+            end
+            
+            d = P.domain;
         end
         
         function initializeCurrents(P)

@@ -557,11 +557,32 @@ classdef (Abstract) Base < handle
         
         % Plot functions...
         
-        function plot(S)
+        function plot(S, varargin)
             % Returns a surf plot of the modelled values
             
-            figure; surf(S.X, S.Y, S.Z);
-            shading interp;
+            type = 'pcolor';
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+              switch varargin{i}
+                case 'type' % Set easting if passed in explicitly
+                  type = varargin{i+1};
+              end
+            end  
+            
+            figure;
+                        
+            switch type
+                case 'pcolor'
+                  pcolor(S.X, S.Y, S.Z);
+                  shading flat;
+                case 'surf'
+                  surf(S.X, S.Y, S.Z);
+                  shading interp;
+                case 'contour'
+                  contourf(S.X, S.Y, S.Z);
+            end
+            
+            
             title(S.path);
         end
         

@@ -65,7 +65,9 @@ classdef Chemical < AutoDepomod.V2.Run.Base
         
         function cs = get.chemicalSur(R)
             if isempty(R.chemicalSur)
-                R.chemicalSur = R.initializeSur(R.chemicalSurPath);
+                if exist(R.chemicalSurPath, 'file')
+                    R.chemicalSur = R.initializeSur(R.chemicalSurPath);
+                end
             end
             
             cs = R.chemicalSur;
@@ -123,6 +125,20 @@ classdef Chemical < AutoDepomod.V2.Run.Base
         function a = AZE(CR)
             % Returns the AZE associated with the model run
             a = CR.log.FARFIELDAREA;
+        end
+        
+        function refreshRunFileproperties(R)
+            R.clearRunFileProperties = 1;
+            
+            R.inputsFile;
+            R.iterationInputsFile;
+            R.exportedTimeSeriesFile;
+            R.consolidatedTimeSeriesFile;
+            R.solidsSur;
+            R.carbonSur;
+            R.chemicalSur;
+            
+            R.clearRunFileProperties = 0;
         end
     end
     

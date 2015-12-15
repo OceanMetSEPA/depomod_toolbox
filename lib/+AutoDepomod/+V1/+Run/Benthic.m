@@ -58,11 +58,6 @@ classdef Benthic < AutoDepomod.V1.Run.Base
             BR = BR@AutoDepomod.V1.Run.Base(project, cfgFileName);
         end
         
-        function b = biomass(BR)
-            % Returns the modelled biomass in t
-            b = BR.log.EqvBiomass;
-        end
-        
         function mb = massReleased(BR)
             % Returns the mass balance for the model run in kg
             mb = BR.log.MassRelease;

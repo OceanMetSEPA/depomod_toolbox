@@ -120,8 +120,6 @@ classdef Java < AutoDepomod.Java
             if logOutput
                 options = [options, ' /logOutput'];
             end
-            
-            options
         end
     end
     
