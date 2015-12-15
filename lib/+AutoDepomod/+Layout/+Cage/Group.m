@@ -77,7 +77,22 @@ classdef Group
         
         function s = size(G)
             s = length(G.cages);
-        end            
+        end         
+        
+        function [meanE, meanN] = meanCagePosition(G)
+            cumE = 0;
+            cumN = 0;
+            
+            for i = 1:G.size
+                cage = G.cage(i);
+                
+                cumE = cumE + cage.x;
+                cumN = cumN + cage.y;
+            end
+
+            meanE = cumE/G.size;
+            meanN = cumN/G.size;
+        end
         
     end
     
