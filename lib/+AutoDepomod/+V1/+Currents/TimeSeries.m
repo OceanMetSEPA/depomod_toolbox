@@ -18,7 +18,7 @@ classdef TimeSeries < AutoDepomod.Currents.TimeSeries
             fclose(fd);
             
             % Parse out metadata            
-            regexString = '^dT=(\d+)s\s*nT=(\d+)\s*depth=([\d\.]+)m\s*([\w\-]+)@([\d\.]+)m?\s*Tide=([\d\.]+)[mW]?\s*Var=(.+)';
+            regexString = '^dT=(\d+)s\s*nT=(\d+)\s*depth=([\d\.]+)m\s*([\w\-]+)@([\d\.]+)m?\s*Tide=([\d\.]+)[mW]?\s*Var=(.?)';
             
             [~,t]=regexp(header2, regexString, 'match', 'tokens');
             deltaT            = str2num(t{1}{1});
