@@ -13,6 +13,10 @@ classdef Bathymetry < handle
         ngridj = [];
         ngridli = [];
         ngridlj = [];
+        
+        originE = 0;
+        originN = 0;
+        
     end
     
     methods
@@ -125,21 +129,28 @@ classdef Bathymetry < handle
                 end   
             end
             
+            [X,Y] = meshgrid(...
+                B.originE:B.ngridli:(B.originE + (B.ngridli*B.ngridi)), ...
+                B.originN:B.ngridlj:(B.originN + (B.ngridlj*B.ngridj)) ...
+            );
+            
             if contour
-                pl = contourf(flipud(B.data));
+                pl = contourf(X,Y,flipud(B.data));
             else
-                pl = pcolor(flipud(B.data));
+                pl = pcolor(X,Y,flipud(B.data));
             end
             
             shading flat;
-            [cmin,cmax] = caxis;
-            caxis([cmin,9]);
+%             [cmin,cmax] = caxis;
+%             caxis([cmin,10]);
             colormap(bone);
             map = colormap;
             map(end,:) = [0 0.3 0];
             colormap(map);
-            colorbar;
+            c = colorbar;
+            ylabel(c,'depth (m)')
         end
+        
     end
     
 end

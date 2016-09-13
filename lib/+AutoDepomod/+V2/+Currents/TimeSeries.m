@@ -15,7 +15,11 @@ classdef TimeSeries < AutoDepomod.Currents.TimeSeries
                 
                 if ~isempty(strfind(line, dataPrefix))
                     line = strrep(line, dataPrefix, '');
-                    evalc(line);
+                    
+                    % this catches cases where there is no
+                    if regexp(line, '=[-]?[\d]+.?[\d]*$')
+                        evalc(line);
+                    end
                 end
    
                 matchStr = line;

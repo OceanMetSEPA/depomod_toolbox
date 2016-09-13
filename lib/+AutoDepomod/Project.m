@@ -171,6 +171,9 @@ classdef (Abstract) Project < dynamicprops
             % Lazy load to save time and memory
             if isempty(P.bathymetry)
                 P.bathymetry = AutoDepomod.Bathymetry(P.bathymetryDataPath);
+                [E,N] = P.southWest;
+                P.bathymetry.originE = E;
+                P.bathymetry.originN = N;
             end
 
             b = P.bathymetry;

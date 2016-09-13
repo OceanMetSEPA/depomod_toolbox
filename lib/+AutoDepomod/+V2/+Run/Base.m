@@ -159,7 +159,7 @@ classdef Base < AutoDepomod.Run.Base
         end
          
         function cpn = cagesPath(R)
-            cpn = [R.project.cagesPath, '\', R.configFileRoot, '.xml'];
+            cpn = [R.project.cagesPath, '\', R.configFileRoot, '.depomodcagesxml'];
         end
          
         function i = inputsFilePath(R)
@@ -175,7 +175,7 @@ classdef Base < AutoDepomod.Run.Base
         end
         
         function e = exportedTimeSeriesFilePath(R)
-            e = [R.project.intermediatePath, '\', R.iterationRunFileRoot, '-consolidated-g1.depomodtimeseries'];
+            e = [R.project.intermediatePath, '\', R.iterationRunFileRoot, '-exported-g1.depomodtimeseries'];
         end
         
         function set.iterationRunNumber(R, number)
@@ -278,7 +278,11 @@ classdef Base < AutoDepomod.Run.Base
         
         function b = biomass(R)
             % Returns the modelled biomass in t
-            b = str2num(R.iterationInputsFile.FeedInputs.biomass);
+            if isempty(R.iterationInputsFile)
+                b = str2num(R.inputsFile.FeedInputs.biomass);
+            else
+                b = str2num(R.iterationInputsFile.FeedInputs.biomass);
+            end
         end
         
         function cmd = execute(R, varargin)

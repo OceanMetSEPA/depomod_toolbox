@@ -185,47 +185,55 @@ classdef (Abstract) Base < handle
             newSur = S.clone;
             
             if size(newSur.X) == size(otherSur.X) & size(newSur.Y) == size(otherSur.Y) & all(newSur.X == otherSur.X) & all(newSur.Y == otherSur.Y)
-                newSur.Z = newSur.Z + otherSur.Z
+                newSur.Z = newSur.Z + otherSur.Z;
             else
-                swEasting  = min(newSur.X(1), otherSur.X(1));
-                swNorthing = min(newSur.Y(1), otherSur.Y(1));
-                neEasting  = max(newSur.X(end), otherSur.X(end));
-                neNorthing = max(newSur.Y(end), otherSur.Y(end));
-
+                
+                if newSur.X(1) < newSur.X(end)
+                    swEasting  = min(newSur.X(1), otherSur.X(1));
+                    swNorthing = min(newSur.Y(1), otherSur.Y(1));
+                    neEasting  = max(newSur.X(end), otherSur.X(end));
+                    neNorthing = max(newSur.Y(end), otherSur.Y(end));
+                else
+                    swEasting  = min(newSur.X(end), otherSur.X(end));
+                    swNorthing = min(newSur.Y(end), otherSur.Y(end));
+                    neEasting  = max(newSur.X(1), otherSur.X(1));
+                    neNorthing = max(newSur.Y(1), otherSur.Y(1));
+                end
+                
                 % Determine size of domain
                 eastSize  = neEasting - swEasting;
                 northSize = neNorthing - swNorthing;
 
                 % Determine grid cell requirements in each direction
-                eastCells  = ceil(eastSize/25.0);
-                northCells = ceil(northSize/25.0);
+                eastCells  = ceil(eastSize/S.cellSizeX);
+                northCells = ceil(northSize/S.cellSizeY);
 
-                % Create new easterly nodes taking 25 m intervals from sw corner along combined east
+                % Create new easterly nodes taking X m intervals from sw corner along combined east
                 % length
                 eastGrid = zeros(eastCells,1);
 
                 for i = 0:(eastCells-1)
-                    eastGrid(i+1) = swEasting + 25.0*i;
+                    eastGrid(i+1) = swEasting + S.cellSizeX*i;
                 end
 
-                % Create new northerly nodes taking 25 m intervals from sw corner along
+                % Create new northerly nodes taking Y m intervals from sw corner along
                 % combined north length
                 northGrid = zeros(northCells,1);
 
                 for i = 0:(northCells-1)
-                    northGrid(i+1) = swNorthing + 25.0*i;
+                    northGrid(i+1) = swNorthing + S.cellSizeY*i;
                 end
-                
+
                 % Create new m x n grid for combined concentration values
                 Z = zeros(northCells,eastCells);
 
                 % Build new summed Z matrix
                 for i = 1:(eastCells)
-
                     for j = 1:(northCells)
                         Z(j,i) = newSur.valueAt(eastGrid(i), northGrid(j)) + otherSur.valueAt(eastGrid(i), northGrid(j)); % swap east/north, i,j
                     end
                 end
+                
                 
                 % Use the new, extended east and north nodes as X/Y
                 newSur.X = eastGrid;
@@ -503,6 +511,22 @@ classdef (Abstract) Base < handle
             grad = x_gradient + y_gradient;
         end
         
+        function x = domainSizeX(S)
+            x = abs(S.X(1) - S.X(end));
+        end
+        
+        function y = domainSizeY(S)
+            y = abs(S.Y(1) - S.Y(end));
+        end
+        
+        function x = cellSizeX(S)
+            x = abs(mean(diff(S.X)));
+        end
+        
+        function y = cellSizeY(S)
+            y = abs(mean(diff(S.Y)));
+        end
+        
         function dist = distanceToValue(S, x, y, value)
             % Return the distance from a point on the grid to the nearest
             % place which has the given concentration/flux value. 
@@ -522,36 +546,36 @@ classdef (Abstract) Base < handle
                 if value == 0
                     value = value + 0.0000001;
                 end
+                
+                % set max distance
+                dist = sqrt(S.domainSizeX^2 + S.domainSizeY^2); % max distance in domain
+                
+                % Now, attempt to calculate distance from contour
                 [c,h]  = S.contour(value);
+                
+                if ~isempty(c)
 
-                points = []; 
-                i = 1;
+                    points = []; 
+                    i = 1;
 
-                % parse the individual points out of the contour
-                % object
-                while i <= size(c,2)
-                    for j = i+1:i+c(2,i)
-                        points(1:2,end+1) = c(:,j);
+                    % parse the individual points out of the contour
+                    % object
+                    while i <= size(c,2)
+                        for j = i+1:i+c(2,i)
+                            points(1:2,end+1) = c(:,j);
+                        end
+
+                        i = i + c(2,i) + 1;
                     end
 
-                    i = i + c(2,i) + 1;
+                    x_distances = abs(points(1,:) - x);
+                    y_distances = abs(points(2,:) - y);
+
+                    distances = sqrt(x_distances.^2 + y_distances.^2);
+
+                    dist = min(distances);
                 end
 
-                closest = sqrt(1000^2 + 1000^2); % max distance in domain
-
-                % Iterate through points and find closest one
-                for i = 1:size(points,2)
-                    x_distance  = abs(points(1,i) - x);
-                    y_distance  = abs(points(2,i) - y);
-
-                    distance = sqrt(x_distance^2 + y_distance^2);
-
-                    if distance < closest
-                        closest = distance;
-                    end
-                end 
-
-                dist = closest;
              end    
         end
         
