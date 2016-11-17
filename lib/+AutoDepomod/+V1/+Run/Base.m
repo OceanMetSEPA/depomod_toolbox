@@ -158,6 +158,10 @@ classdef Base < AutoDepomod.Run.Base
         end
         
         function newProject = exportFiles(R, exportPath, varargin)
+            if isequal(exportPath(end), '/') | isequal(exportPath(end), '\')
+                exportPath(end) = [];
+            end
+            
             newProject = AutoDepomod.V2.Java.export(R, exportPath, varargin{:})
         end
         

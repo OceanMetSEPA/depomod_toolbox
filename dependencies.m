@@ -1,0 +1,9 @@
+# For use with the PackageManager MATLAB library
+# see https://github.com/OceanMetSEPA/package_manager
+
+# Recording Current Meter analysis package
+name = rcm_toolbox
+source = github
+username = OceanMetSEPA
+repository = rcm_toolbox
+installation.tag = 1

@@ -27,6 +27,10 @@ classdef (Abstract) Project < dynamicprops
         end
         
         function P = create(path)
+            if isequal(path(end), '/') | isequal(path(end), '\')
+                path(end) = [];
+            end
+            
             version = AutoDepomod.Project.version(path);
  
             if version == 1
