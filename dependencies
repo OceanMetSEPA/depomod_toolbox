@@ -6,4 +6,4 @@ name = rcm_toolbox
 source = github
 username = OceanMetSEPA
 repository = rcm_toolbox
-installation.tag = 1
+tag = 0.0.1
