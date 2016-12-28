@@ -134,9 +134,6 @@ classdef Bathymetry < handle
                 B.originN:B.ngridlj:(B.originN + (B.ngridlj*(B.ngridj-1))) ...
             );
             
-        size(X)
-        size(Y)
-        size(B.data)
             if contour
                 pl = contourf(X,Y,flipud(B.data));
             else
@@ -152,6 +149,18 @@ classdef Bathymetry < handle
             colormap(map);
             c = colorbar;
             ylabel(c,'depth (m)')
+        end
+        
+        function boolMatrix = landIndexes(B)
+            boolMatrix = B.data == 10;
+        end
+        
+        function boolMatrix = seabedIndexes(B)
+            boolMatrix = ~B.landIndexes;
+        end
+        
+        function adjustSeabedDepths(B, value)
+            B.data(B.seabedIndexes) = B.data(B.seabedIndexes) - value;
         end
         
     end
