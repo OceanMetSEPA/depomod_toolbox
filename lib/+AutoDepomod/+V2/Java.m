@@ -17,6 +17,8 @@ classdef Java < AutoDepomod.Java
     methods 
         
         function [newProject, oldProject] = exportRun(J, run, newProjectPath, varargin)
+
+            J.exportCommandStringWithOptions(run, newProjectPath, varargin{:})
             system(J.exportCommandStringWithOptions(run, newProjectPath, varargin{:}));
 
             newProject = AutoDepomod.Project.create([newProjectPath, '\', run.project.name]);

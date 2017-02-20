@@ -140,6 +140,7 @@ classdef Base < AutoDepomod.Run.Base
         end
          
         function coeffs = dispersionCoefficients(R)
+            disp('in disp coeff')
             cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
             coeffs = cfgData.DispersionCoefficients;
         end
@@ -158,6 +159,7 @@ classdef Base < AutoDepomod.Run.Base
         end
         
         function newProject = exportFiles(R, exportPath, varargin)
+                        
             if isequal(exportPath(end), '/') | isequal(exportPath(end), '\')
                 exportPath(end) = [];
             end
