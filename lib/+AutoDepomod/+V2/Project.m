@@ -141,6 +141,35 @@ classdef Project < AutoDepomod.Project
                 P.NSNCurrents.(depths{i}).toFile(P.currentFilePath(depths{i}, 'N'));
             end            
         end
+        
+        function renamedProject = rename(P, name)
+            
+            oldName = P.name;
+            newName = name;
+            
+            filesToSub = fileFinder(P.path, {oldName}, 'sub', 1, 'type', 'or');
+
+            for i = 1:length(filesToSub)  
+                fp = filesToSub{i}
+                if ~isdir(fp)
+                    [p,f,x] = fileparts(fp)
+
+                    nameMatch = strfind(f, oldName)
+
+                    if nameMatch
+                        movefile(fp, [p, '\', strrep(f, oldName, newName),x], 'f')
+                    end
+                end
+
+            end
+
+            movefile(P.path,[P.parentPath, '\', newName])
+            % 
+            locationFile = [P.parentPath, '\', newName, '\depomod\models\', newName, '-Location.properties']
+            AutoDepomod.FileUtils.replaceInFile(locationFile, oldName, newName);
+            
+            renamedProject = AutoDepomod.Project.create([P.parentPath, '\', newName]);
+        end
      
     end
     
