@@ -1,4 +1,4 @@
-classdef Bathymetry < handle
+classdef BathymetryFile < handle
     
     properties (Constant = true)
         HeaderLines = 12;
@@ -21,7 +21,7 @@ classdef Bathymetry < handle
     
     methods
         
-        function B = Bathymetry(filePath)
+        function B = BathymetryFile(filePath)
             if exist('filePath', 'var')
                 B.fromFile(filePath);
             end           
