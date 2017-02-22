@@ -42,6 +42,29 @@ classdef (Abstract) Project < dynamicprops
             end
         end
         
+        function P = createFromTemplate(path, name)
+            
+            if isequal(path(end), '/') | isequal(path(end), '\')
+                path(end) = [];
+            end
+            
+            name = strrep(name, ' ', '_');
+            
+            % path is parent path
+            if ~exist(path, 'dir')
+                mkdir(path)
+            end
+            
+            namedProjectPath = [path, '\', name];
+            
+            templateProject = AutoDepomod.Project.create([AutoDepomod.Project.templatePath, '\template'])
+
+            P = templateProject.cloneFiles(path)
+            P.rename(name)
+            
+            P = AutoDepomod.Project.create(namedProjectPath)
+        end
+        
         function P = createFromDataDir(name, namespace)
             % Returns an instance of AutoDepomod.Project representing
             % the package of modelling files specified by name.
@@ -59,6 +82,13 @@ classdef (Abstract) Project < dynamicprops
             end
             
             P = AutoDepomod.Project.create([p,'\',name]);
+        end
+        
+        function p = templatePath()
+            packageDir = what('+AutoDepomod\');
+            dirPathParts = strsplit(packageDir.path, '\');
+
+            p = [strjoin(dirPathParts(1:end-1), '\'), '\Templates'];
         end
         
     end

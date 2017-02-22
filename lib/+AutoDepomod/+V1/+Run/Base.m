@@ -140,7 +140,6 @@ classdef Base < AutoDepomod.Run.Base
         end
          
         function coeffs = dispersionCoefficients(R)
-            disp('in disp coeff')
             cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
             coeffs = cfgData.DispersionCoefficients;
         end
