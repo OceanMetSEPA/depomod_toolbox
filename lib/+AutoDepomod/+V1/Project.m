@@ -5,7 +5,8 @@ classdef Project < AutoDepomod.Project
     end
     
     properties 
-        
+        domain@AutoDepomod.V1.DomainFile;
+        bathymetry@AutoDepomod.V1.BathymetryFile;
     end
     
     methods (Static = true)
@@ -116,6 +117,26 @@ classdef Project < AutoDepomod.Project
         
         function p = gridgenIniPath(P)
            p = [P.depomodPath,'\gridgen\',P.name,'.ini'];
+        end
+        
+        function d = get.domain(P)
+            if isempty(P.domain)
+                P.domain = AutoDepomod.V1.DomainFile(P.gridgenIniPath);
+            end
+            
+            d = P.domain;
+        end    
+        
+        function b = get.bathymetry(P)
+            % Lazy load to save time and memory
+            if isempty(P.bathymetry)
+                P.bathymetry = AutoDepomod.V1.BathymetryFile(P.bathymetryDataPath);
+                [E,N] = P.southWest;
+                P.bathymetry.originE = E;
+                P.bathymetry.originN = N;
+            end
+
+            b = P.bathymetry;
         end
         
         function initializeCurrents(P)

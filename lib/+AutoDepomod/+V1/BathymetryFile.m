@@ -16,7 +16,6 @@ classdef BathymetryFile < handle
         
         originE = 0;
         originN = 0;
-        
     end
     
     methods
@@ -141,8 +140,7 @@ classdef BathymetryFile < handle
             end
             
             shading flat;
-%             [cmin,cmax] = caxis;
-%             caxis([cmin,10]);
+            
             colormap(bone);
             map = colormap;
             map(end,:) = [0 0.3 0];

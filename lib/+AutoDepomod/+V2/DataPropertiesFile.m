@@ -4,6 +4,9 @@ classdef DataPropertiesFile < AutoDepomod.V2.PropertiesFile
         data = [];
     end
     
+    % must implement a dataColumnCount property or method on this or
+    % subclass
+    
     methods
         
         function DPF = DataPropertiesFile(filePath)

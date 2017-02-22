@@ -6,7 +6,9 @@ classdef Project < AutoDepomod.Project
     
     properties
         location@AutoDepomod.V2.PropertiesFile;
-        domain@AutoDepomod.V2.PropertiesFile;
+%         domain@AutoDepomod.V2.PropertiesFile; % now in one file -
+%         bathymetry
+        bathymetry@AutoDepomod.V2.BathymetryFile
     end
     
     methods (Static = true)
@@ -50,10 +52,6 @@ classdef Project < AutoDepomod.Project
         
         function p = resultsPath(P)
             p = [P.depomodPath, '\results'];
-        end
-        
-        function p = bathymetryDataPath(P)
-            p =  [P.bathymetryPath, '\', P.name, '.depomodbathymetrygridgendata'];
         end
         
         function p = locationPropertiesPath(P)
@@ -111,16 +109,31 @@ classdef Project < AutoDepomod.Project
            p = [P.flowmetryPath, '\', P.name,'-', upper(tide),'-', lower(depth),'.depomodflowmetryproperties'];
         end
         
-        function p = gridgenIniPath(P)
-           p = [P.bathymetryPath, '\', P.name, '.depomodbathymetrygridgenini'];
+        function p = gridgenDataPath(P)
+            p =  [P.bathymetryPath, '\', P.name, '.depomodbathymetrygridgendata'];
         end
         
-        function d = get.domain(P)
-            if isempty(P.domain)
-                P.domain = AutoDepomod.V2.PropertiesFile(P.gridgenIniPath);
+        function p = gridgenIniPath(P)
+           p = [P.bathymetryPath, '\', P.name, '.depomodbathymetrygridgenini'];
+        end    
+        
+        function p = bathymetryDataPath(P)
+            p =  [P.bathymetryPath, '\', P.name, '.depomodbathymetryproperties'];
+        end
+         
+        function b = get.bathymetry(P)
+            % Lazy load to save time and memory
+            if isempty(P.bathymetry)
+                if exist(P.bathymetryDataPath)
+                    P.bathymetry = AutoDepomod.V2.BathymetryFile(P.bathymetryDataPath);
+                elseif exist(P.gridgenDataPath) & exist(P.gridgenIniPath)
+                    P.bathymetry = AutoDepomod.V2.BathymetryFile.createFromGridgenFiles(P.gridgenIniPath,P.gridgenDataPath);
+                else
+                    error('No bathy files found')
+                end
             end
-            
-            d = P.domain;
+
+            b = P.bathymetry;
         end
         
         function initializeCurrents(P)

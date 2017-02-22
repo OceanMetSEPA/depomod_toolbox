@@ -8,7 +8,6 @@ classdef (Abstract) Project < dynamicprops
         TFBZRuns@AutoDepomod.Run.Collection;
         SNSCurrents@AutoDepomod.Currents.Profile;
         NSNCurrents@AutoDepomod.Currents.Profile;
-        bathymetry@AutoDepomod.Bathymetry;
     end
     
      methods (Static = true)
@@ -169,18 +168,6 @@ classdef (Abstract) Project < dynamicprops
         
         function ms = meanCurrentSpeed(P, depth)
             ms = P.SNSCurrents.(depth).meanSpeed;
-        end
-        
-        function b = get.bathymetry(P)
-            % Lazy load to save time and memory
-            if isempty(P.bathymetry)
-                P.bathymetry = AutoDepomod.Bathymetry(P.bathymetryDataPath);
-                [E,N] = P.southWest;
-                P.bathymetry.originE = E;
-                P.bathymetry.originN = N;
-            end
-
-            b = P.bathymetry;
         end
         
         function r = get.benthicRuns(P)
