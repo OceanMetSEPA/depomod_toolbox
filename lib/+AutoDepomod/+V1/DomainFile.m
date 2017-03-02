@@ -14,7 +14,7 @@ classdef DomainFile
             
             DF.path = path;
             
-            [minE, maxE, minN, maxN] = AutoDepomod.FileUtils.Inputs.Readers.readGridgenIni(P.gridgenIniPath);
+            [minE, maxE, minN, maxN] = AutoDepomod.FileUtils.Inputs.Readers.readGridgenIni(DF.path);
             
             DF.DataAreaXMin = minE;
             DF.DataAreaXMax = maxE;

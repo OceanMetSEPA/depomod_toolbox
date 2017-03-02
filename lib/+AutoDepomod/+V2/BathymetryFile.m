@@ -8,17 +8,25 @@ classdef BathymetryFile < AutoDepomod.V2.DataPropertiesFile
     methods (Static = true)
         
         function B = createFromGridgenFiles(iniFile, dataFile)
-            ini       = AutoDepomod.V1.DomainFile(iniFile);
-            bathyData = AutoDepomod.V1.BathymetryFile(dataFile);
+            template = [AutoDepomod.Project.templatePath,...
+                '\template\depomod\bathymetry\template.depomodbathymetryproperties'];
             
-            B = AutoDepomod.V2.BathymetryFile()
+            B = AutoDepomod.V2.BathymetryFile(template)
             
-            B.GridgenBathymetryFile = bathyData;
-            B.GridgenDomainFile     = ini;
+            B.GridgenDomainFile     = AutoDepomod.V1.DomainFile(iniFile);
+            B.GridgenBathymetryFile = AutoDepomod.V1.BathymetryFile(dataFile);
             
-            B.data = bathyData.data;
+            B.path = [];
+                        
+            B.data = B.GridgenBathymetryFile.data;
             
+            B.Domain.spatial.minX = num2str(B.GridgenDomainFile.DataAreaXMin);
+            B.Domain.spatial.maxX = num2str(B.GridgenDomainFile.DataAreaXMax);
+            B.Domain.spatial.minY = num2str(B.GridgenDomainFile.DataAreaYMin);
+            B.Domain.spatial.maxY = num2str(B.GridgenDomainFile.DataAreaYMax);
             
+            B.Domain.data.numberOfElementsX = num2str(B.GridgenBathymetryFile.ngridi);
+            B.Domain.data.numberOfElementsY = num2str(B.GridgenBathymetryFile.ngridj);
         end
     end
     
@@ -78,6 +86,18 @@ classdef BathymetryFile < AutoDepomod.V2.DataPropertiesFile
         end
         
         function sizeInBytes = toGridgenFiles(B)
+            
+            B.GridgenBathymetryFile.data = B.data;
+            B.GridgenBathymetryFile.ngridi = B.Domain.data.numberOfElementsX;
+            B.GridgenBathymetryFile.ngridj = B.Domain.data.numberOfElementsY;
+            
+            B.GridgenDomainFile.DataAreaXMin = B.Domain.spatial.minX;
+            B.GridgenDomainFile.DataAreaXMax = B.Domain.spatial.maxX;
+            B.GridgenDomainFile.DataAreaYMin = B.Domain.spatial.minY;
+            B.GridgenDomainFile.DataAreaYMax = B.Domain.spatial.maxY;
+            
+            B.GridgenBathymetryFile.toFile
+            B.GridgenDomainFile.toFile
             
         end
         

@@ -109,6 +109,10 @@ classdef Project < AutoDepomod.Project
            p = [P.flowmetryPath, '\', P.name,'-', upper(tide),'-', lower(depth),'.depomodflowmetryproperties'];
         end
         
+        function p = flowmetryFilePath(P)
+           p = [P.flowmetryPath, '\', P.name, '.depomodflowmetryproperties'];
+        end
+        
         function p = gridgenDataPath(P)
             p =  [P.bathymetryPath, '\', P.name, '.depomodbathymetrygridgendata'];
         end
