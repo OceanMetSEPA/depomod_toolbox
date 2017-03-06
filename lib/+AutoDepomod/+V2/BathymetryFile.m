@@ -11,7 +11,7 @@ classdef BathymetryFile < AutoDepomod.V2.DataPropertiesFile
             template = [AutoDepomod.V2.Project.templatePath,...
                 '\template\depomod\bathymetry\template.depomodbathymetryproperties'];
             
-            B = AutoDepomod.V2.BathymetryFile(template)
+            B = AutoDepomod.V2.BathymetryFile(template);
             
             B.GridgenDomainFile     = AutoDepomod.V1.DomainFile(iniFile);
             B.GridgenBathymetryFile = AutoDepomod.V1.BathymetryFile(dataFile);
@@ -86,7 +86,6 @@ classdef BathymetryFile < AutoDepomod.V2.DataPropertiesFile
         end
         
         function sizeInBytes = toGridgenFiles(B)
-            
             B.GridgenBathymetryFile.data = B.data;
             B.GridgenBathymetryFile.ngridi = B.Domain.data.numberOfElementsX;
             B.GridgenBathymetryFile.ngridj = B.Domain.data.numberOfElementsY;
@@ -96,9 +95,8 @@ classdef BathymetryFile < AutoDepomod.V2.DataPropertiesFile
             B.GridgenDomainFile.DataAreaYMin = B.Domain.spatial.minY;
             B.GridgenDomainFile.DataAreaYMax = B.Domain.spatial.maxY;
             
-            B.GridgenBathymetryFile.toFile
-            B.GridgenDomainFile.toFile
-            
+            B.GridgenBathymetryFile.toFile;
+            B.GridgenDomainFile.toFile;
         end
         
         function boolMatrix = landIndexes(B)

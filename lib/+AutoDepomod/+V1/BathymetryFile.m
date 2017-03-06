@@ -92,7 +92,7 @@ classdef BathymetryFile < handle
         function sizeInBytes = toFile(B, filePath)
             if ~exist('filePath', 'var')
                 filePath = B.path;
-                warning('No file path given. Existing source file will be overwritten.')
+                warning('No file path given. Existing source file will be overwritten.');
             end
             
             fid = fopen(filePath, 'w');
@@ -102,7 +102,7 @@ classdef BathymetryFile < handle
             end
             
             for j = 1:size(B.data, 1)
-                row = B.data(j,:).*-1.0
+                row = B.data(j,:).*-1.0;
                 row = num2cell(row);
                 row = cellfun(@num2str, row, 'UniformOutput', 0);
                 row = strjoin(row, '  ');

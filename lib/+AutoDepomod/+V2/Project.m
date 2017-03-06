@@ -176,7 +176,7 @@ classdef Project < AutoDepomod.Project
                 elseif exist(P.gridgenDataPath) & exist(P.gridgenIniPath)
                     P.bathymetry = AutoDepomod.V2.BathymetryFile.createFromGridgenFiles(P.gridgenIniPath,P.gridgenDataPath);
                 else
-                    error('No bathy files found')
+                    error('No bathy files found');
                 end
             end
 
