@@ -53,6 +53,11 @@ classdef Benthic < AutoDepomod.V2.Run.Base
         typeCode = 'B';
     end
     
+    properties
+        defaultPlotLevels = [4,192,1553,10000];
+        defaultUnit = 'g m^{-2} y^{-1}';
+    end
+    
     methods      
         function BR = Benthic(project, cfgFileName)
             BR = BR@AutoDepomod.V2.Run.Base(project, cfgFileName);

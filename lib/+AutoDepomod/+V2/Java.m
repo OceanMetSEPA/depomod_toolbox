@@ -18,7 +18,6 @@ classdef Java < AutoDepomod.Java
         
         function [newProject, oldProject] = exportRun(J, run, newProjectPath, varargin)
 
-            J.exportCommandStringWithOptions(run, newProjectPath, varargin{:})
             system(J.exportCommandStringWithOptions(run, newProjectPath, varargin{:}));
 
             newProject = AutoDepomod.Project.create([newProjectPath, '\', run.project.name]);
@@ -31,13 +30,14 @@ classdef Java < AutoDepomod.Java
         
         function options = buildExportCommandOptions(J, run, newProjectPath, varargin)
             verbose   = 1;
-            logOutput = 1;
+            logOutput = 0;
             
             for i = 1:2:length(varargin)
               switch varargin{i}
                 case 'logOutput'
                   logOutput = varargin{i+1};
                 case 'verbose'
+                  verbose = varargin{i+1};
               end
             end
                 
@@ -61,7 +61,7 @@ classdef Java < AutoDepomod.Java
             siteName = '';
             dataPath = '';
             singleRunOnly = 1;
-            logOutput     = 1;
+            logOutput     = 0;
             verbose       = 1;
             modelParametersFile    = '';
             modelLocationFile      = '';

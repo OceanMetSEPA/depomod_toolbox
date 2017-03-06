@@ -10,7 +10,7 @@ classdef Square < AutoDepomod.Layout.Cage.Base
         end
         
         function v = volume(C)
-            v = C.area * C.depth;
+            v = C.area * C.height;
         end
         
         function p = perimeter(C)

@@ -14,12 +14,12 @@ classdef (Abstract) Base
     
     methods (Static = true)
         
-        function cage = fromXMLDOM(cageDOM)            
+        function cage = fromXMLDOM(cageDOM) 
             type = char(cageDOM.getElementsByTagName('cageType').item(0).getTextContent);
             
             if isequal(type, 'CIRCULAR')
                 cage = AutoDepomod.Layout.Cage.Circle;
-            elseif isequal(type, 'SQUARE')
+            elseif isequal(type, 'SQUARE') | isequal(type, 'RECTANGULAR')
                 cage = AutoDepomod.Layout.Cage.Square;
             end
             

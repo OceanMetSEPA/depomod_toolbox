@@ -53,11 +53,12 @@ classdef EmBZ < AutoDepomod.V2.Run.Chemical
     end
     
     properties
-        
         % The quantity which is estiamted to be in the environment as of the 118 day mark (which is the 
         % compliance interval). It is a function of the excretion rate and the decay rate.
         exportFactor = 0.74;
         chemicalSurWithDecay@AutoDepomod.Sur.Residue;
+        defaultPlotLevels = [0.1, 0.763, 2.0, 10.0 25.0];
+        defaultUnit = 'ug kg^{-1}';
     end
     
     methods      

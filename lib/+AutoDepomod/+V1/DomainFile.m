@@ -32,10 +32,10 @@ classdef DomainFile
 
             fid = fopen(filePath, 'w');
 
-            fprintf(fid, ['DataAreaXMin=', DF.DataAreaXMin, '\n']);
-            fprintf(fid, ['DataAreaXMax=', DF.DataAreaXMax, '\n']);
-            fprintf(fid, ['DataAreaYMin=', DF.DataAreaYMin, '\n']);
-            fprintf(fid, ['DataAreaYMax=', DF.DataAreaYMax, '\n']);
+            fprintf(fid, ['DataAreaXMin=', num2str(DF.DataAreaXMin), '\n']);
+            fprintf(fid, ['DataAreaXMax=', num2str(DF.DataAreaXMax), '\n']);
+            fprintf(fid, ['DataAreaYMin=', num2str(DF.DataAreaYMin), '\n']);
+            fprintf(fid, ['DataAreaYMax=', num2str(DF.DataAreaYMax), '\n']);
 
             fclose(fid);
             

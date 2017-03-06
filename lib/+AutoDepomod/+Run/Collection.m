@@ -181,6 +181,15 @@ classdef Collection < dynamicprops
             hrn = rns(end);
         end
         
+        function fr = first(C)
+            fr = C.item(1);
+            
+        end
+        
+        function lr = last(C)
+            lr = C.number(C.highestRunNumber);            
+        end
+        
         function newRun = new(C, varargin)
             if C.size == 0
                 error('Cannot create new run. No runs in collection to use as template');
@@ -201,6 +210,10 @@ classdef Collection < dynamicprops
             copyfile(templateRun.inputsFilePath, regexprep(templateRun.inputsFilePath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]));
             copyfile(templateRun.configPath, newConfigPath);
             
+            if exist(templateRun.physicalPropertiesPath, 'file')
+                copyfile(templateRun.physicalPropertiesPath, regexprep(templateRun.physicalPropertiesPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]));
+            end
+
             newModelPaths = strsplit(newModelPath, '\');
             newModelFilename = newModelPaths{end};
 

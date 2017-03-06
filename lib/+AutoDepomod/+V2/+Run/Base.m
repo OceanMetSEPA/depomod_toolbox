@@ -75,6 +75,7 @@ classdef Base < AutoDepomod.Run.Base
     
     properties
         modelFile@AutoDepomod.V2.PropertiesFile;
+        physicalPropertiesFile@AutoDepomod.V2.PropertiesFile;
         configurationFile@AutoDepomod.V2.PropertiesFile;
         inputsFile@AutoDepomod.V2.InputsPropertiesFile;
         iterationInputsFile@AutoDepomod.V2.InputsPropertiesFile;
@@ -132,6 +133,16 @@ classdef Base < AutoDepomod.Run.Base
         function p = configPath(R)
             % Returns full path for the model run cfg file
             p = strcat(R.project.modelsPath, '\', R.configFileRoot, '-Configuration.properties');
+        end
+        
+        function p = physicalPropertiesPath(R)
+            % Returns full path for the model physical properties file
+            p = strcat(R.project.modelsPath, '\', R.configFileRoot, '.depomodphysicalproperties');
+        end
+        
+        function p = logFilePath(R)
+            % Returns full path for the model log file
+            p = strcat(R.project.intermediatePath, '\', R.configFileRoot, '.depomodrunlog');
         end
         
         function p = surPath(R, type, index)
@@ -216,6 +227,7 @@ classdef Base < AutoDepomod.Run.Base
         function i = get.inputsFile(R)
             if isempty(R.inputsFile) | R.clearRunFileProperties
                 R.inputsFile = AutoDepomod.V2.InputsPropertiesFile(R.inputsFilePath);
+                R.inputsFile.run = R;
             end
             
             i = R.inputsFile;
@@ -298,6 +310,7 @@ classdef Base < AutoDepomod.Run.Base
                 useCurrentRelease = 0;
                 modelDefaultsFilePath = '';
                 singleRunOnly = 1;
+                logOutput = 0;
                             
                 for i = 1:2:length(varargin)
                   switch varargin{i}
@@ -311,6 +324,8 @@ classdef Base < AutoDepomod.Run.Base
                       modelDefaultsFilePath = varargin{i+1};
                     case 'singleRunOnly'
                       singleRunOnly = varargin{i+1};
+                    case 'logOutput'
+                      logOutput = varargin{i+1};
                   end
                 end
             
@@ -327,7 +342,8 @@ classdef Base < AutoDepomod.Run.Base
                     'dataPath', dataPath, ...
                     'modelParametersFile',    R.cfgFileName, ...
                     'modelLocationFile',      [R.project.name, '-Location.properties'], ...
-                    'modelConfigurationFile', [R.configFileRoot, '-Configuration.properties'] ...
+                    'modelConfigurationFile', [R.configFileRoot, '-Configuration.properties'], ...
+                    'logOutput', logOutput ...
                     );
             else
                error('AutoDepomod:Java', ...
@@ -342,7 +358,21 @@ classdef Base < AutoDepomod.Run.Base
         end
         
         function initializeLog(R)
-            R.log = R.project.log(R.typeCode, R.tide); % R.iterationRunNumber presumably added at some point
+            R.log = AutoDepomod.V2.PropertiesFile(R.logFilePath); % R.iterationRunNumber presumably added at some point
+        end
+        
+        function ppf = get.physicalPropertiesFile(R)
+            if isempty(R.physicalPropertiesFile)
+                if ~exist(R.physicalPropertiesPath, 'file')
+                    R.physicalPropertiesFile = AutoDepomod.V2.PropertiesFile([AutoDepomod.V2.Project.templatePath, '\template_physical.properties']);
+                    R.physicalPropertiesFile.path = R.physicalPropertiesPath;
+                    R.physicalPropertiesFile.toFile;
+                else
+                    R.physicalPropertiesFile = AutoDepomod.V2.PropertiesFile(R.physicalPropertiesPath);
+                end
+            end
+            
+            ppf = R.physicalPropertiesFile;
         end
                 
     end

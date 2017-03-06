@@ -8,7 +8,7 @@ classdef BathymetryFile < AutoDepomod.V2.DataPropertiesFile
     methods (Static = true)
         
         function B = createFromGridgenFiles(iniFile, dataFile)
-            template = [AutoDepomod.Project.templatePath,...
+            template = [AutoDepomod.V2.Project.templatePath,...
                 '\template\depomod\bathymetry\template.depomodbathymetryproperties'];
             
             B = AutoDepomod.V2.BathymetryFile(template)
@@ -112,6 +112,36 @@ classdef BathymetryFile < AutoDepomod.V2.DataPropertiesFile
         function adjustSeabedDepths(B, value)
             B.data(B.seabedIndexes) = B.data(B.seabedIndexes) - value;
             B.data(B.data >= 10) = 10;
+        end
+        
+        function smoothSeabed(B)
+            [seabedX,seabedY] = find(B.data ~= 10);
+            
+            for c = 1:length(seabedX)
+                x = seabedX(c);
+                y = seabedY(c);
+                
+                if x ~= 1 & x ~= size(B.data,1) & y ~= 1 & y ~= size(B.data,2)
+                    B.data(x,y) = (B.data(x+1,y) + B.data(x-1,y) + B.data(x,y+1) + B.data(x,y-1))/4.0;
+                elseif x == 1 & y == 1
+                    B.data(x,y) = (B.data(x+1,y) + B.data(x,y+1))/2.0;
+                elseif x == 1 & y == size(B.data,2)
+                    B.data(x,y) = (B.data(x+1,y) + B.data(x,y-1))/2.0;
+                elseif x == size(B.data,1) & y == 1
+                    B.data(x,y) = (B.data(x-1,y) + B.data(x,y+1))/2.0;
+                elseif x == size(B.data,1) & y == size(B.data,2)
+                    B.data(x,y) = (B.data(x-1,y) + B.data(x,y-1))/2.0;
+                elseif x == 1
+                    B.data(x,y) = (B.data(x+1,y) + B.data(x,y-1) + B.data(x,y+1))/3.0;
+                elseif y == 1
+                    B.data(x,y) = (B.data(x+1,y) + B.data(x-1,y) + B.data(x,y+1))/3.0;
+                elseif x == size(B.data,1) 
+                    B.data(x,y) = (B.data(x-1,y) + B.data(x,y-1) + B.data(x,y+1))/3.0;
+                 elseif y == size(B.data,2)
+                    B.data(x,y) = (B.data(x+1,y) + B.data(x-1,y) + B.data(x,y-1))/3.0;
+                end
+
+            end
         end
         
         

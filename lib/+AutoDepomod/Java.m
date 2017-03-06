@@ -86,26 +86,20 @@ classdef Java
             AutoDepomod.Java.switchRunRelease(releaseDir, J.runDir);
         end
         
-        function str = run(J, varargin)
-            str = J.runCommandStringWithOptions(varargin{:});
+        function command = run(J, varargin)
+            command = J.runCommandStringWithOptions(varargin{:});
             commandStringOnly = 0;
-            useCurrentRelease = 0;
+            useCurrentRelease = 1;
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
                 case 'commandStringOnly'
                   commandStringOnly = varargin{i+1};
-                case 'useCurrentRelease'
-                  useCurrentRelease = varargin{i+1};
               end
             end
             
-            if ~commandStringOnly
-                if ~useCurrentRelease
-                    J.makeRunRelease;
-                end
-                
-                system(str);
+            if ~commandStringOnly                
+                system(['C: & ', command, ' &']);
             end
         end
         

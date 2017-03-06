@@ -17,6 +17,49 @@ classdef Project < AutoDepomod.Project
             P = AutoDepomod.V2.Project(path);
         end
         
+        function P = createFromTemplate(path, name)
+            
+            if isequal(path(end), '/') | isequal(path(end), '\')
+                path(end) = [];
+            end
+            
+            name = strrep(name, ' ', '_');
+            
+            % path is parent path
+            if ~exist(path, 'dir')
+                mkdir(path);
+            end
+            
+            namedProjectPath = [path, '\', name];
+            
+            templateProject = AutoDepomod.Project.create([AutoDepomod.V2.Project.templatePath, '\template']);
+
+            P = templateProject.cloneFiles(path);
+            
+            P.rename(name);
+            
+            newDirs = {'ant','batch','intermediate','private','results','working'};
+            
+            for nd = 1:length(newDirs)
+                 mkdir([namedProjectPath, '\depomod\', newDirs{nd}]); 
+            end
+                        
+            % refresh
+            P = AutoDepomod.Project.create(namedProjectPath);
+            
+            % explicitly add new path reference where none existed in
+            % template
+            AutoDepomod.FileUtils.replaceInFile(P.locationPropertiesPath, 'project.directory=', ['project.directory=', strrep(strrep(P.path, '\','\\'),':','\:')]);
+        
+        end
+        
+        function p = templatePath()
+            packageDir = what('+AutoDepomod\');
+            dirPathParts = strsplit(packageDir.path, '\');
+
+            p = [strjoin(dirPathParts(1:end-1), '\'), '\Templates'];
+        end
+        
     end
     
     methods
@@ -164,26 +207,28 @@ classdef Project < AutoDepomod.Project
             oldName = P.name;
             newName = name;
             
+            % change absolute path in locations file
+            AutoDepomod.FileUtils.replaceInFile(P.locationPropertiesPath, oldName, newName);     
+            
+            % change all file names
             filesToSub = fileFinder(P.path, {oldName}, 'sub', 1, 'type', 'or');
 
             for i = 1:length(filesToSub)  
-                fp = filesToSub{i}
+                fp = filesToSub{i};
                 if ~isdir(fp)
-                    [p,f,x] = fileparts(fp)
+                    [p,f,x] = fileparts(fp);
 
-                    nameMatch = strfind(f, oldName)
+                    nameMatch = strfind(f, oldName);
 
                     if nameMatch
-                        movefile(fp, [p, '\', strrep(f, oldName, newName),x], 'f')
+                        movefile(fp, [p, '\', strrep(f, oldName, newName),x], 'f');
                     end
                 end
 
             end
 
-            movefile(P.path,[P.parentPath, '\', newName])
-            % 
-            locationFile = [P.parentPath, '\', newName, '\depomod\models\', newName, '-Location.properties']
-            AutoDepomod.FileUtils.replaceInFile(locationFile, oldName, newName);
+            % change project name
+            movefile(P.path,[P.parentPath, '\', newName]);
             
             renamedProject = AutoDepomod.Project.create([P.parentPath, '\', newName]);
         end

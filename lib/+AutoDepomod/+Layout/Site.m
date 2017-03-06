@@ -62,8 +62,8 @@ classdef Site
             a = 0;
             
             for i = 1:S.size
-                group = S.group{i};
-                a = a + group.area;
+                group = S.group(i);
+                a = a + group.cageArea;
             end            
         end
         
@@ -71,8 +71,8 @@ classdef Site
             v = 0;
             
             for i = 1:S.size
-                group = S.group{i};
-                v = v + group.volume;
+                group = S.group(i);
+                v = v + group.cageVolume;
             end            
         end
         
