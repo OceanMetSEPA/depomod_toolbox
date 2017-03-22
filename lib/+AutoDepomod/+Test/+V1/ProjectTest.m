@@ -113,7 +113,7 @@ classdef ProjectTest < matlab.unittest.TestCase
         function testBenthicLog(testCase)
             benthicLog = testCase.Project.benthicLog;
             
-            verifyInstanceOf(testCase, benthicLog, 'AutoDepomod.LogFile');
+            verifyInstanceOf(testCase, benthicLog, 'AutoDepomod.V1.LogFile');
             verifyEqual(testCase, benthicLog.filePath, [testCase.Path, '\depomod\resus\Gorsten-BENTHIC.log']);
             verifyEqual(testCase, size(benthicLog.table), [8 36]);
         end
@@ -121,7 +121,7 @@ classdef ProjectTest < matlab.unittest.TestCase
         function testEmBZLog(testCase)
             EmBZLog = testCase.Project.EmBZLog;
             
-            verifyInstanceOf(testCase, EmBZLog,     'AutoDepomod.LogFile');
+            verifyInstanceOf(testCase, EmBZLog,     'AutoDepomod.V1.LogFile');
             verifyEqual(testCase, EmBZLog.filePath, [testCase.Path, '\depomod\resus\Gorsten-EMBZ.log']);
             verifyEqual(testCase, size(EmBZLog.table), [22 24]);
         end
@@ -129,7 +129,7 @@ classdef ProjectTest < matlab.unittest.TestCase
         function testTFBZLog(testCase)
             TFBZLog = testCase.Project.TFBZLog;
             
-            verifyInstanceOf(testCase, TFBZLog, 'AutoDepomod.LogFile');
+            verifyInstanceOf(testCase, TFBZLog, 'AutoDepomod.V1.LogFile');
             verifyEqual(testCase, TFBZLog.filePath, [testCase.Path, '\depomod\resus\Gorsten-TFBZ.log']);
             verifyEqual(testCase, size(TFBZLog.table), [16 24]);
         end

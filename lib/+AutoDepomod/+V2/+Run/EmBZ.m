@@ -118,13 +118,6 @@ classdef EmBZ < AutoDepomod.V2.Run.Chemical
             end
         end
         
-        function days = duration(EBR)
-            % Returns the number of days represented by the model run (118,
-            % 223)
-            [~, t] = regexp(EBR.log.FeedFile, '\-(\d+)\.csv', 'match','tokens');            
-            days = str2double(cell2mat(t{1}));
-        end
-        
     end 
     
 end

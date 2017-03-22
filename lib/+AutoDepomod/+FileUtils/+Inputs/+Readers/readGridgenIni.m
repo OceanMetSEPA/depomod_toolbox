@@ -28,7 +28,7 @@ function [ minE, maxE, minN, maxN ] = readGridgenIni( path )
 
     % Iterate through each line and split into cell array representing the
     % label and the value
-    data = cellfun(@(x) strsplit(char(x),  '='), readTxtFile(path), 'UniformOutput', false);
+    data = cellfun(@(x) strsplit(char(x),  '='), AutoDepomod.FileUtils.readTxtFile(path), 'UniformOutput', false);
         
     % Anonymous function - find the easting/northing which corresponds to the passed label
     % Compare strings after lowercasing them. This avoids any case

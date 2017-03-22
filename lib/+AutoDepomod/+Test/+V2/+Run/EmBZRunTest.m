@@ -39,15 +39,11 @@ classdef EmBZRunTest < matlab.unittest.TestCase
         function testRunPrnWithDecayPath(testCase)
             verifyEqual(testCase, testCase.Run.prnPath(1), [testCase.Path, '\depomod\resus\Gorsten-E-S-20g1.prn']);
         end
-        
-        function testRunDuration(testCase)
-            verifyEqual(testCase, testCase.Run.duration, 118);
-        end
-     
+             
         function testRunSurWithDecay(testCase)
             sur = testCase.Run.surWithDecay;
             
-            verifyInstanceOf(testCase, sur, 'AutoDepomod.Sur');
+            verifyInstanceOf(testCase, sur, 'AutoDepomod.Sur.Residue');
             verifyEqual(testCase, sur.path, [testCase.Path, '\depomod\resus\Gorsten-E-S-20g1.sur']);
             verifySize(testCase, sur.rawData.xCoords, [1521 1]); % ensure data pulled in successfully
         end
@@ -55,8 +51,7 @@ classdef EmBZRunTest < matlab.unittest.TestCase
         function testRunPrnWithDecay(testCase)
             prn = testCase.Run.prnWithDecay;
             
-            verifyInstanceOf(testCase, prn, 'AutoDepomod.PrnSeries');
-            verifyEqual(testCase, prn.path, [testCase.Path, '\depomod\resus\Gorsten-E-S-20g1.prn']);
+            verifyInstanceOf(testCase, prn, 'AutoDepomod.TimeSeries');
         end
                
     end

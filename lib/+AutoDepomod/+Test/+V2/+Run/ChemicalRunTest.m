@@ -1,10 +1,4 @@
 classdef ChemicalRunTest < matlab.unittest.TestCase
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% $Workfile:   ChemicalRunTest.m  $
-% $Revision:   1.2  $
-% $Author:   ted.schlicke  $
-% $Date:   May 28 2014 13:03:30  $
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % These tests test the AutoDepomod.Project project
     %
@@ -33,24 +27,28 @@ classdef ChemicalRunTest < matlab.unittest.TestCase
             verifyEqual(testCase, testCase.Run.project.name, 'Basta Voe South');
         end
 
-        function testRunCfgFileName(testCase)
-            verifyEqual(testCase, testCase.Run.cfgFileName, 'Basta Voe South-EMBZ-S-2-Model.properties');
+        function testRunModelFileName(testCase)
+            verifyEqual(testCase, testCase.Run.modelFileName, 'Basta Voe South-EMBZ-S-2-Model.properties');
         end
 
         function testRunNumber(testCase)
             verifyEqual(testCase, testCase.Run.runNumber, '2');
         end
 
-        function testRunCfgFilePath(testCase)
-            verifyEqual(testCase, testCase.Run.configPath, [testCase.Path, '\depomod\models\Basta Voe South-EMBZ-S-2-Model.properties']);
+        function testRunModelFilePath(testCase)
+            verifyEqual(testCase, testCase.Run.modelPath, [testCase.Path, '\depomod\models\Basta Voe South-EMBZ-S-2-Model.properties']);
+        end
+
+        function testRunConfigFilePath(testCase)
+            verifyEqual(testCase, testCase.Run.configPath, [testCase.Path, '\depomod\models\Basta Voe South-EMBZ-S-2-Configuration.properties']);
         end
 
         function testRunSurPath(testCase)
-            verifyEqual(testCase, testCase.Run.surPath, [testCase.Path, '\depomod\intermediate\Basta Voe South-EMBZ-S-2-g0.sur']);
+            verifyEqual(testCase, testCase.Run.chemicalSurPath, [testCase.Path, '\depomod\intermediate\Basta Voe South-EMBZ-S-2-chemical-g0.sur']);
         end
 
         function testRunSur1Path(testCase)
-            verifyEqual(testCase, testCase.Run.surPath(1), [testCase.Path, '\depomod\intermediate\Basta Voe South-EMBZ-S-2-g1.sur']);
+            verifyEqual(testCase, testCase.Run.surPath('chemical',1), [testCase.Path, '\depomod\intermediate\Basta Voe South-EMBZ-S-2-chemical-g1.sur']);
         end
      
         function testRunIsBenthic(testCase)

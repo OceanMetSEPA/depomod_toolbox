@@ -17,7 +17,7 @@ classdef Project < AutoDepomod.Project
             % file located in the package root directory.
             
             iniFileRegex = 'SEPA-(.*).ini'; % regex to identify .ini file and parse out site name
-            files = fileFinder(path);       % find all files in root directory
+            files = AutoDepomod.FileUtils.fileFinder(path);       % find all files in root directory
             file  = {};
             
             if ~isempty(files)

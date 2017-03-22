@@ -84,7 +84,11 @@ classdef InputsPropertiesFile < AutoDepomod.V2.DataPropertiesFile
 
             IPF.data(:, 4) = excretedSolids;
             IPF.data(:, 5) = excretedCarbon;
-            
+        end
+        
+        function setStockingDensity(IPF, stockingDensity, varargin)
+            eqBiomass = stockingDensity * IPF.run.cages.cageVolume / 1000.0;
+            IPF.setBiomass(eqBiomass, varargin{:});            
         end
         
         function setEmBZQuantity(IPF, quantity, varargin) % g

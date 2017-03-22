@@ -10,12 +10,12 @@ classdef Base < AutoDepomod.Run.Base
     %
     % Usage:
     %
-    %    model = AutoDepomod.V1.Run.Base(farm, cfgFileName)
+    %    model = AutoDepomod.V1.Run.Base(farm, modelFileName)
     %
     %  where:
     %    farm: an instance of AutoDepomod.Package
     %    
-    %    cfgFileName: is the filename of a .cfg file located within the
+    %    modelFileName: is the filename of a .cfg file located within the
     %    /partrack directory of the project (and namespace if provided)
     % 
     %
@@ -27,7 +27,7 @@ classdef Base < AutoDepomod.Run.Base
     %    run.project   
     %      >> returns an instance of AutoDepomod.Package
     %
-    %    run.cfgFileName   
+    %    run.modelFileName   
     %      >> ans = 
     %      Gorsten-BcnstFI-N-1.cfg
     %    
@@ -84,6 +84,7 @@ classdef Base < AutoDepomod.Run.Base
         solidsSur@AutoDepomod.Sur.Benthic;
         carbonSur@AutoDepomod.Sur.Benthic;
         iterationRunNumber = [];
+        modelFileName = '';
     end
     
     properties (Hidden = true)
@@ -91,15 +92,15 @@ classdef Base < AutoDepomod.Run.Base
     end
     
     methods
-        function R = Base(project, cfgFileName, varargin)
-            R.project     = project;
-            R.cfgFileName = cfgFileName; % this property is the -Model.properties file in V2
+        function R = Base(project, modelFileName, varargin)
+            R.project       = project;
+            R.modelFileName = modelFileName; % this property is the -Model.properties file in V2
                                               
-            R.runNumber = AutoDepomod.V2.Run.Base.parseRunNumber(R.cfgFileName);
+            R.runNumber = AutoDepomod.V2.Run.Base.parseRunNumber(R.modelFileName);
             
             if isempty(R.runNumber)
                 errName = 'AutoDepomod:Run:MissingRunNumber';
-                errDesc = 'Cannot instantiate Run object. cfgFileName filename has unexpected format, cannot locate run number.';
+                errDesc = 'Cannot instantiate Run object. modelFileName has unexpected format, cannot locate run number.';
                 err = MException(errName, errDesc);
                 
                 throw(err)
@@ -115,34 +116,34 @@ classdef Base < AutoDepomod.Run.Base
             end
         end
         
-        function name = configFileRoot(R)
+        function name = modelFileRoot(R)
             % Returns just the filename for the model run cfg file, omitting the extension
-            [~, filename, ~] = fileparts(R.cfgFileName);
+            [~, filename, ~] = fileparts(R.modelFileName);
             name = strrep(filename, '-Model','');
         end
         
         function name = iterationRunFileRoot(R)
-            name = strrep(R.configFileRoot, ['-', num2str(R.runNumber)], ['-', num2str(R.iterationRunNumber)]);
+            name = strrep(R.modelFileRoot, ['-', num2str(R.runNumber)], ['-', num2str(R.iterationRunNumber)]);
         end
         
         function p = modelPath(R)
             % Returns full path for the model run cfg file
-            p = strcat(R.project.modelsPath, '\', R.cfgFileName);
+            p = strcat(R.project.modelsPath, '\', R.modelFileName);
         end
         
         function p = configPath(R)
             % Returns full path for the model run cfg file
-            p = strcat(R.project.modelsPath, '\', R.configFileRoot, '-Configuration.properties');
+            p = strcat(R.project.modelsPath, '\', R.modelFileRoot, '-Configuration.properties');
         end
         
         function p = physicalPropertiesPath(R)
             % Returns full path for the model physical properties file
-            p = strcat(R.project.modelsPath, '\', R.configFileRoot, '.depomodphysicalproperties');
+            p = strcat(R.project.modelsPath, '\', R.modelFileRoot, '.depomodphysicalproperties');
         end
         
         function p = logFilePath(R)
             % Returns full path for the model log file
-            p = strcat(R.project.intermediatePath, '\', R.configFileRoot, '.depomodrunlog');
+            p = strcat(R.project.intermediatePath, '\', R.modelFileRoot, '.depomodrunlog');
         end
         
         function p = surPath(R, type, index)
@@ -170,11 +171,11 @@ classdef Base < AutoDepomod.Run.Base
         end
          
         function cpn = cagesPath(R)
-            cpn = [R.project.cagesPath, '\', R.configFileRoot, '.depomodcagesxml'];
+            cpn = [R.project.cagesPath, '\', R.modelFileRoot, '.depomodcagesxml'];
         end
          
         function i = inputsFilePath(R)
-            i = [R.project.inputsPath, '\', R.configFileRoot, '-allCages.depomodinputsproperties'];
+            i = [R.project.inputsPath, '\', R.modelFileRoot, '-allCages.depomodinputsproperties'];
         end
          
         function i = iterationInputsFilePath(R)
@@ -340,9 +341,9 @@ classdef Base < AutoDepomod.Run.Base
                     'modelDefaultsFilePath', modelDefaultsFilePath, ...
                     'siteName', R.project.name, ...
                     'dataPath', dataPath, ...
-                    'modelParametersFile',    R.cfgFileName, ...
+                    'modelParametersFile',    R.modelFileName, ...
                     'modelLocationFile',      [R.project.name, '-Location.properties'], ...
-                    'modelConfigurationFile', [R.configFileRoot, '-Configuration.properties'], ...
+                    'modelConfigurationFile', [R.modelFileRoot, '-Configuration.properties'], ...
                     'logOutput', logOutput ...
                     );
             else

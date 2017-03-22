@@ -44,28 +44,32 @@ classdef BenthicRunTest < matlab.unittest.TestCase
             verifyEqual(testCase, testCase.Run.project.name, 'Basta Voe South');
         end
 
-        function testRunCfgFileName(testCase)
-            verifyEqual(testCase, testCase.Run.cfgFileName, 'Basta Voe South-NONE-S-243-Model.properties');
+        function testRunModelFileName(testCase)
+            verifyEqual(testCase, testCase.Run.modelFileName, 'Basta Voe South-NONE-S-243-Model.properties');
         end
 
         function testRunNumber(testCase)
             verifyEqual(testCase, testCase.Run.runNumber, '243');
         end
 
-        function testRunCfgFilePath(testCase)
-            verifyEqual(testCase, testCase.Run.configPath, [testCase.Path, '\depomod\models\Basta Voe South-NONE-S-243-Model.properties']);
+        function testRunModelFilePath(testCase)
+            verifyEqual(testCase, testCase.Run.modelPath, [testCase.Path, '\depomod\models\Basta Voe South-NONE-S-243-Model.properties']);
         end
 
-        function testRunCfgFileRoot(testCase)
-            verifyEqual(testCase, testCase.Run.configFileRoot, 'Basta Voe South-NONE-S-243');
+        function testRunConfigFilePath(testCase)
+            verifyEqual(testCase, testCase.Run.configPath, [testCase.Path, '\depomod\models\Basta Voe South-NONE-S-243-Configuration.properties']);
+        end
+
+        function testRunModelFileRoot(testCase)
+            verifyEqual(testCase, testCase.Run.modelFileRoot, 'Basta Voe South-NONE-S-243');
         end
 
         function testRunSurPath(testCase)
-            verifyEqual(testCase, testCase.Run.surPath, [testCase.Path, '\depomod\intermediate\Basta Voe South-NONE-S-243-g0.sur']);
+            verifyEqual(testCase, testCase.Run.solidsSurPath, [testCase.Path, '\depomod\intermediate\Basta Voe South-NONE-S-243-g0.sur']);
         end
 
         function testRunSur1Path(testCase)
-            verifyEqual(testCase, testCase.Run.surPath(1), [testCase.Path, '\depomod\intermediate\Basta Voe South-NONE-S-243-g1.sur']);
+            verifyEqual(testCase, testCase.Run.surPath('solids',1), [testCase.Path, '\depomod\intermediate\Basta Voe South-NONE-S-243-solids-g1.sur']);
         end
      
         function testRunIsBenthic(testCase)
@@ -88,14 +92,14 @@ classdef BenthicRunTest < matlab.unittest.TestCase
             verifySize(testCase, sur.rawData.xCoords, [8836 1]); % ensure data pulled in successfully
         end
      
-        function testRunLog(testCase)
-            l = testCase.Run.log;
-            
-            verifyInstanceOf(testCase, l, 'struct');
-            verifyEqual(testCase, l.RunNo, 1);
-            verifySize(testCase, fieldnames(l), [36 1]); % ensure data pulled in successfully
-            verifyEqual(testCase, l.BenthicSolids, 80);  % ensure data pulled in successfully
-        end
+%         function testRunLog(testCase)
+%             l = testCase.Run.log;
+%             
+%             verifyInstanceOf(testCase, l, 'struct');
+%             verifyEqual(testCase, l.RunNo, 1);
+%             verifySize(testCase, fieldnames(l), [36 1]); % ensure data pulled in successfully
+%             verifyEqual(testCase, l.BenthicSolids, 80);  % ensure data pulled in successfully
+%         end
         
         function testCages(testCase)
             site = testCase.Run.cages;

@@ -17,7 +17,7 @@ classdef LocationTest < matlab.unittest.TestCase
         % Instances
 
         function testFromFileClassMethod(testCase)
-            loc = AutoDepomod.V2.Location.fromPropertiesFile(testCase.Path);
+            loc = AutoDepomod.V2.PropertiesFile(testCase.Path);
           
             verifyEqual(testCase, loc.ant.directory, './depomod/ant');
             verifyEqual(testCase, loc.bathymetry.data.dat.extension, 'depomodbathymetrygridgendata');

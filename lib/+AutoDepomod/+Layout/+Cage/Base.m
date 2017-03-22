@@ -47,7 +47,7 @@ classdef (Abstract) Base
             cage.y       = str2double(columns{2});
             cage.length  = str2double(columns{6});
             cage.width   = str2double(columns{5});
-            cage.depth   = str2double(columns{7});
+            cage.height   = str2double(columns{7});
         end
         
     end

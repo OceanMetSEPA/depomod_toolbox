@@ -44,7 +44,7 @@ classdef PropertiesFile < dynamicprops
         end
         
         function fromFile(PF, filePath)
-            file = readTxtFile(filePath);
+            file = AutoDepomod.FileUtils.readTxtFile(filePath);
             
             for i = 1:length(file)
                if  regexp(file{i}, '^#')

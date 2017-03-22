@@ -70,8 +70,8 @@ classdef LayoutTest < matlab.unittest.TestCase
             verifyEqual(testCase, cageA.y,            770893); 
             verifyEqual(testCase, cageA.length,       24); 
             verifyEqual(testCase, cageA.width,        24); 
-            verifyEqual(testCase, cageA.height,       []); 
-            verifyEqual(testCase, cageA.depth,        12); 
+            verifyEqual(testCase, cageA.height,       12); 
+            verifyEqual(testCase, cageA.depth,        []); 
             verifyEqual(testCase, cageA.inputsId,     ''); 
             verifyEqual(testCase, cageA.proportion,   []); 
             verifyEqual(testCase, cageA.inProduction, logical([])); 
@@ -80,8 +80,8 @@ classdef LayoutTest < matlab.unittest.TestCase
             verifyEqual(testCase, cageB.y,            770661.206260632); 
             verifyEqual(testCase, cageB.length,       24); 
             verifyEqual(testCase, cageB.width,        24); 
-            verifyEqual(testCase, cageB.height,       []); 
-            verifyEqual(testCase, cageB.depth,        12); 
+            verifyEqual(testCase, cageB.height,       12); 
+            verifyEqual(testCase, cageB.depth,        []); 
             verifyEqual(testCase, cageB.inputsId,     ''); 
             verifyEqual(testCase, cageB.proportion,   []); 
             verifyEqual(testCase, cageB.inProduction, logical([])); 

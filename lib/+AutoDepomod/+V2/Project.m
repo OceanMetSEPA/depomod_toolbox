@@ -104,50 +104,6 @@ classdef Project < AutoDepomod.Project
             p = [P.modelsPath, '\', dirContents(locationFile).name];
         end
         
-        function p = logFilePath(P, type, tide)
-            % Returns the absolute path of the package's logfile according
-            % to the type passed in: 'B', 'E' or 'T'
-            
-            if isequal(type, 'B')
-                p = [P.resultsPath, '\', P.name, '-NONE-', tide, '.depomodrunlog'];
-            elseif isequal(type, 'E')
-                p = [P.resultsPath, '\', P.name, '-EMBZ-', tide, '.depomodrunlog'];
-            elseif isequal(type, 'T')
-                p = [P.resultsPath, '\', P.name, '-TFBZ-', tide, '.depomodrunlog'];
-            else
-               p = [];
-            end
-        end
-        
-        function lf = log(P, type, tide)
-            % Returns an instance of AutoDepomod.LogFile representing the
-            % package's logfile which corresponds to the passed in type, 'B', 'E' or 'T'
-            
-            lfpath = P.logFilePath(type, tide);
-            lf = AutoDepomod.V2.PropertiesFile(lfpath);
-        end
-        
-        function lf = benthicLog(P, tide)
-            % Returns an instance of AutoDepomod.LogFile representing the
-            % package's benthic logfile
-            
-            lf = P.log('B', tide);
-        end
-        
-        function lf = EmBZLog(P, tide)
-            % Returns an instance of AutoDepomod.LogFile representing the
-            % package's EmBZ logfile
-            
-            lf = P.log('E', tide);
-        end
-        
-        function lf = TFBZLog(P, tide)
-            % Returns an instance of AutoDepomod.LogFile representing the
-            % package's TFBZ logfile
-            
-            lf = P.log('T', tide);
-        end
-        
         function p = currentFilePath(P, depth, tide)
            p = [P.flowmetryPath, '\', P.name,'-', upper(tide),'-', lower(depth),'.depomodflowmetryproperties'];
         end
@@ -188,7 +144,7 @@ classdef Project < AutoDepomod.Project
                 P.currentFilePath('s', 'S'), P.currentFilePath('m', 'S'), P.currentFilePath('b', 'S'));
             P.NSNCurrents = AutoDepomod.V2.Currents.Profile.fromFile(...
                 P.currentFilePath('s', 'N'), P.currentFilePath('m', 'N'), P.currentFilePath('b', 'N'));
-            
+                        
             P.SNSCurrents.project = P;
             P.NSNCurrents.project = P;
         end

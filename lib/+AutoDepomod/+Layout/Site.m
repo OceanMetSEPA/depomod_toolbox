@@ -30,7 +30,7 @@ classdef Site
             site = AutoDepomod.Layout.Site;
             group = AutoDepomod.Layout.Cage.Group;
             
-            data = readTxtFile(filepath, 'startRow', 2);
+            data = AutoDepomod.FileUtils.readTxtFile(filepath, 'startRow', 2);
             
             for i = 1:size(data,1)
                 cage = AutoDepomod.Layout.Cage.Base.fromCSVRow(data{i});

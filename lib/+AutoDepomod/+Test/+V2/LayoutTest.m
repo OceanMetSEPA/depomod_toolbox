@@ -76,7 +76,7 @@ classdef LayoutTest < matlab.unittest.TestCase
             verifyEqual(testCase, cageA.height,       10.0); 
             verifyEqual(testCase, cageA.depth,        5.0); 
             verifyEqual(testCase, cageA.inputsId,     '08dc2070-a8da-4694-91a1-8f019839471a'); 
-            verifyEqual(testCase, cageA.proportion,   0.11544282127328799); 
+            verifyEqual(testCase, cageA.proportion,   0.1); 
             verifyEqual(testCase, cageA.inProduction, logical(1)); 
             
             verifyEqual(testCase, cageB.x,            453012.304446954); 
@@ -85,9 +85,9 @@ classdef LayoutTest < matlab.unittest.TestCase
             verifyEqual(testCase, cageB.width,        28.66); 
             verifyEqual(testCase, cageB.height,       10); 
             verifyEqual(testCase, cageB.depth,        5); 
-            verifyEqual(testCase, cageB.inputsId,     'badf00d0-0123-4567-badf-00d0badf00d0'); 
-            verifyEqual(testCase, cageB.proportion,   0.0); 
-            verifyEqual(testCase, cageB.inProduction, logical(0)); 
+            verifyEqual(testCase, cageB.inputsId,     '08dc2070-a8da-4694-91a1-8f019839471a'); 
+            verifyEqual(testCase, cageB.proportion,   0.1); 
+            verifyEqual(testCase, cageB.inProduction, logical(1)); 
         end
         
         function testCageArea(testCase)
@@ -95,7 +95,7 @@ classdef LayoutTest < matlab.unittest.TestCase
         end
         
         function testCageVolume(testCase)
-            verifyEqual(testCase, testCase.Site.cageGroups{1}.cages{1}.volume, pi*(28.66/2)^2*5.0); 
+            verifyEqual(testCase, testCase.Site.cageGroups{1}.cages{1}.volume, pi*(28.66/2)^2*10.0); 
         end
         
         function testGroupShorthand(testCase)

@@ -55,8 +55,7 @@ classdef EmBZRunTest < matlab.unittest.TestCase
         function testRunPrnWithDecay(testCase)
             prn = testCase.Run.prnWithDecay;
             
-            verifyInstanceOf(testCase, prn, 'AutoDepomod.PrnSeries');
-            verifyEqual(testCase, prn.path, [testCase.Path, '\depomod\resus\Gorsten-E-S-20g1.prn']);
+            verifyInstanceOf(testCase, prn, 'AutoDepomod.TimeSeries');
         end
                
     end

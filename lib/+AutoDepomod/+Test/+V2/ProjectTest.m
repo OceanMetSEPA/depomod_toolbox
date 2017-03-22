@@ -118,30 +118,6 @@ classdef ProjectTest < matlab.unittest.TestCase
              verifyEqual(testCase, testCase.Project.meanCurrentSpeed('b'), 0.0497949, 'AbsTol', 0.00001);
         end
         
-        function testBenthicLog(testCase)
-            benthicLog = testCase.Project.benthicLog;
-            
-            verifyInstanceOf(testCase, benthicLog, 'AutoDepomod.LogFile');
-            verifyEqual(testCase, benthicLog.filePath, [testCase.Path, '\depomod\results\Basta Voe South-NONE-S.blah']);
-            verifyEqual(testCase, size(benthicLog.table), [2 30]);
-        end
-        
-%         function testEmBZLog(testCase)
-%             EmBZLog = testCase.Project.EmBZLog;
-%             
-%             verifyInstanceOf(testCase, EmBZLog,     'AutoDepomod.LogFile');
-%             verifyEqual(testCase, EmBZLog.filePath, [testCase.Path, '\depomod\resus\Gorsten-EMBZ.log']);
-%             verifyEqual(testCase, size(EmBZLog.table), [22 24]);
-%         end
-%         
-%         function testTFBZLog(testCase)
-%             TFBZLog = testCase.Project.TFBZLog;
-%             
-%             verifyInstanceOf(testCase, TFBZLog, 'AutoDepomod.LogFile');
-%             verifyEqual(testCase, TFBZLog.filePath, [testCase.Path, '\depomod\resus\Gorsten-TFBZ.log']);
-%             verifyEqual(testCase, size(TFBZLog.table), [16 24]);
-%         end
-        
         function testGridgenIniPath(testCase)
             actSolution = testCase.Project.gridgenIniPath;
             expSolution = [testCase.Path, '\depomod\bathymetry\Basta Voe South.depomodbathymetrygridgenini'];
