@@ -1,0 +1,26 @@
+#2017/03/26 20:42:00
+#Sun Mar 26 20:42:00 BST 2017
+RelseaseManager.numberOfParticlesPerCageFinalRuns=10
+Transports.writeParticles=false
+Model.defaultSpecificFeedingRatePercent=0.7
+RelseaseManager.releaseTimeMode=PERINPUTSTIMESTEP
+Model.maxNumberOfModelIterations=52
+Model.maximumStockingDensity=30
+ParticleWriter.type=NullParticleWriter
+Model.stockingDensityUseMax=TRUE
+Model.defaultStockingDensity=23
+Model.specificFeedingRatePercentUseMax=FALSE
+Model.iterationParameter=STOCKINGDENSITY
+Model.minimumStockingDensity=10
+Model.showConsoleOutput=false
+Model.defaultCageVolumeAdjust=1.0
+Model.maximumSpecificFeedingRatePercent=1.0
+Transports.writeBedModels=false
+Model.minimumSpecificFeedingRatePercent=0.1
+Transports.numberOfExecutorThreads=ALL_AVAILABLE
+Transports.writeIterations=false
+Model.biomassLimit=Infinity
+Model.writeIntermediateFiles=false
+Transports.dropOutOfDomain=false
+RelseaseManager.numberOfParticlesPerCageScopingRuns=1
+RelseaseManager.releaseCycleMode=SINGLERELEASE

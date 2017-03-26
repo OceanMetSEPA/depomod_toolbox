@@ -1,0 +1,12 @@
+#Sun Mar 26 20:43:51 BST 2017
+Model.run.tide=N
+Model.run.plugLoadPeriod=0
+ModelTime.startTime=0
+Model.run.tag=1
+Model.run.number=1
+ModelTime.timeUnitsSiConversionFactor=0.001
+Model.run.compound=NONE
+ModelTime.endTime=31989600000
+Model.run.useNumber=true
+ModelTime.delta=60000
+ModelTime.releasePeriod=31557600000

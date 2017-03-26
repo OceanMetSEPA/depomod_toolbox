@@ -1,0 +1,8 @@
+#Sun Mar 26 20:43:51 BST 2017
+Runtime.modelConfigurationFile=C\:\\Users\\andrew.berkeley\\Documents\\Aquaculture\\AutoDepomod\\InterfaceModels\\template\\depomod\\models\\template.depomodconfigurationproperties
+Runtime.modelPhysicalFile=C\:/Users/andrew.berkeley/Documents/Aquaculture/AutoDepomod/InterfaceModels/template/depomod/models/template.depomodphysicalproperties
+Runtime.modelParametersFile=C\:\\Users\\andrew.berkeley\\Documents\\Aquaculture\\AutoDepomod\\InterfaceModels\\template\\depomod\\models\\template-1-EMBZ.depomodmodelproperties
+Runtime.modelLocationFile=C\:\\Users\\andrew.berkeley\\Documents\\Aquaculture\\AutoDepomod\\InterfaceModels\\template\\depomod\\models\\template.depomodlocationproperties
+Runtime.defaultConfigurationFile=/uk/org/sepa/defaults/properties/configuration.properties
+Runtime.defaultPhysicalFile=/uk/org/sepa/defaults/properties/physical.properties
+Runtime.defaultLocationFile=/uk/org/sepa/defaults/properties/location.properties

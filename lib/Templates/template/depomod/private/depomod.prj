@@ -1,0 +1,12 @@
+#IDL=Incomprehensible Ducttape Language
+#Sun Mar 26 20:44:15 BST 2017
+project.name=template
+project.locations.path=C\:/Users/andrew.berkeley/Documents/Aquaculture/AutoDepomod/InterfaceModels/template/depomod/models/template.depomodlocationproperties
+project.locations.path.pattern.SepaDepomod={project.directory}/{project.locations.directory}/{project.name}-"Location"\:{project.locations.extension}
+project.locations.extension=depomodlocationproperties
+project.locations.path.pattern.depomod={project.directory}/{project.locations.directory}/{project.name}\:{project.locations.extension}
+project.locations.path.pattern={project.directory}/{project.locations.directory}/{project.name}\:{project.locations.extension}
+project.locations.path.pattern.NewDepomodV1_2={project.directory}/{project.locations.directory}/{project.name}\:{project.locations.extension}
+project.directory=C\:/Users/andrew.berkeley/Documents/Aquaculture/AutoDepomod/InterfaceModels/template
+project.locations.path.pattern.NewDepomodV1_1={project.directory}/{project.locations.directory}/{project.name}\:{project.locations.extension}
+project.locations.directory=depomod/models
