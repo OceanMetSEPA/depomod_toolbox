@@ -1,16 +1,16 @@
-classdef (Abstract) Base < handle
+classdef Base < Depomod.Run.Base
     % Wrapper class for a individual model runs in AutoDepomod. This class provides a
     % number of convenience methods for locating files and handling model runs and some outputs. 
     %
     % This class is not intended to be used directly but is intended to be subclassed with the 
-    % introduction of a typeCode property (see Run.Benthic, Run.EmBZ, Run.TFBZ)
+    % introduction of a typeCode property (see Run.Solids, Run.EmBZ, Run.TFBZ)
     %
     % Model objects are instantiated by passing in an instance of AutoDepomod.Package, together with
     % a .cfg filename.
     %
     % Usage:
     %
-    %    model = AutoDepomod.V1.Run.Base(farm, cfgFileName)
+    %    model = AutoDepomod.Run.Base(farm, cfgFileName)
     %
     %  where:
     %    farm: an instance of AutoDepomod.Package
@@ -22,7 +22,7 @@ classdef (Abstract) Base < handle
     % EXAMPLES:
     %
     %    project = AutoDepomod.Data.Package('Gorsten');
-    %    run  = AutoDepomod.V1.Run.Benthic(project, 'Gorsten-BcnstFI-N-1.cfg') % SUBCLASS
+    %    run  = AutoDepomod.Run.Solids(project, 'Gorsten-BcnstFI-N-1.cfg') % SUBCLASS
     %
     %    run.project   
     %      >> returns an instance of AutoDepomod.Package
@@ -50,119 +50,16 @@ classdef (Abstract) Base < handle
     
     methods (Static = true)
         
-        function runNo = parseRunNumber(filename, version)
-            % Returns the run number from a given filename. This can be
-            % used to obtain the run number form most AutoDepomod files
-            % including .cfg, .cfh, .sur, .grd, .prn, etc.
-            %
-            % Usage:
-            %
-            %    runNo = AutoDepomod.V1.Run.Base.parseRunNumber(filename)
-            %
-            % EXAMPLES:
-            %
-            %    AutoDepomod.V1.Run.Base.parseRunNumber('Gorsten-E-S-4.cfg')
-            %    ans = 
-            %        4
-            %
-            %    AutoDepomod.V1.Run.Base.parseRunNumber('Gorsten-E-S-5g1.prn')
-            %    ans = 
-            %        5
-            %    
-            
-            [bool, ~, ~, ~, number, ~, ~] = AutoDepomod.(['V', num2str(version)]).Run.Base.isValidConfigFileName(filename);
-            
-            if bool
-                runNo = number;
-            else
-                runNo = [];
-            end
+        function runNo = parseRunNumber(filename)
+            runNo = Depomod.Run.Base.parseRunNumber(filename, 1);
         end
         
-        function [bool, varargout] = isValidConfigFileName(filename, version)
-            % Returns true if the given filename is a valid AutoDepomod configuration or output filename.
-            % If the filename is valid, the fileparts are returned as per
-            % AutoDepomod.V1.Run.Base.cfgFileParts.
-            %
-            % Usage:
-            %
-            %    bool = AutoDepomod.V1.Run.Base.isValidConfigFileName(filename)
-            %
-            % EXAMPLES:
-            %
-            %    AutoDepomod.V1.Run.Base.isValidConfigFileName('Gorsten-E-S-5g1.sur')
-            %    ans = 
-            %        1
-            %
-            %    AutoDepomod.V1.Run.Base.isValidConfigFileName('Gorsten-ES5g1.prn')
-            %    ans = 
-            %        0
-            %    
-            
-            [sitename, type, tide, number, filetype, ext] = AutoDepomod.(['V', num2str(version)]).Run.Base.cfgFileParts(filename);
-            bool = ~isempty(sitename) && ~isempty(type) && ~isempty(tide) && ~isempty(number) && ~isempty(ext);
-            varargout = cell(6,1);
-            
-            if bool
-                varargout{1} = sitename;
-                varargout{2} = type;
-                varargout{3} = tide;
-                varargout{4} = number;
-                varargout{5} = filetype;
-                varargout{6} = ext;
-            end
+        function [bool, sitename, type, tide, number, g, ext] = isValidConfigFileName(filename)
+            [bool, sitename, type, tide, number, g, ext] = Depomod.Run.Base.isValidConfigFileName(filename, 1);            
         end
         
-        function [sitename, type, tide, number, filetype, ext] = cfgFileParts(filename, version)
-            % Returns the fileparts associated with AutoDepomod
-            % configuration or output filenames. These
-            % parts are as follows:
-            %
-            %   1. site name
-            %   2. model run type (BcnstFI, E, T)
-            %   3. Tidal context (S,N)
-            %   4. Run number
-            %   5. G-Model status (0,1,2,3)
-            %   6. file extension
-            %
-            % Usage:
-            %
-            %    [sitename, type, tide, number, g, ext] = cfgFileParts(filename)
-            %
-            % EXAMPLES:
-            %
-            %    [sitename, type, tide, number, g, ext] = cfgFileParts('Gorsten-E-S-5g1.sur')
-            %    sitename = 
-            %        'Gorsten'
-            %    type = 
-            %        'E'
-            %    tide = 
-            %        'S'
-            %    number = 
-            %        5
-            %    g = 
-            %        'g1'
-            %    ext = 
-            %        'sur'
-            %    
-            
-            [~,t]=regexp(filename, AutoDepomod.(['V', num2str(version)]).Run.Base.FilenameRegex, 'match', 'tokens');
-            
-            if isempty(t)
-                sitename = [];
-                type     = [];
-                tide     = [];
-                number   = [];
-                filetype = [];
-                ext      = [];
-            else
-                sitename = t{1}{1};
-                type     = t{1}{2};
-                tide     = t{1}{3};
-                number   = t{1}{4};
-                filetype        = t{1}{5};
-                ext      = t{1}{6};
-            end
+        function [sitename, type, tide, number, g, ext] = cfgFileParts(filename)
+            [sitename, type, tide, number, g, ext] = Depomod.Run.Base.cfgFileParts(filename, 1);
         end
         
         function str = dispersionCoefficientReplaceString(dim,value)
@@ -172,170 +69,150 @@ classdef (Abstract) Base < handle
     
     % Instance
     
+    properties (Constant = true, Hidden = true)
+        FilenameRegex = '^(.+)\-(BcnstFI|E|T)\-(S|N)\-(\d+)(g\d+)?\.(cfg|cfh|fil|flx|inp|inr|sur|out|plu|put|prn)$';
+    end
+    
     properties
-        project;     % owning modelling project
-        cfgFileName; % filename of cfg file, indicates run number
-        runNumber;   % model run number
-        log;         % property for memoizing log information for this run, saves multiple calls
-        cages;
-        tide;
+        sur@Depomod.Sur.Base;
     end
     
     methods
-        
-        function bool = isBenthic(R)
-            % Returns true if the model run is a benthic run
-            bool = ~isempty(regexp(class(R), 'Benthic', 'ONCE'));
-        end
-
-        function bool = isEmBZ(R)
-            % Returns true if the model run is a EmBZ run
-            bool = ~isempty(regexp(class(R), 'EmBZ', 'ONCE'));
-        end
-
-        function bool = isTFBZ(R)
-            % Returns true if the model run is a TFBZ run
-            bool = ~isempty(regexp(class(R), 'TFBZ', 'ONCE'));
-        end
-        
-        function t = get.tide(R)
-            [~, ~, t, ~, ~, ~] = AutoDepomod.Run.Base.cfgFileParts(R.cfgFileName, R.project.version);
-        end
-
-        function l = get.log(R)
-            % Returns a struct representing the model run log data
-            if isempty(R.log)
-                R.initializeLog;
-            end
+        function R = Base(project, cfgFileName)
             
-            l = R.log;
-        end
-        
-        function c = get.cages(R)
-            if isempty(R.cages)
-               R.initializeCages; 
-            end
+            R.project     = project;
+            R.cfgFileName = cfgFileName;
+                                              
+            R.runNumber = AutoDepomod.Run.Base.parseRunNumber(R.cfgFileName);
             
-            c = R.cages;
+            if isempty(R.runNumber)
+                errName = 'Depomod:Run:MissingRunNumber';
+                errDesc = 'Cannot instantiate Run object. cfgFileName has unexpected format, cannot locate run number.';
+                err = MException(errName, errDesc);
+                
+                throw(err)
+            end
         end
         
-        function s = initializeSur(R, surPath) 
+        function name = configFileRoot(R)
+            % Returns just the filename for the model run cfg file, omitting the extension
+            [~, name, ~] = fileparts(R.cfgFileName);
+        end
+        
+        function p = configPath(R)
+            % Returns full path for the model run cfg file
+            p = strcat(R.project.partrackPath, '\', R.cfgFileName);
+        end
+        
+        function p = surPath(R, index)
+            % Returns the path to the model run sur file. By default, the
+            % 0-index sur file path is returned. Pass in the index to
+            % return a different surfile (e.g. 1, for EmBZ decay)
+            
+            if ~exist('index', 'var')
+                index = 0; % Default is the 0 indexed sur file
+            end
+
+            p = strcat(R.project.resusPath, '\', R.configFileRoot, ['g', num2str(index), '.sur']);
+        end
+                 
+        function cpn = cagesPath(R)
+            cagesDirectory = R.project.resusPath;
+            cageFileName = strrep(R.cfgFileName, '.cfg', '_CAGES.csv');
+            
+            cpn = [cagesDirectory, '\', cageFileName];
+        end
+        
+        function s = get.sur(R)
             % Returns an instance of Depomod.Outputs.Sur representing the
-            % model run sur file associated with the passed in index. The
-            % index relates to the G-model status of the sur file, as
-            % indicated by the 'g-' sequence in the filename.
+            % model run sur file
             
-            [e, n] = R.project.southWest;
-            version = R.project.version;
+            if isempty(R.sur)
+                R.sur = R.initializeSur(R.surPath);
+            end
+            
+            s = R.sur; 
+        end
+         
+        function b = biomass(R)
+            % Returns the modelled biomass in t
+            b = R.log.EqvBiomass;
+        end
+         
+        function coeffs = dispersionCoefficients(R)
+            cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
+            coeffs = cfgData.DispersionCoefficients;
+        end
+        
+        function coeff = dispersionCoefficient(R,dim)
+            coeffs = R.dispersionCoefficients;
+            coeff = coeffs{find(cellfun(@(x) isequal(x, dim) , coeffs(:, 1))), 2};
+        end
+        
+        function setDispersionCoefficient(R, dim, value)
+            currentValue = R.dispersionCoefficient(dim);
+            oldString = AutoDepomod.Run.Base.dispersionCoefficientReplaceString(dim, currentValue);
+            newString = AutoDepomod.Run.Base.dispersionCoefficientReplaceString(dim, value);
+            
+            AutoDepomod.FileUtils.replaceInFile(R.configPath, oldString, newString);
+        end
+        
+        function newProject = exportFiles(R, exportPath, varargin)
                         
-            if ~isempty(e) && ~isempty(n) && ~isnan(e) && ~isnan(n)
-                s = AutoDepomod.Sur.Base.fromFile(surPath, 'version', version, 'Easting', num2str(e), 'Northing', num2str(n));
+            if isequal(exportPath(end), '/') | isequal(exportPath(end), '\')
+                exportPath(end) = [];
+            end
+            
+            newProject = NewDepomod.Java.export(R, exportPath, varargin{:})
+        end
+        
+        function cmd = execute(R, varargin)
+            % Invokes Depomod on the model run configuration, overwriting
+            % any output files  
+            
+            if Depomod.Java.isValidProject(R.project)
+                dataPath = R.project.parentPath;
+                
+                jv = AutoDepomod.Java;
+                
+                commandStringOnly = 0;
+            
+                for i = 1:2:length(varargin)
+                  switch varargin{i}
+                    case 'release'
+                      release = varargin{i+1};
+                    case 'commandStringOnly'
+                      commandStringOnly = varargin{i+1};
+                  end
+                end
+            
+                if exist('release', 'var')
+                    jv.release = release; 
+                end
+                
+                cmd = jv.run(...
+                    'commandStringOnly', commandStringOnly, ...,
+                    'siteName',    R.project.name, ...
+                    'cfgFileName', R.cfgFileName, ...
+                    'dataPath',    dataPath ...
+                    );
             else
-                s = AutoDepomod.Sur.Base.fromFile(surPath, 'version', version);
+               error('Depomod:Java', ...
+                    [ 'This is not a valid project for running the Java module. ', ...
+                      'The parent directory must be named after the project.' ...
+                      ]);
             end
         end
         
-        function F = plotImpact(R,varargin)
-            
-            x0=10;
-            y0=10;
-            width=800;
-            height=800;
-            
-            levels = R.defaultPlotLevels;
-            
-            sur = [];
-            
-            for i = 1:2:length(varargin)
-              switch varargin{i}
-                case 'x0'
-                  x0 = varargin{i+1};
-                case 'y0'
-                  y0 = varargin{i+1};
-                case 'width'
-                  width = varargin{i+1};
-                case 'height'
-                  height = varargin{i+1};
-                case 'levels'
-                  levels = varargin{i+1};
-                case 'sur'
-                  sur = varargin{i+1};
-              end
-            end
-            
-            noLevels = length(levels);
-            
-            F = figure;
-            R.project.bathymetry.plot('contour', 1);            
-            hold on
-            set(gcf,'units','points','position',[x0,y0,width,height]);
-            box on
-            grid on
-            set(gca,'layer','top')
-            xlabel('Northing');
-            ylabel('Easting');
-
-            cages = R.cages.consolidatedCages.cages;
-
-            scatter(cellfun(@(c) c.x, cages), cellfun(@(c) c.y, cages), 'ko', 'MarkerFaceColor', 'k', 'LineWidth', 2.0, 'Visible', 'on', 'Clipping', 'on')
-            set(gca,'layer','top')
-
-
-            if isempty(sur)
-                sur = R.sur;
-            end
-            
-            t=title([R.project.name, ': run - ', num2str(R.runNumber)]);
-            % escape underscores in title
-            set(t,'Interpreter','none');
-
-            legendContours = [];
-            legendlabels   = {};
-
-            for l = 1:noLevels
-                level = levels(l);
-                
-                contour = sur.contour(level, 'plot', 0);
-                
-                val = 0.1 + ((0.5/noLevels) * (l));
-
-                i = 1;
-
-                while i <= size(contour,2)
-                    x = [];
-                    y = [];
-                    
-                    for j = i+1:i+contour(2,i)
-                        x(1,end+1) = contour(1,j);
-                        y(1,end+1) = contour(2,j);
-                    end
-                    
-                    figure(F)
-                    contourhandle = patch(x,y,'red', 'FaceAlpha', val, 'LineStyle', ':');
-                    
-                    i = i + contour(2,i) + 1;
-                end
-                
-                if ~isempty(contour)
-                    legendContours(end+1) = contourhandle;
-                    legendlabels{end+1}   = [num2str(level), ' ', R.defaultUnit];
-                end
-            end
-
-            leg = legend(legendContours,legendlabels);
-
-            PatchInLegend = findobj(leg, 'type', 'patch'); 
-            
-            % to find the patch objects in your legend. You can then set their transparency using 
-            for l = 1:noLevels
-                % start with alpha 0.5 and split the rest between 0.5-1.0
-                val = 0.5 + (0.5-(0.5/noLevels) * (l - 1));
-                set(PatchInLegend(l), 'facea', val);               
-            end
-
-            set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
+        function initializeCages(R)
+            R.cages = Depomod.Layout.Site.fromCSV(R.cagesPath);
         end
+        
+        function initializeLog(R)
+            logfile = R.project.log(R.typeCode); % typeCode defined in subclasses
+            R.log = logfile.run(R.runNumber);
+        end
+       
     end
 
 end

@@ -1,0 +1,26 @@
+{***Additional input data file  [BENTHIC] ***}
+{***comment ***}
+{***comment ***}
+ 0   itimeseries  If this is 1 then the following data are used
+1440  conttsntimstep Number of time steps to run model for
+0  iconttsfile  Switch 0=use periods, 1= use time series
+4  ncontperiods  Number of periods
+4500    4800    4900    5000  conttsperiodfi[1..4]  Feed input for each period kg/day for whole farm
+1     721    1441    2161  conttsperiodstart[1..4]  Period starting
+720    1440    2160    2880  conttsperiodend[1..4]  Period ending
+"untitled"  conttsfilename Name of time series file
+1     2  conttsnheader  conttscol  Number of header lines  Column containing data
+ 0  ieqsourcepercent  0=proportions are defined, 1=all being equal
+ 4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667  4.166667 Cage[1..24].prop (Percentage flow)
+{***Additional data for plug releases***}
+{***comment ***}
+{***comment ***}
+ 5352   plugtsntimstep Number of time steps to run model for  
+ 0   iplugtsfile  Switch 0=use periods, 1= use time series
+7 nplugexcrperiods Number of periods
+10      50      50      50      50      50      50  plugtsexcrp[1..7]  Feed input for each period kg/day for whole farm
+1     169    1033    1897    2761    3625    4489  plugtsexcrstart[1..7]  Period starting
+168    1032    1896    2760    3624    4488    5352  plugtsexcrend[1..7]  Period ending
+"untitled"  plugtsfilename Name of time series file  SLICE   CHANGE
+  2     3     0  plugtsfdcol  plugtsfaecol plugtsfdinputcol Column containing food, faecal and feed input data
+#  end of file marker

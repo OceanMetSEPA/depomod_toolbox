@@ -1,35 +1,26 @@
-classdef (Abstract) Profile
+classdef Profile < Depomod.Currents.Profile
     
-    properties        
-        isSNS = 0;
+    properties
+        s@AutoDepomod.Currents.TimeSeries;
+        m@AutoDepomod.Currents.TimeSeries;
+        b@AutoDepomod.Currents.TimeSeries;
+        
+        project@AutoDepomod.Project;
     end
     
-    methods
+    methods (Static = true)
         
-        function l = length(P)
-            l = P.s.NumberOfTimeSteps;
+        function [sns, nsn] = fromFile(surface, middle, bottom)
+            sns = AutoDepomod.Currents.Profile;
+            nsn = AutoDepomod.Currents.Profile;
+            
+            [sns.s, nsn.s]  = AutoDepomod.Currents.TimeSeries.fromFile(surface);
+            [sns.m,  nsn.m] = AutoDepomod.Currents.TimeSeries.fromFile(middle);
+            [sns.b,  nsn.b] = AutoDepomod.Currents.TimeSeries.fromFile(bottom);
+            
+            sns.isSNS = 1;            
         end
-        
-        function p = toRCMProfile(P, varargin)
-            AutoDepomod.FileUtils.isRCMPackageAvailable;
-            
-            p = RCM.Current.Profile('WaterDepth', P.s.SiteDepth*-1);
-            
-            p.addBin(P.b.toRCMTimeSeries(varargin{:}));
-            p.addBin(P.m.toRCMTimeSeries(varargin{:}));
-            p.addBin(P.s.toRCMTimeSeries(varargin{:}));
-        end
-        
-        function scaleSpeed(P, factor)
-            if length(factor) == 1
-                factor = repmat(factor, 1,3);
-            end
-            
-            P.s.scaleSpeed(factor(1));
-            P.m.scaleSpeed(factor(2));
-            P.b.scaleSpeed(factor(3));
-        end
-            
+
     end
     
 end

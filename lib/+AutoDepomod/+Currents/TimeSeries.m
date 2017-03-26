@@ -1,87 +1,107 @@
-classdef TimeSeries < dynamicprops
+classdef TimeSeries < Depomod.Currents.TimeSeries
     
     properties
-        Time@double;
-        Speed@double;
-        Direction@double;
-        u@double;
-        v@double;
+        Name@char;
+        Var@char;
+    end
+    
+    methods (Static = true)
         
-        MeterDepth@double;
-        SiteDepth@double;
-        DeltaT@double;
-        NumberOfTimeSteps@double;
-        SiteTide@double;
+        function [sns, nsn] = fromFile(datFile)
+            
+            % Read file
+            fd = fopen(datFile,'rt');
+            header1 = fgetl(fd);
+            header2 = fgetl(fd);
+            header3 = fgetl(fd);
+            data    = textscan(fd, '%u%f%f%u%f%f');
+            fclose(fd);
+            
+            % Parse out metadata            
+            regexString = '^dT=(\d+)s\s*nT=(\d+)\s*depth=([\d\.]+)m\s*([\w\-]+)@([\d\.]+)m?\s*Tide=([\d\.]+)[mW]?\s*Var=([\w\d\.]+)';
+            
+            [~,t]=regexp(header2, regexString, 'match', 'tokens');
+            deltaT            = str2num(t{1}{1});
+            numberOfTimeSteps = str2num(t{1}{2});
+            siteDepth         = str2num(t{1}{3})*-1; % Depths negative
+            name              = (t{1}{4}); 
+            height            = str2num(t{1}{5});    % Heights positive
+            siteTide          = str2num(t{1}{6});
+            var_              = t{1}{7};             % var is reserved word
+            
+            % Are units ever NOT m and s? Let's assume they are for now and
+            % not handle alternatives...
+            
+            constructorArgs = {...
+                'DeltaT',            deltaT, ...
+                'NumberOfTimeSteps', numberOfTimeSteps, ...
+                'SiteDepth',         siteDepth, ...
+                'MeterDepth',        height + siteDepth, ... % Gives negative depth
+                'SiteTide',          siteTide, ...
+                'Name',              name, ...
+                'Var',               var_ ...
+                };
+            
+            % Create new current objects: time, speed, direction, metadata
+            % Convert cm/s to m/s
+            sns = AutoDepomod.Currents.TimeSeries(double(data{4}), data{5}./100.0, data{6}, 'isSNS', 1, constructorArgs{:});
+            nsn = AutoDepomod.Currents.TimeSeries(double(data{1}), data{2}./100.0, data{3}, 'isSNS', 0, constructorArgs{:});            
+        end
         
-        LengthUnitSIConversionFactor@double = 1.0;
-        TimeUnitSIConversionFactor@double   = 1.0;
-        
-        isSNS = [];
+        function sizeInBytes = toFile(sns, nsn, fileName)
+            
+            MACHINEFORMAT = 'ieee-be';
+            PERMISSION    = 'w';
+            
+            filePointer = fopen(fileName,PERMISSION,MACHINEFORMAT);
+
+            % Write header lines
+            fprintf(filePointer,['hourly-file','\r\n']);
+            fprintf(filePointer,'dT=%ds nT=%d depth=%.1fm %s@%.2fm Tide=%.2fm Var=%s\r\n', ...
+                sns.DeltaT, ...
+                sns.NumberOfTimeSteps,...
+                sns.SiteDepth*-1,...
+                sns.Name, ...
+                sns.MeterDepth-sns.SiteDepth,...
+                sns.SiteTide,...
+                sns.Var ...
+                );
+            
+            fprintf(filePointer,'%-29s %-29s \r\n', 'NSN', 'SNS');
+
+            % Write each data record
+            for index = 1:nsn.NumberOfTimeSteps
+
+                rowData = [ double(nsn.Time(index)) % coerce to double so that entire row does not get truncated into integers
+                            nsn.Speed(index)*100    % convert to cm/s
+                            nsn.Direction(index)
+                            double(sns.Time(index)) % coerce to double so that entire row does not get truncated into integers
+                            sns.Speed(index)*100    % convert to cm/s
+                            sns.Direction(index)
+                          ];
+
+                % Write row to file
+                fprintf(filePointer, '%-9.0u %-9.2f %-9.2f %-9.0u %-9.2f %-9.2f\r\n', rowData);
+            end
+
+            % End file file a single '#' character
+            fprintf(filePointer,'#\r\n');
+
+            fclose(filePointer);
+            fileInfo=dir(fileName);
+            sizeInBytes=fileInfo.bytes;
+             
+        end
     end
     
     methods
-        
-        function TS = TimeSeries(varargin)
-           if ~isempty(varargin)
-                for i = 1:2:size(varargin,2)
-                    % Dynamically populate nested properties
-                    % Calling function this way suppresses text output
-                    if ischar(varargin{i+1})
-                        cmd = sprintf('TS.(''%s\'') = ''%s''', varargin{i},varargin{i+1});
-                    else
-                        cmd = sprintf('TS.(''%s\'') = %s', varargin{i},num2str(varargin{i+1}));
-                    end
-                    evalc(cmd);
-                end   
-            end
-        end
-        
-        function idxs = timeIndexes(TS)
-            idxs = (1:length(TS.Time))';
-        end
-        
-        function t = contextualiseTime(TS, startDatenum)
-            DeltaTDays = TS.DeltaT/(60*60*24); % Assumes DeltaT is always in seconds.          
+        function TS = TimeSeries(time, speed, direction, varargin)
+            TS = TS@Depomod.Currents.TimeSeries(varargin{:});
+            TS.Time      = time;
+            TS.Speed     = speed;
+            TS.Direction = direction;
             
-            t = startDatenum + (TS.timeIndexes - 1)* DeltaTDays;       
-        end
-        
-        function m = meanSpeed(TS)
-            m = mean(TS.Speed);
-        end
-        
-        function scaleSpeed(TS, factor)
-            TS.Speed = TS.Speed * factor;
             TS.setUV;
-        end
-        
-        function ts = toRCMTimeSeries(TS, varargin)
-            AutoDepomod.FileUtils.isRCMPackageAvailable;
-            
-            startTime = 719529; % 01/01/1970
-            
-            if ~isempty(varargin)
-                for i = 1:2:size(varargin,2)
-                    switch varargin{i}
-                      case 'startTime'
-                        startTime = varargin{i + 1};
-                    end
-                end   
-            end
-            
-            ts = RCM.Current.TimeSeries.create(TS.contextualiseTime(startTime), TS.Speed, TS.Direction);
-            ts.HeightAboveBed = TS.MeterDepth - TS.SiteDepth;
-        end
-        
-        function setUV(TS)
-            [TS.v, TS.u] = pol2cart(TS.Direction*pi/180,TS.Speed);
-        end
-        
-        function setSpeedAndDirection(TS)
-            [TS.Direction, TS.Speed]=cart2pol(TS.v, TS.u);
-            TS.Direction = TS.Direction * 180 / pi;
-            indx = find(TS.Direction<0);
-            TS.Direction(indx) = TS.Direction(indx)+360;
         end
     end
     

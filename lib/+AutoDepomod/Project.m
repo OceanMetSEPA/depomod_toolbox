@@ -1,281 +1,172 @@
-classdef (Abstract) Project < dynamicprops
+classdef Project < Depomod.Project
     
-    properties
-        name@char;
-        path@char;
-        benthicRuns@AutoDepomod.Run.Collection;
-        EmBZRuns@AutoDepomod.Run.Collection;
-        TFBZRuns@AutoDepomod.Run.Collection;
-        SNSCurrents@AutoDepomod.Currents.Profile;
-        NSNCurrents@AutoDepomod.Currents.Profile;
+    properties (Constant = true)
+        version = 1;
     end
     
-     methods (Static = true)
+    properties 
+        domain@AutoDepomod.DomainFile;
+        bathymetry@AutoDepomod.BathymetryFile;
+    end
+    
+    methods (Static = true)
         
-        function v = version(path)
-            projectContents = dir([path, '\depomod']);
-            projectContents = {projectContents.name};
+        function sn = findSiteName(path)
+            % Returns the site name associated with the passed in model
+            % package root path. This name is based upon the standard .ini
+            % file located in the package root directory.
             
-            if any(cellfun(@(x) isequal(x, 'models'), projectContents))
-                v = 2;
-            elseif any(cellfun(@(x) isequal(x, 'partrack'), projectContents))
-                v = 1;
+            iniFileRegex = 'SEPA-(.*).ini'; % regex to identify .ini file and parse out site name
+            files = Depomod.FileUtils.fileFinder(path);       % find all files in root directory
+            file  = {};
+            
+            if ~isempty(files)
+                % isolate the file(s) that match the .ini file regex
+                file = files(cell2mat(cellfun(@(x) ~isempty(regexp(x, iniFileRegex, 'ONCE')), files, 'UniformOutput', false)),:);
+            end
+                        
+            if ~isempty(file) && size(file,1) == 1
+                % Use the .ini file regex to parse out the name and
+                % assign to output
+                [~, tokens] = regexp(file{1}, iniFileRegex, 'match', 'tokens');
+                sn = cell2mat(tokens{1});
             else
-                v = [];
+                % If zero or many matched files exist, return nothing
+                sn = [];
             end
         end
         
         function P = create(path)
-            if isequal(path(end), '/') | isequal(path(end), '\')
-                path(end) = [];
-            end
-            
-            version = AutoDepomod.Project.version(path);
- 
-            if version == 1
-                P = AutoDepomod.V1.Project(path);
-            elseif version == 2
-                P = AutoDepomod.V2.Project(path);   
-            else
-                error('AutoDepomod:InvalidArgument',...
-                    'The path specified is not a recognizable AutoDepomod Project.')
-            end
-        end
-        
-        function P = createFromDataDir(name, namespace)
-            % Returns an instance of AutoDepomod.Project representing
-            % the package of modelling files specified by name.
-            %
-            % By default, the modelling package found under the standard
-            % path (C:\SEPA Consent\DATA) is used. Alternatively, a
-            % namespace can be passed in as a second argument in which case
-            % the standardized namespaced path is used (e.g. C:\SEPA
-            % Consent\DATA-namespace)
-            
-            if exist('namespace', 'var')
-                p = AutoDepomod.Data.root(namespace);
-            else
-                p = AutoDepomod.Data.root();
-            end
-            
-            P = AutoDepomod.Project.create([p,'\',name]);
+            P = AutoDepomod.Project(path);
         end
         
     end
     
-    methods  
+    methods
         
-        function dn = directoryName(P)
-            dirs = strsplit(P.path, '\\');
-            dn = dirs{end};
+        function P = Project(path)         
+            P.name = AutoDepomod.Project.findSiteName(path);
+            P.path = path;  
         end
         
-        function pp = parentPath(P)
-            % Returns the parent path of the modelling package. 
-            
-            dirs = strsplit(P.path, '\\');
-            pp   = strjoin(dirs(1:end-1), '\');
-            
-            if P.isRemotePath
-                pp = ['\', pp];
-            end
+        function p = partrackPath(P)
+            % Returns the absolute path of the package's \partrack directory
+            p = strcat(P.depomodPath(), '\partrack');
         end
         
-        function bool = isRemotePath(P)
-            bool = 0;
-            
-            if regexp(P.path, '^\\\\')
-                bool = 1
-            end
+        function p = resusPath(P)   
+            % Returns the absolute path of the package's \resus directory        
+            p = strcat(P.depomodPath(), '\resus');           
         end
         
-        function p = depomodPath(P)
-            % Returns the absolute path of the package's \depomod directory
-            p = strcat(P.path(), '\depomod');
+        function p = gridgenPath(P)
+            p = strcat(P.depomodPath, '\gridgen');
         end
         
-        function snsc = get.SNSCurrents(P)
-            if isempty(P.SNSCurrents)
-                P.initializeCurrents;
-            end
+        function p = logFilePath(P, type)
+            % Returns the absolute path of the package's logfile according
+            % to the type passed in: 'B', 'E' or 'T'
             
-            snsc = P.SNSCurrents;
-        end
-        
-        function nsnc = get.NSNCurrents(P)
-            if isempty(P.NSNCurrents)
-                P.initializeCurrents;
-            end
-            
-            nsnc = P.NSNCurrents;
-        end
-        
-        function scaleCurrents(P, factor)
-            P.SNSCurrents.scaleSpeed(factor);
-            P.NSNCurrents.scaleSpeed(factor);
-            
-            P.saveCurrents;
-        end
-                
-        function [a, b, c, d] = domainBounds(P)
-            % Returns the model domain bounds described on the basis of the
-            % minimum and maximum easting and northings. The order of the
-            % outputs is min east, max east, min north, max north.
-            
-            [minE, maxE, minN, maxN] = AutoDepomod.FileUtils.Inputs.Readers.readGridgenIni(P.gridgenIniPath);
-
-            if nargout == 1
-                a = [minE, maxE, minN, maxN];
+            if isequal(type, 'S')
+                p = [P.resusPath, '\', P.name, '-BENTHIC.log'];
+            elseif isequal(type, 'E')
+                p = [P.resusPath, '\', P.name, '-EMBZ.log'];
+            elseif isequal(type, 'T')
+                p = [P.resusPath, '\', P.name, '-TFBZ.log'];
             else
-                a = minE;
-                b = maxE;
-                c = minN;
-                d = maxN;
+               p = [];
             end
         end
-               
-        function [e, n] = southWest(P)
-            % Returns the easting and northing of the model domain's south
-            % west corner
-            [e, ~, n, ~] = P.domainBounds;
+        
+        function p = bathymetryDataPath(P)
+            p =  [P.gridgenPath, '\', P.name, '-min.dat'];
         end
         
-        function [e, n] = southEast(P)
-            % Returns the easting and northing of the model domain's south
-            % east corner
-            [~, e, n, ~] = P.domainBounds;
-        end
-        
-        function [e, n] = northEast(P)
-            % Returns the easting and northing of the model domain's north
-            % east corner
-            [~, e, ~, n] = P.domainBounds;
-        end
-        
-        function [e, n] = northWest(P)
-            % Returns the easting and northing of the model domain's north
-            % west corner
-            [e, ~, ~, n] = P.domainBounds;
-        end
-        
-        function [e, n] = centre(P)
-            % Returns the easting and northing of the model domain's centre
-            [minE, maxE, minN, maxN] = P.domainBounds();
+        function lf = log(P, type)
+            % Returns an instance of AutoDepomod.LogFile representing the
+            % package's logfile which corresponds to the passed in type, 'B', 'E' or 'T'
             
-            e = minE + (maxE-minE)/2.0;
-            n = minN + (maxN-minN)/2.0;
+            lfpath = P.logFilePath(type);
+            lf = AutoDepomod.LogFile(lfpath);
         end
         
-        function ms = meanCurrentSpeed(P, depth)
-            ms = P.SNSCurrents.(depth).meanSpeed;
-        end
-        
-        function r = get.benthicRuns(P)
-            % Lazy load to save time and memory
-            if isempty(P.benthicRuns)
-                P.benthicRuns = AutoDepomod.Run.Collection(P, 'type', 'B');
-            end
-
-            r = P.benthicRuns;
-        end
-        
-        function r = get.EmBZRuns(P)
-            % Lazy load to save time and memory
-            if isempty(P.EmBZRuns)
-                P.EmBZRuns = AutoDepomod.Run.Collection(P, 'type', 'E');
-            end
-
-            r = P.EmBZRuns;
-        end
-        
-        function r = get.TFBZRuns(P)
-            % Lazy load to save time and memory
-            if isempty(P.TFBZRuns)
-                P.TFBZRuns = AutoDepomod.Run.Collection(P, 'type', 'T');
-            end
-
-            r = P.TFBZRuns;
-        end
-        
-        function r = run(P, type, number)
-           if isequal(type, 'B')
-               r = P.benthicRuns.number(number);
-           elseif isequal(type, 'E')
-               r = P.EmBZRuns.number(number);
-           elseif isequal(type, 'T')
-               r = P.TFBZRuns.number(number);
-           else
-               r = [];
-           end            
-        end
-        
-        function ar = allRuns(P)
-           ar = AutoDepomod.Run.Collection(P);
-        end
-        
-        function clonedProject = cloneFiles(P, clonePath)
-            % Function uses new parent directory as argument but appends
-            % name as final residing directory for project. This makes it
-            % similar to .exportFiles() function
-            clonePath = [clonePath, '\', P.name];
+        function lf = solidsLog(P)
+            % Returns an instance of AutoDepomod.LogFile representing the
+            % package's benthic logfile
             
-            if isdir(clonePath)
-              disp([clonePath, ' already exists. Removing...']);
-              disp('    Removing...');
-
-              rmdir(clonePath, 's');
-            end
-
-            disp('Copying AutoDepomod files: ');
-            disp(['    FROM: ', P.path]);
-            disp(['    TO:   ', clonePath]);
-
-            mkdir(clonePath);
-
-            copyfile(P.path, clonePath, 'f');
-
-            disp('Replacing absolute path references in files under new namespace...');
-
-            % Replace all absolute path references within new tree to reflect new
-            % location
-            %
-            if P.version == 1
-                % list all files within the new directory tree as a CELL ARRAY
-                filesToSub = fileFinder(clonePath, {'.cfg','.cfh','maj.dat','min.dat','min.ing','.log', '.inp','.inr','.out','.txt'}, 'sub', 1, 'type', 'or');
-
-                for i = 1:length(filesToSub)        
-                  if ~isdir(filesToSub{i})
-                    disp(['    Updating ', filesToSub{i}, '...']);
-
-                    % Add trailing slash to substitution terms. This avoids 
-                    % ambiguity where the two paths share a common prefix (e.g.
-                    % /DATA) and prevents potential multiple concatenation
-                    %
-                    AutoDepomod.FileUtils.replaceInFile(filesToSub{i}, [P.path, '\'], [clonePath, '\']); 
-                  end
-                end
-            else
-                filesToSub = fileFinder(clonePath, {'-Location.properties'}, 'sub', 1, 'type', 'or');
-                rootPathString  = strrep(strrep(P.path, '\', '\\'), ':', '\:');
-                clonePathString = strrep(strrep(clonePath, '\', '\\'), ':', '\:');
-
-                disp(['    Updating ', filesToSub, '...']);
-                AutoDepomod.FileUtils.replaceInFile(filesToSub, rootPathString, clonePathString);
-            end
-
-            disp(['Clone of ', P.name, ' completed.']);
-
-            clonedProject = AutoDepomod.Project.create(clonePath);
+            lf = P.log('S');
         end
         
-        function bool = isDataProject(P)
-            bool = 0;
+        function lf = EmBZLog(P)
+            % Returns an instance of AutoDepomod.LogFile representing the
+            % package's EmBZ logfile
+            
+            lf = P.log('E');
+        end
+        
+        function lf = TFBZLog(P)
+            % Returns an instance of AutoDepomod.LogFile representing the
+            % package's TFBZ logfile
+            
+            lf = P.log('T');
+        end
+        
+        function p = currentFilePath(P, depth)
+           p = [P.partrackPath, '\current-data\', P.name,'-NS-', depth,'.dat'];
+        end
+        
+        function p = gridgenIniPath(P)
+           p = [P.depomodPath,'\gridgen\',P.name,'.ini'];
+        end
+        
+        function d = get.domain(P)
+            if isempty(P.domain)
+                P.domain = AutoDepomod.DomainFile(P.gridgenIniPath);
+            end
+            
+            d = P.domain;
+        end    
+        
+        function b = get.bathymetry(P)
+            % Lazy load to save time and memory
+            if isempty(P.bathymetry)
+                P.bathymetry = AutoDepomod.BathymetryFile(P.bathymetryDataPath);
+                [E,N] = P.southWest;
+                P.bathymetry.originE = E;
+                P.bathymetry.originN = N;
+            end
 
-            if ~isempty(regexp(P.path,[strrep(AutoDepomod.Data.root,'\','\\'),'[\w\-]*(\\)?'], 'ONCE'))
-                bool = 1;
+            b = P.bathymetry;
+        end
+        
+        function initializeCurrents(P)
+            [P.SNSCurrents, P.NSNCurrents] = AutoDepomod.Currents.Profile.fromFile(...
+                P.currentFilePath('s'), P.currentFilePath('m'), P.currentFilePath('b'));
+            
+            P.SNSCurrents.project = P;
+            P.NSNCurrents.project = P;
+        end
+        
+        function saveCurrents(P)
+            depths = {'s','m','b'};
+            
+            for i = 1:length(depths)
+                AutoDepomod.Currents.TimeSeries.toFile(...
+                    P.SNSCurrents.(depths{i}),...
+                    P.NSNCurrents.(depths{i}),...
+                    P.currentFilePath(depths{i})...
+                );
             end
         end
         
+        function exportedProject = exportFiles(P, exportPath, varargin)
+
+            runs = P.allRuns;
+            
+            for r = 1:runs.size
+                exportedProject = runs.item(r).exportFiles(exportPath, varargin{:}); 
+            end
+        end
     end
     
 end

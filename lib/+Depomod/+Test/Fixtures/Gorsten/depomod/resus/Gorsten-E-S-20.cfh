@@ -1,0 +1,10 @@
+  ***Additional input data file for resupension model***
+   ***
+RE 3.2  Model and version number
+   0  ievent Write resuspension events to file for stations
+  4.00  consolidationtime Particle consolidated (days)
+     1  imaxaccuracy Switch for maximum accuracy in resuspension model
+1  ioutplug  Write .plu and .csv file
+0 ioutplugeveryday  Write out every day
+"118"  outplugdaystring
+1
