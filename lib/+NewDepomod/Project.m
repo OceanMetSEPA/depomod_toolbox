@@ -116,9 +116,10 @@ classdef Project < Depomod.Project
         
         function p = locationPropertiesPath(P)
             dirContents = dir(P.modelsPath);
-            locationFile = find(cellfun(@(x) ~isempty(strfind(x, '-Location')), {dirContents.name}));
+            locationFile = find(cellfun(@(x) ~isempty(strfind(x, '.depomodlocationproperties')), {dirContents.name}));
             
             p = [P.modelsPath, '\', dirContents(locationFile).name];
+%             p = [P.modelsPath, '\', P.name, '.depomodlocationproperties'];
         end
         
         function p = currentFilePath(P, depth, tide)

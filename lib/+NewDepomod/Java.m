@@ -20,7 +20,7 @@ classdef Java < Depomod.Java
 
             system(J.exportCommandStringWithOptions(run, newProjectPath, varargin{:}));
 
-            newProject = AutoDepomod.Project.create([newProjectPath, '\', run.project.name]);
+            newProject = Depomod.Project.create([newProjectPath, '\', run.project.name]);
             oldProject = run.project;
         end
         
