@@ -1,4 +1,4 @@
-function replaceInFile(filepath, oldString, newString)
+function replaceInFile(filepath, oldString, newString, varargin)
     % Replaces all occurrences of a string within a file with a replacement
     % string.
     %
@@ -15,6 +15,15 @@ function replaceInFile(filepath, oldString, newString)
     %
     %    replaceInFile('C:\\a_dir\_a_file.txt', 'this', 'that')
     %
+    
+    regularExpression = 0;
+    
+    for i = 1:2:length(varargin)
+      switch varargin{i}
+        case 'regexp'
+          regularExpression = varargin{i+1};
+      end
+    end
 
     tmp_path = [filepath, '.TEMP'];
 
@@ -23,7 +32,13 @@ function replaceInFile(filepath, oldString, newString)
     
     while ~feof(fin)
        s = fgetl(fin);
-       s = strrep(s, oldString, newString); % this is not idempotent!
+       
+       if regularExpression
+           s = regexprep(s, oldString, newString); 
+       else
+           s = strrep(s, oldString, newString); % this is not idempotent!
+       end
+       
        fprintf(fout,'%s\n',s);
     end
 

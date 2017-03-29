@@ -51,32 +51,86 @@ classdef Base < Depomod.Run.Base
     methods (Static = true)
         
         function runNo = parseRunNumber(filename)
-            runNo = Depomod.Run.Base.parseRunNumber(filename, 2);
+            
+            [bool, ~, number, ~, ~, ~, ~, ~, ~] = NewDepomod.Run.Base.isValidConfigFileName(filename);
+            
+            if bool
+                runNo = number;
+            else
+                runNo = [];
+            end
         end
         
-        function [bool, sitename, type, tide, number, filetype, ext] = isValidConfigFileName(filename)
-            [bool, sitename, type, tide, number, filetype, ext] = Depomod.Run.Base.isValidConfigFileName(filename, 2);            
+        function [bool, sitename, number, type, tide, output, gmodel, timestamp, ext] = isValidConfigFileName(filename)
+            [sitename, number, type, tide, output, gmodel, timestamp, ext] = NewDepomod.Run.Base.cfgFileParts(filename);
+            
+            bool = ~isempty(sitename) && ...
+                   ~isempty(number) && ...
+                   ~isempty(type) && ...
+                   isequal(ext, 'depomodmodelproperties');
+                   
+            varargout = cell(8,1);
+            
+            if bool
+                varargout{1} = sitename;
+                varargout{2} = number;
+                varargout{3} = type;
+                varargout{4} = tide;
+                varargout{5} = output;
+                varargout{6} = gmodel;
+                varargout{7} = timestamp;
+                varargout{8} = ext;
+            end
         end
         
-        function [sitename, type, tide, number, filetype, ext] = cfgFileParts(filename)
-            [sitename, type, tide, number, filetype, ext] = Depomod.Run.Base.cfgFileParts(filename, 2);
+        function [sitename, number, type, tide, output, gmodel, timestamp, ext] = cfgFileParts(filename)
+            [~,t]=regexp(filename, NewDepomod.Run.Base.FilenameRegex, 'match', 'tokens');
+            
+            if isempty(t)
+                sitename  = [];
+                number    = [];
+                type      = [];
+                tide      = [];
+                output    = [];
+                gmodel    = [];
+                timestamp = [];
+                ext       = [];
+            else
+                sitename  = t{1}{1};
+                number    = t{1}{2};
+                type      = t{1}{3};
+                tide      = t{1}{4};
+                output    = t{1}{5};
+                gmodel    = t{1}{6};
+                timestamp = t{1}{7};
+                ext       = t{1}{8};
+            end
         end
         
-        function str = dispersionCoefficientReplaceString(dim,value)
-            str = [num2str(value), '   k', dim,'  {m2/s'];
-        end
     end
     
     % Instance
     
     properties (Constant = true, Hidden = true)
-        FilenameRegex = '^(.+)\-(NONE|EMBZ|TFBZ)\-(S|N)\-(\d+)-(\w+)?\.(properties)$';
+
+        FilenameRegex = [...
+            '^(\w+)', ...
+            '\-?(\d+)?', ...
+            '\-?(NONE|EMBZ|TFBZ)?', ...
+            '\-?(S|N)?', ...
+            '\-?(carbon|chemical|solids)?', ...
+            '\-?(g0|g1)?', ...
+            '\-?(\d+)?', ...
+            '\.(depomodresultslog|depomodresultssur|depomodruntimeproperties|depomodcagesxml|depomodflowmetryproperties|depomodbathymetryproperties|depomodmodelproperties|depomodphysicalproperties|depomodlocationproperties|depomodconfigurationproperties)$' ...
+        ];
+    
     end
     
     properties
         modelFile@NewDepomod.PropertiesFile;
         physicalPropertiesFile@NewDepomod.PropertiesFile;
         configurationFile@NewDepomod.PropertiesFile;
+        runtimeFile@NewDepomod.PropertiesFile;
         inputsFile@NewDepomod.InputsPropertiesFile;
         iterationInputsFile@NewDepomod.InputsPropertiesFile;
         exportedTimeSeriesFile@NewDepomod.TimeSeriesFile;
@@ -118,8 +172,7 @@ classdef Base < Depomod.Run.Base
         
         function name = modelFileRoot(R)
             % Returns just the filename for the model run cfg file, omitting the extension
-            [~, filename, ~] = fileparts(R.modelFileName);
-            name = strrep(filename, '-Model','');
+            [~, name, ~] = fileparts(R.modelFileName);
         end
         
         function name = iterationRunFileRoot(R)
@@ -133,7 +186,12 @@ classdef Base < Depomod.Run.Base
         
         function p = configPath(R)
             % Returns full path for the model run cfg file
-            p = strcat(R.project.modelsPath, '\', R.modelFileRoot, '-Configuration.properties');
+            p = strcat(R.project.modelsPath, '\', R.modelFileRoot, '.depomodconfigurationproperties');
+        end
+        
+        function p = runtimePath(R)
+            % Returns full path for the model run cfg file
+            p = strcat(R.project.modelsPath, '\', R.modelFileRoot, '.depomodruntimeproperties');
         end
         
         function p = physicalPropertiesPath(R)
@@ -171,7 +229,7 @@ classdef Base < Depomod.Run.Base
         end
          
         function cpn = cagesPath(R)
-            cpn = [R.project.cagesPath, '\', R.modelFileRoot, '.depomodcagesxml'];
+            cpn = [R.project.cagesPath, '\', R.project.name, '-' num2str(R.runNumber), '.depomodcagesxml'];
         end
          
         function i = inputsFilePath(R)
@@ -218,10 +276,37 @@ classdef Base < Depomod.Run.Base
 
         function c = get.configurationFile(R)
             if isempty(R.configurationFile)
+                if ~exist(R.configPath, 'file')
+                    template = NewDepomod.PropertiesFile(strcat(R.project.modelsPath, '\', R.project.name, '.depomodconfigurationproperties'));
+                    template.toFile(R.configPath);
+                end
+                
                 R.configurationFile = NewDepomod.PropertiesFile(R.configPath);
             end
             
             c = R.configurationFile;
+        end
+        
+        function ppf = get.physicalPropertiesFile(R)
+            if isempty(R.physicalPropertiesFile)
+                if ~exist(R.physicalPropertiesPath, 'file')
+                    R.physicalPropertiesFile = NewDepomod.PropertiesFile(strcat(R.project.modelsPath, '\', R.project.name, '.depomodphysicalproperties'));
+                    R.physicalPropertiesFile.path = R.physicalPropertiesPath;
+                    R.physicalPropertiesFile.toFile;
+                else
+                    R.physicalPropertiesFile = NewDepomod.PropertiesFile(R.physicalPropertiesPath);
+                end
+            end
+            
+            ppf = R.physicalPropertiesFile;
+        end
+            
+        function r = get.runtimeFile(R)
+            if isempty(R.runtimeFile)
+                R.runtimeFile = NewDepomod.PropertiesFile(R.runtimePath);
+            end
+            
+            r = R.runtimeFile;
         end
 
         function i = get.inputsFile(R)
@@ -297,6 +382,10 @@ classdef Base < Depomod.Run.Base
             end
         end
         
+        function rdd = runDurationDays(R)
+            rdd = str2num(R.inputsFile.FeedInputs.numberOfTimeSteps)/24.0;
+        end
+        
         function cmd = execute(R, varargin)
             % Invokes Depomod on the model run configuration, overwriting
             % any output files  
@@ -359,20 +448,6 @@ classdef Base < Depomod.Run.Base
         
         function initializeLog(R)
             R.log = NewDepomod.PropertiesFile(R.logFilePath); % R.iterationRunNumber presumably added at some point
-        end
-        
-        function ppf = get.physicalPropertiesFile(R)
-            if isempty(R.physicalPropertiesFile)
-                if ~exist(R.physicalPropertiesPath, 'file')
-                    R.physicalPropertiesFile = NewDepomod.PropertiesFile([NewDepomod.Project.templatePath, '\template_physical.properties']);
-                    R.physicalPropertiesFile.path = R.physicalPropertiesPath;
-                    R.physicalPropertiesFile.toFile;
-                else
-                    R.physicalPropertiesFile = NewDepomod.PropertiesFile(R.physicalPropertiesPath);
-                end
-            end
-            
-            ppf = R.physicalPropertiesFile;
         end
                 
     end

@@ -76,6 +76,11 @@ classdef Chemical < NewDepomod.Run.Base
             cm = CR.log.CONSENTMASS;
         end
         
+        function mr = massReleased(CR)
+            mr = sum(CR.inputsFile.data(:,6)) + ...
+                sum(CR.inputsFile.data(:,3));
+        end
+        
         function mb = massBalance(CR)
             % Returns the mass balance for the model run
             mb = CR.log.MASSBALANCEG;

@@ -51,15 +51,49 @@ classdef Base < Depomod.Run.Base
     methods (Static = true)
         
         function runNo = parseRunNumber(filename)
-            runNo = Depomod.Run.Base.parseRunNumber(filename, 1);
+            [bool, ~, ~, ~, number, ~, ~] = AutoDepomod.Run.Base.isValidConfigFileName(filename);
+            
+            if bool
+                runNo = number;
+            else
+                runNo = [];
+            end
         end
         
         function [bool, sitename, type, tide, number, g, ext] = isValidConfigFileName(filename)
-            [bool, sitename, type, tide, number, g, ext] = Depomod.Run.Base.isValidConfigFileName(filename, 1);            
+            [sitename, type, tide, number, filetype, ext] = AutoDepomod.Run.Base.cfgFileParts(filename);
+           
+            bool = ~isempty(sitename) && ~isempty(type) && ~isempty(tide) && ~isempty(number) && ~isempty(ext);
+            varargout = cell(6,1);
+            
+            if bool
+                varargout{1} = sitename;
+                varargout{2} = type;
+                varargout{3} = tide;
+                varargout{4} = number;
+                varargout{5} = filetype;
+                varargout{6} = ext;
+            end
         end
         
         function [sitename, type, tide, number, g, ext] = cfgFileParts(filename)
-            [sitename, type, tide, number, g, ext] = Depomod.Run.Base.cfgFileParts(filename, 1);
+            [~,t]=regexp(filename, AutoDepomod.Run.Base.FilenameRegex, 'match', 'tokens');
+                        
+            if isempty(t)
+                sitename = [];
+                type     = [];
+                tide     = [];
+                number   = [];
+                filetype = [];
+                ext      = [];
+            else
+                sitename = t{1}{1};
+                type     = t{1}{2};
+                tide     = t{1}{3};
+                number   = t{1}{4};
+                filetype        = t{1}{5};
+                ext      = t{1}{6};
+            end
         end
         
         function str = dispersionCoefficientReplaceString(dim,value)

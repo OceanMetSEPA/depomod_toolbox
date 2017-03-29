@@ -7,6 +7,8 @@ classdef Project < Depomod.Project
     properties 
         domain@AutoDepomod.DomainFile;
         bathymetry@AutoDepomod.BathymetryFile;
+        SNSCurrents@Depomod.Currents.Profile;
+        NSNCurrents@Depomod.Currents.Profile;
     end
     
     methods (Static = true)
@@ -137,6 +139,22 @@ classdef Project < Depomod.Project
             end
 
             b = P.bathymetry;
+        end        
+        
+        function snsc = get.SNSCurrents(P)
+            if isempty(P.SNSCurrents)
+                P.initializeCurrents;
+            end
+            
+            snsc = P.SNSCurrents;
+        end
+        
+        function nsnc = get.NSNCurrents(P)
+            if isempty(P.NSNCurrents)
+                P.initializeCurrents;
+            end
+            
+            nsnc = P.NSNCurrents;
         end
         
         function initializeCurrents(P)
@@ -159,13 +177,60 @@ classdef Project < Depomod.Project
             end
         end
         
-        function exportedProject = exportFiles(P, exportPath, varargin)
+        function exportedProject = export(P, exportPath, varargin)
 
             runs = P.allRuns;
             
             for r = 1:runs.size
                 exportedProject = runs.item(r).exportFiles(exportPath, varargin{:}); 
             end
+        end
+        
+        function clonedProject = clone(P, clonePath)
+            % Function uses new parent directory as argument but appends
+            % name as final residing directory for project. This makes it
+            % similar to .exportFiles() function
+            
+            clonePath = [clonePath, '\', P.name];
+            
+            if isdir(clonePath)
+              disp([clonePath, ' already exists. Removing...']);
+              disp('    Removing...');
+
+              rmdir(clonePath, 's');
+            end
+
+            disp('Copying Depomod files: ');
+            disp(['    FROM: ', P.path]);
+            disp(['    TO:   ', clonePath]);
+
+            mkdir(clonePath);
+
+            copyfile(P.path, clonePath, 'f');
+
+            disp('Replacing absolute path references in files under new namespace...');
+
+            % Replace all absolute path references within new tree to reflect new
+            % location
+            %
+            % list all files within the new directory tree as a CELL ARRAY
+            filesToSub = Depomod.FileUtils.fileFinder(clonePath, {'.cfg','.cfh','maj.dat','min.dat','min.ing','.log', '.inp','.inr','.out','.txt'}, 'sub', 1, 'type', 'or');
+
+            for i = 1:length(filesToSub)        
+              if ~isdir(filesToSub{i})
+                disp(['    Updating ', filesToSub{i}, '...']);
+
+                % Add trailing slash to substitution terms. This avoids 
+                % ambiguity where the two paths share a common prefix (e.g.
+                % /DATA) and prevents potential multiple concatenation
+                %
+                Depomod.FileUtils.replaceInFile(filesToSub{i}, [P.path, '\'], [clonePath, '\']); 
+              end
+            end
+
+            disp(['Clone of ', P.name, ' completed.']);
+
+            clonedProject = Depomod.Project.create(clonePath);
         end
     end
     

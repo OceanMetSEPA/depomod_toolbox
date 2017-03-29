@@ -6,9 +6,8 @@ classdef Project < Depomod.Project
     
     properties
         location@NewDepomod.PropertiesFile;
-%         domain@NewDepomod.PropertiesFile; % now in one file -
-%         bathymetry
         bathymetry@NewDepomod.BathymetryFile
+        flowmetry@NewDepomod.FlowmetryFile
     end
     
     methods (Static = true)
@@ -41,15 +40,13 @@ classdef Project < Depomod.Project
             namedProjectPath = [path, '\', name];
             
             if exist(namedProjectPath, 'dir') & ~force
-                error('Requested project directory already exists. Not overwriting unless force = 1 option is used')
+                error('Requested project directory already exists. Not overwriting unless force = 1 option is used');
             elseif exist(namedProjectPath, 'dir')
                 rmdir(namedProjectPath, 's');
             end
             
-            templateProject = NewDepomod.Project.templateProject
-
-            P = templateProject.cloneFiles(path);
-            
+            templateProject = NewDepomod.Project.templateProject;
+            P = templateProject.clone(path);            
             P.rename(name);
             
             newDirs = {'ant','batch','intermediate','private','results','working'};
@@ -61,9 +58,21 @@ classdef Project < Depomod.Project
             % refresh
             P = NewDepomod.Project.create(namedProjectPath);
             
-            % explicitly add new path reference where none existed in
-            % template
-            Depomod.FileUtils.replaceInFile(P.locationPropertiesPath, 'project.directory=', ['project.directory=', strrep(strrep(P.path, '\','\\'),':','\:')]);
+            for r = 1:P.allRuns.size
+                run = P.allRuns.item(r);
+                runtimeFile = run.runtimeFile;
+
+                runtimeFile.Runtime.modelConfigurationFile = ...
+                    strrep(strrep([run.project.modelsPath, '\', run.project.name, '.depomodconfigurationproperties'], '\', '/'), ':', '\\:');
+                runtimeFile.Runtime.modelPhysicalFile = ...
+                    strrep(strrep([run.project.modelsPath, '\', run.modelFileRoot, '.depomodphysicalproperties'], '\', '/'), ':', '\\:');
+                runtimeFile.Runtime.modelParametersFile = ...
+                    strrep(strrep(run.modelPath, '\', '/'), ':', '\\:');
+                runtimeFile.Runtime.modelLocationFile = ...
+                    strrep(strrep(run.project.locationPropertiesPath, '\', '/'), ':', '\\:');
+                
+                runtimeFile.toFile;
+            end
         end
         
         function p = templatePath()
@@ -114,9 +123,24 @@ classdef Project < Depomod.Project
             p = [P.depomodPath, '\results'];
         end
         
+        function p = privatePath(P)
+            p = [P.depomodPath, '\private'];
+        end
+        
+        function p = projectFilePath(P)
+            p = [P.privatePath, '\depomod.prj'];
+        end
+        
+        function p = runtimeFilePath(P)
+            p = [P.modelsPath, '\depomod.prj'];
+        end
+        
         function p = locationPropertiesPath(P)
+            % Need to look for file identifier (e.g. ext) rather than build
+            % path with project name becaue this file is used to find the
+            % project name!
             dirContents = dir(P.modelsPath);
-            locationFile = find(cellfun(@(x) ~isempty(strfind(x, '-Location')), {dirContents.name}));
+            locationFile = find(cellfun(@(x) ~isempty(strfind(x, '.depomodlocationproperties')), {dirContents.name}));
             
             p = [P.modelsPath, '\', dirContents(locationFile).name];
         end
@@ -144,7 +168,7 @@ classdef Project < Depomod.Project
         function b = get.bathymetry(P)
             % Lazy load to save time and memory
             if isempty(P.bathymetry)
-                if exist(P.bathymetryDataPath)
+                if exist(P.bathymetryDataPath, 'file')
                     P.bathymetry = NewDepomod.BathymetryFile(P.bathymetryDataPath);
                 elseif exist(P.gridgenDataPath) & exist(P.gridgenIniPath)
                     P.bathymetry = NewDepomod.BathymetryFile.createFromGridgenFiles(P.gridgenIniPath,P.gridgenDataPath);
@@ -157,33 +181,114 @@ classdef Project < Depomod.Project
             b = P.bathymetry;
         end
         
-        function initializeCurrents(P)
-            P.SNSCurrents = NewDepomod.Currents.Profile.fromFile(...
-                P.currentFilePath('s', 'S'), P.currentFilePath('m', 'S'), P.currentFilePath('b', 'S'));
-            P.NSNCurrents = NewDepomod.Currents.Profile.fromFile(...
-                P.currentFilePath('s', 'N'), P.currentFilePath('m', 'N'), P.currentFilePath('b', 'N'));
-                        
-            P.SNSCurrents.project = P;
-            P.NSNCurrents.project = P;
-        end
-                
-        function saveCurrents(P)
-            depths = {'s','m','b'};
-            
-            for i = 1:length(depths)
-                P.SNSCurrents.(depths{i}).toFile(P.currentFilePath(depths{i}, 'S'));
-                P.NSNCurrents.(depths{i}).toFile(P.currentFilePath(depths{i}, 'N'));
-            end            
+        function f = get.flowmetry(P)
+            if isempty(P.flowmetry)
+                if exist(P.flowmetryFilePath, 'file')
+                    P.flowmetry = NewDepomod.FlowmetryFile(P.flowmetryFilePath);
+                else
+                    error('No flow file found');
+                end
+            end
+
+            f = P.flowmetry;
         end
         
+        function clonedProject = clone(P, clonePath)
+            % Function uses new parent directory as argument but appends
+            % name as final residing directory for project. This makes it
+            % similar to .exportFiles() function
+            
+            clonePath = [clonePath, '\', P.name];
+            
+            if isdir(clonePath)
+              disp([clonePath, ' already exists. Removing...']);
+              disp('    Removing...');
+
+              rmdir(clonePath, 's');
+            end
+
+            disp('Copying Depomod files: ');
+            disp(['    FROM: ', P.path]);
+            disp(['    TO:   ', clonePath]);
+
+            mkdir(clonePath);
+
+            copyfile(P.path, clonePath, 'f');
+
+            % write new directory path to location file   
+            locationFilePath = Depomod.FileUtils.fileFinder(clonePath, {'.depomodlocationproperties'}, 'subDirectory', 1, 'type', 'or')
+
+            Depomod.FileUtils.replaceInFile(locationFilePath, ...
+                '^project\.directory=([\w\\\/\:\.]+)?$', ...
+                ['project.directory=', strrep(strrep(clonePath, '\', '/'), ':', '\\:')], ...
+                'regexp',1 ...
+            );
+
+            % write new directory path to depomod.prj file 
+            filesToSub = [clonePath, '\depomod\private\depomod.prj']
+            % location file path
+            Depomod.FileUtils.replaceInFile(filesToSub, ...
+                '^project\.locations\.path=([\w\\\/\:\.]+)?$', ...
+                ['project.locations.path=', strrep(strrep(locationFilePath, '\', '/'), ':', '\\:')], ...
+                'regexp',1 ...
+            );
+            % project directory
+            Depomod.FileUtils.replaceInFile(filesToSub, ...
+                '^project\.directory=([\w\\\/\:\.]+)?$', ...
+                ['project.directory=', strrep(strrep(clonePath, '\', '/'), ':', '\\:')], ...
+                'regexp',1 ...
+            );
+
+            clonedProject = Depomod.Project.create(clonePath);
+            
+            for r = 1:clonedProject.allRuns.size
+                run = clonedProject.allRuns.item(r);
+                % try this format
+                Depomod.FileUtils.replaceInFile(run.runtimePath, ...
+                    strrep(strrep(P.path, '\', '/'), ':', '\:'), ...
+                    strrep(strrep(clonePath, '\', '/'), ':', '\:') ...
+                );
+            end
+        end
+                        
         function renamedProject = rename(P, name)
             
             oldName = P.name;
             newName = name;
             
-            % change absolute path in locations file
-            Depomod.FileUtils.replaceInFile(P.locationPropertiesPath, oldName, newName);     
+            % change name in locations file
+            Depomod.FileUtils.replaceInFile(P.locationPropertiesPath, ...
+                '^project\.name=(\w+)?$', ...
+                ['project.name=', newName], ...
+                'regexp',1 ...
+            );     
             
+            % change project root directory name in locations file
+            Depomod.FileUtils.replaceInFile(P.locationPropertiesPath, ...
+                '^project\.directory=([\w\\\/\:\.]+)?$', ...
+                ['project.directory=' strrep(strrep(strrep(P.path, oldName, newName), '\', '/'), ':', '\\:')], ...
+                'regexp',1 ...
+            );
+
+            % change name in project file
+            Depomod.FileUtils.replaceInFile(P.projectFilePath, ...
+                '^project\.name=(\w+)?$', ...
+                ['project.name=', newName], ...
+                'regexp',1 ...
+            );   
+            % change root directory name in location file path in project file 
+            Depomod.FileUtils.replaceInFile(P.projectFilePath, ...
+                '^project\.locations\.path=([\w\\\/\:\.]+)?$', ...
+                ['project.locations.path=', strrep(strrep(strrep(P.locationPropertiesPath, oldName, newName), '\', '/'), ':', '\\:')], ...
+                'regexp',1 ...
+            );
+            % change project root directory name in project file 
+            Depomod.FileUtils.replaceInFile(P.projectFilePath, ...
+                '^project\.directory=([\w\\\/\:\.]+)?$', ...
+                ['project.directory=' strrep(strrep(strrep(P.path, oldName, newName), '\', '/'), ':', '\\:')], ...
+                'regexp',1 ...
+            );
+        
             % change all file names
             filesToSub = Depomod.FileUtils.fileFinder(P.path, {oldName}, 'subDirectory', 1, 'type', 'or');
 
@@ -205,6 +310,17 @@ classdef Project < Depomod.Project
             movefile(P.path,[P.parentPath, '\', newName]);
             
             renamedProject = NewDepomod.Project.create([P.parentPath, '\', newName]);
+            
+            for r = 1:renamedProject.allRuns.size
+                run = renamedProject.allRuns.item(r);
+                % try this format
+                Depomod.FileUtils.replaceInFile(run.runtimePath, ...
+                    strrep(strrep(P.path, '\', '/'), ':', '\:'), ...
+                    strrep(strrep(renamedProject.path, '\', '/'), ':', '\:') ...
+                );
+            end
+            
+            
         end
      
     end
