@@ -33,11 +33,11 @@ function sc = initializeAsSubclass(project, cfgFileName)
     %    run = 
     %      [1x1 Depomod.Run.Benthic]
 
-    if ~isempty(regexp(cfgFileName, '-EMBZ-', 'ONCE'))
+    if ~isempty(regexp(cfgFileName, '-EMBZ.', 'ONCE'))
         sc = NewDepomod.Run.EmBZ(project, cfgFileName);
-    elseif ~isempty(regexp(cfgFileName, '-NONE-', 'ONCE'))
+    elseif ~isempty(regexp(cfgFileName, '-NONE.', 'ONCE'))
         sc = NewDepomod.Run.Solids(project, cfgFileName);
-    elseif ~isempty(regexp(cfgFileName, '-TFBZ-', 'ONCE'))
+    elseif ~isempty(regexp(cfgFileName, '-TFBZ.', 'ONCE'))
         sc = NewDepomod.Run.TFBZ(project, cfgFileName);
     elseif ~isempty(regexp(cfgFileName, '-E-', 'ONCE'))
         sc = AutoDepomod.Run.EmBZ(project, cfgFileName);

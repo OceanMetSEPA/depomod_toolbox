@@ -19,7 +19,7 @@ end
 %% initialize project
 
 % create from template with desired location and name
-project = NewDepomod.Project.createFromTemplate(rootDir, projectName)
+project = NewDepomod.Project.createFromTemplate(rootDir, projectName, 'force',1)
  
 % project = 
 %   Project with properties:
@@ -48,7 +48,7 @@ project.bathymetry.plot('contour',1)
 
 %% View the flow (requires rcm_toolbox MATLAB library)
 
-flowProfile = project.SNSCurrents.toRCMProfile
+flowProfile = project.flowmetry.toRCMProfile
 
 flowProfile.Bins{1}.scatterPlot % bed
 flowProfile.Bins{3}.scatterPlot % surface

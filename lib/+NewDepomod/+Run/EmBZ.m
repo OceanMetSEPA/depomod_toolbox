@@ -112,6 +112,12 @@ classdef EmBZ < NewDepomod.Run.Chemical
             end
         end
         
+        function tq = impliedTreatmentQuantity(EBR)
+            massReleased    = EBR.massReleased;
+            runDurationDays = EBR.runDurationDays;
+            tq = Depomod.EmBZ.massReleased2MassTreated(massReleased,runDurationDays)
+        end
+        
     end 
     
 end

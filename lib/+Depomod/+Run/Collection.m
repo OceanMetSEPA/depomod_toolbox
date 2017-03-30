@@ -94,7 +94,7 @@ classdef Collection < dynamicprops
                 searchTerms = '.cfg';
             else
                 path = project.modelsPath;
-                searchTerms = '-Model';
+                searchTerms = '.depomodmodelproperties';
             end
 
             if ~isempty(C.type)
@@ -107,6 +107,8 @@ classdef Collection < dynamicprops
                       % terms
                       typeString = 'BcnstFI'; 
                   end
+                  
+                  searchTerms = {searchTerms, strcat('-', typeString, '-')};
               else
                   if isequal(char(C.type), 'S');
                       typeString = 'NONE'; 
@@ -115,9 +117,11 @@ classdef Collection < dynamicprops
                   elseif isequal(char(C.type), 'T');
                       typeString = 'TFBZ'; 
                   end
+                  
+                  searchTerms = {searchTerms, strcat('-', typeString, '.')};
               end
 
-              searchTerms = {searchTerms, strcat('-', typeString, '-')};
+              
             end
 
             % Find files
@@ -202,28 +206,54 @@ classdef Collection < dynamicprops
             
             templateRun = C.number(highestRunNumber);
             
-            newConfigPath = regexprep(templateRun.configPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]);
-            newModelPath  = regexprep(templateRun.modelPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]);
-            
-            copyfile(templateRun.cagesPath, regexprep(templateRun.cagesPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]));
+            newModelPath  = regexprep(templateRun.modelPath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']);
             copyfile(templateRun.modelPath, newModelPath);
-            copyfile(templateRun.inputsFilePath, regexprep(templateRun.inputsFilePath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]));
-            copyfile(templateRun.configPath, newConfigPath);
+
+            copyfile(templateRun.cagesPath, regexprep(templateRun.cagesPath, '\-(\d+)', ['-', num2str(newRunNumber)]));
+            copyfile(templateRun.inputsFilePath, regexprep(templateRun.inputsFilePath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
+            copyfile(templateRun.runtimePath, regexprep(templateRun.runtimePath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
+
+            if exist(templateRun.configPath, 'file')
+                copyfile(templateRun.configPath, regexprep(templateRun.configPath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
+            end
             
             if exist(templateRun.physicalPropertiesPath, 'file')
-                copyfile(templateRun.physicalPropertiesPath, regexprep(templateRun.physicalPropertiesPath, '(NONE|EMBZ|TFBZ)-(N|S)-(\d+)', ['$1-$2-', num2str(newRunNumber)]));
+                copyfile(templateRun.physicalPropertiesPath, regexprep(templateRun.physicalPropertiesPath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
             end
 
             newModelPaths = strsplit(newModelPath, '\');
             newModelFilename = newModelPaths{end};
 
             newRun = Depomod.Run.initializeAsSubclass(C.project, newModelFilename);
-
+            
+            % add to collection
             C.list{C.size+1,1} = newRun;
             
+            % Update model file with number
             modelFile = newRun.modelFile;
             modelFile.Model.run.number=num2str(newRunNumber);
             modelFile.toFile;
+            
+            % Update runtime file with paths
+            runtimeFile = newRun.runtimeFile;
+            
+            runtimeFile.Runtime.modelParametersFile = ...
+                strrep(strrep(newRun.modelPath, '\', '\\'), ':', '\\:');
+            
+            runtimeFile.Runtime.modelLocationFile = ...
+                strrep(strrep(newRun.project.locationPropertiesPath, '\', '\\'), ':', '\\:');
+            
+            if exist(templateRun.configPath, 'file')
+                runtimeFile.Runtime.modelConfigurationFile = ...
+                    strrep(strrep(newRun.configPath, '\', '\\'), ':', '\\:');                
+            end
+            
+            if exist(templateRun.physicalPropertiesPath, 'file')
+                runtimeFile.Runtime.modelPhysicalFile = ...
+                    strrep(strrep(newRun.physicalPropertiesPath, '\', '\\'), ':', '\\:');                
+            end
+
+            runtimeFile.toFile;
         end
         
     end
