@@ -238,19 +238,19 @@ classdef Collection < dynamicprops
             runtimeFile = newRun.runtimeFile;
             
             runtimeFile.Runtime.modelParametersFile = ...
-                strrep(strrep(newRun.modelPath, '\', '\\'), ':', '\\:');
+                strrep(strrep(newRun.modelPath, '\', '/'), ':', '\\:');
             
             runtimeFile.Runtime.modelLocationFile = ...
-                strrep(strrep(newRun.project.locationPropertiesPath, '\', '\\'), ':', '\\:');
+                strrep(strrep(newRun.project.locationPropertiesPath, '\', '/'), ':', '\\:');
             
             if exist(templateRun.configPath, 'file')
                 runtimeFile.Runtime.modelConfigurationFile = ...
-                    strrep(strrep(newRun.configPath, '\', '\\'), ':', '\\:');                
+                    strrep(strrep(newRun.configPath, '\', '/'), ':', '\\:');                
             end
             
             if exist(templateRun.physicalPropertiesPath, 'file')
                 runtimeFile.Runtime.modelPhysicalFile = ...
-                    strrep(strrep(newRun.physicalPropertiesPath, '\', '\\'), ':', '\\:');                
+                    strrep(strrep(newRun.physicalPropertiesPath, '\', '/'), ':', '\\:');                
             end
 
             runtimeFile.toFile;
