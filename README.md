@@ -1,6 +1,9 @@
 # depomod_toolbox
 A MATLAB toolbox for reading, processing and manipulating the particle tracking models AutoDepomod and NewDepomod
 
+## Authors
+Andrew Berkeley, Ted Schlicke
+
 ## Dependencies
 This toolbox works best with the following packages
 - the [rcm_toolbox](https://github.com/OceanMetSEPA/rcm_toolbox) MATLAB library
