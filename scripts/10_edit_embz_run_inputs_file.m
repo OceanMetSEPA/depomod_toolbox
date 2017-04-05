@@ -59,7 +59,7 @@ inputs = project.EmBZRuns.number(1).inputsFile
 % Alternatively, an inputs file can be instantiated directly by using
 % the direct file path, e.g.
 
-inputs = NewDepomod.InputsPropertiesFile('C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-EMBZ-S-1-allCages.depomodinputsproperties')
+inputs = NewDepomod.InputsPropertiesFile('C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-1-EMBZ-allCages.depomodinputsproperties')
 
 % inputs = 
 %   InputsPropertiesFile with properties:
@@ -83,7 +83,7 @@ inputs = NewDepomod.InputsPropertiesFile('C:\newdepomod_projects\bay_of_fish\dep
 
 project.EmBZRuns.number(1).inputsFilePath
 % ans =
-% C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-EMBZ-S-1-allCages.depomodinputsproperties
+% C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-1-EMBZ-allCages.depomodinputsproperties
 
 % The drawback of instantiating the file directly like this is that
 % linkages to the other run information is missing. For example, the
@@ -135,6 +135,10 @@ inputs.FeedInputs.uuid = inputs.run.cages.consolidatedCages.cage(1).inputsId;
 % This simply access the associated cage file and looks at the id for the
 % first cage. This requires instantiation of the inputs file via the
 % project and run in order for the associated cage file to be in scope.
+%
+% This step is probably unecessary if the files are already setup correctly
+% but is a useful step to ensure consistency between the two files (inputs
+% and cages).
 
 %% A simple biomass scenario
 

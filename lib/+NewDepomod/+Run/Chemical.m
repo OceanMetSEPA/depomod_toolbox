@@ -71,11 +71,6 @@ classdef Chemical < NewDepomod.Run.Base
             s = R.chemicalSur;
         end
         
-        function cm = consentMass(CR)
-            % Returns the consent mass for the model run
-            cm = CR.log.CONSENTMASS;
-        end
-        
         function mr = massReleased(CR)
             mr = sum(CR.inputsFile.data(:,6)) + ...
                 sum(CR.inputsFile.data(:,3));
@@ -83,7 +78,7 @@ classdef Chemical < NewDepomod.Run.Base
         
         function mb = massBalance(CR)
             % Returns the mass balance for the model run
-            mb = CR.log.MASSBALANCEG;
+            mb = str2num(CR.log.Masses.chemical.balance.run);
         end
         
         function mbf = massBalanceFraction(CR)
@@ -117,13 +112,13 @@ classdef Chemical < NewDepomod.Run.Base
         
         function ffa= farFieldImpactArea(CR)
             % Returns the area imapcted at the fari-field compliance level in the model run
-            diff = CR.log.FARFIELDAREADIFFERENCE;
+            diff = str2num(CR.log.Eqs.chemical.farField.areaDifference);
             ffa  = CR.AZE + diff;
         end
         
         function a = AZE(CR)
             % Returns the AZE associated with the model run
-            a = CR.log.FARFIELDAREA;
+            a = str2num(CR.log.Eqs.chemical.farField.area);
         end
         
         function refreshRunFileproperties(R)

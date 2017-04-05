@@ -134,6 +134,33 @@ classdef EmBZ
         function f = theoreticalMaxFraction()
             f = Depomod.EmBZ.kineticModel(1,Depomod.EmBZ.theoreticalMaximaDays);
         end
+        
+        function b = grams2Biomass(mass)
+            % Returns the treatable biomass in t associated with a mass of the active ingredient EmBZ in g.
+
+            % dose rate = 50 ?g / kg (per day for 7 days)
+            %           = 50 mg / t 
+            %           = 0.05 g / t
+            b = mass / (7 * 0.05);
+        end
+        
+        function g = biomass2Grams(biomass)
+            % Returns the mass of the active ingredient EmBZ in g for a biomass
+            % described in t.
+
+            % "Slice is supplied as a premix in 2.5 kg sachets, each containing 5 g of emamectin benzoate (EmBZ)
+            % in an inert matrix. Each sachet of premix is wet or dry coated onto sufficient quantity of 
+            % pelletised fish feed to produce 500 kg of medicated feed. The recommended dose rate is 50 ?g 
+            % per kg of fish biomass per day for seven consecutive days. It therefore follows that for effective 
+            % treatment each tonne of biomass will require 5 kg of medicated feed per day for the seven days 
+            % of the treatment".
+
+            % dose rate = 50 ?g / kg 
+            %           = 50 mg / t 
+            %           = 0.05 g / t
+
+            g = biomass * (7 * 0.05);
+        end
 
 
     end

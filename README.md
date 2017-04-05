@@ -31,18 +31,17 @@ Create project from template with desired location and name
     % project = 
     %   Project with properties:
     % 
-    %         version: 2
-    %        location: [1x1 NewDepomod.PropertiesFile]
-    %      bathymetry: [1x1 NewDepomod.BathymetryFile]
-    %            name: 'bay_of_fish'
-    %            path: [1x34 char]
-    %      solidsRuns: [1 Depomod.Run.Collection]
-    %        EmBZRuns: [1 Depomod.Run.Collection]
-    %        TFBZRuns: [0 Depomod.Run.Collection]
-    %     SNSCurrents: [1x1 NewDepomod.Currents.Profile]
-    %     NSNCurrents: [1x1 NewDepomod.Currents.Profile]
+    %        version: 2
+    %       location: [1x1 NewDepomod.PropertiesFile]
+    %     bathymetry: [1x1 NewDepomod.BathymetryFile]
+    %      flowmetry: [1x1 NewDepomod.FlowmetryFile]
+    %           name: 'bay_of_fish'
+    %           path: 'C:\newdepomod_projects\bay_of_fish'
+    %     solidsRuns: [1 Depomod.Run.Collection]
+    %       EmBZRuns: [1 Depomod.Run.Collection]
+    %       TFBZRuns: [1 Depomod.Run.Collection]
 
-Notice there includes 1 solids run and 1 EmBZ run
+Notice there includes 1 solids run and 1 EmBZ run as well as objects describing the bathymetry and flow data
      
 ### View the bathymetry
 
@@ -51,7 +50,7 @@ Notice there includes 1 solids run and 1 EmBZ run
 
 ### View the flow (requires rcm_toolbox MATLAB library)
 
-    flowProfile = project.SNSCurrents.toRCMProfile
+    flowProfile = project.flowmetry.toRCMProfile
 
     flowProfile.Bins{1}.scatterPlot % bed
     flowProfile.Bins{3}.scatterPlot % surface
@@ -60,12 +59,15 @@ Notice there includes 1 solids run and 1 EmBZ run
 
     solidsRun = project.solidsRuns.item(1)
 
+    % solidsRun = 
     %   Solids with properties:
     % 
     %              defaultPlotLevels: [4 192 1553 10000]
     %                    defaultUnit: 'g m^{-2} y^{-1}'
+    %                      modelFile: [1x1 NewDepomod.PropertiesFile]
     %         physicalPropertiesFile: [1x1 NewDepomod.PropertiesFile]
     %              configurationFile: [1x1 NewDepomod.PropertiesFile]
+    %                    runtimeFile: [1x1 NewDepomod.PropertiesFile]
     %                     inputsFile: [1x1 NewDepomod.InputsPropertiesFile]
     %            iterationInputsFile: []
     %         exportedTimeSeriesFile: []
@@ -73,11 +75,12 @@ Notice there includes 1 solids run and 1 EmBZ run
     %                      solidsSur: []
     %                      carbonSur: []
     %             iterationRunNumber: '1'
-    %                  modelFileName: [1x37 char]
+    %                  modelFileName: 'bay_of_fish-1-NONE.depomodmodelproperties'
     %                        project: [1x1 NewDepomod.Project]
     %                    cfgFileName: []
     %                      runNumber: '1'
     %                          cages: [2 Depomod.Layout.Site]
+
 
 Notice this references all of the input (e.g. cages, inputs, physical) files and all of the output files (sur(face), time series) which will be written when the mdoel is executed. So this object can be used to navigate all of the information related to a particular run.
 
@@ -116,8 +119,11 @@ And some of the cage properties
           
 ### Execute model run
 
-    solidsRun.execute('modelDefaultsFilePath', solidsRun.physicalPropertiesPath); 
-
+- Open up user interface
+- Open up bay_of_fish project
+- Navigate to models
+- Right-click on the solids (NONE) run #1
+- Select single run
 
 ### Read results files
 

@@ -47,7 +47,7 @@ cages = project.solidsRuns.number(1).cages
 % Alternatively, a cages file can be instantiated directly by using
 % the direct file path, e.g.
 
-cages = Depomod.Layout.Site.fromXMLFile ('C:\newdepomod_projects\bay_of_fish\depomod\cages\bay_of_fish-NONE-N-1.depomodcagesxml')
+cages = Depomod.Layout.Site.fromXMLFile ('C:\newdepomod_projects\bay_of_fish\depomod\cages\bay_of_fish-1.depomodcagesxml')
 
 % cages = 
 %   2 Site array with properties:
@@ -64,7 +64,7 @@ cages = Depomod.Layout.Site.fromXMLFile ('C:\newdepomod_projects\bay_of_fish\dep
 
 project.solidsRuns.number(1).cagesPath
 % ans =
-% C:\newdepomod_projects\bay_of_fish\depomod\cages\bay_of_fish-NONE-N-1.depomodcagesxml
+% C:\newdepomod_projects\bay_of_fish\depomod\cages\bay_of_fish-1.depomodcagesxml
 
 %% Inspect the cages
 
@@ -123,7 +123,7 @@ cages.group(1).cage(1)
 %            width: 31.84
 %           height: 12
 %            depth: 6
-%         inputsId: [1x36 char]
+%         inputsId: '4c97b36c-bd67-44db-bfe7-15d6b3b298d2'
 %       proportion: 0.125
 %     inProduction: 1
     

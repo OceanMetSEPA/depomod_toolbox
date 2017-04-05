@@ -64,7 +64,7 @@ sur = project.solidsRuns.number(1).solidsSur
 % Alternatively, a sur file can be instantiated directly by using
 % the direct file path, e.g.
 
-sur = Depomod.Sur.Solids.fromFile('C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-NONE-N-1-solids-g0.sur', 'version', 2)
+sur = Depomod.Sur.Solids.fromFile('C:\newdepomod_projects\bay_of_fish\depomod\results\bay_of_fish-1-NONE-N-solids-g0.depomodresultssur', 'version', 2)
 
 % sur = 
 %   Solids with properties:
@@ -91,7 +91,7 @@ sur = Depomod.Sur.Solids.fromFile('C:\newdepomod_projects\bay_of_fish\depomod\in
 project.solidsRuns.number(1).solidsSurPath
 
 % ans =
-% C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-NONE-N-1-solids-g0.sur
+% C:\newdepomod_projects\bay_of_fish\depomod\results\bay_of_fish-1-NONE-N-solids-g0.depomodresultssur
 
 %% Find the maximum impact intensity
 
@@ -102,7 +102,7 @@ project.solidsRuns.number(1).solidsSurPath
 maxVal = sur.max
 
 % maxVal =
-%               49500.629453
+%               62087.497
 
 % In this case, the result is 49.5 kg of solids per m2 per year (since the
 % run is 365 days)
@@ -113,11 +113,11 @@ maxVal = sur.max
 [maxVal, maxEasting, maxNorthing] = sur.max
 
 % maxVal =
-%               49500.629453
+%                  62087.497
 % maxEasting =
 %                   350427.5
 % maxNorthing =
-%                  1069097.5
+%                  1069122.5
 
 %% Calculate the area of impact
 
@@ -130,13 +130,13 @@ sur.area(1553)  % g m-2
 sur.area(10000) % g m-2
 
 % ans =
-%           536986.621056892  % m2
+%           581623.156627404 % m2
 % ans =
-%           158867.252195808  % m2
+%           172410.306789315 % m2
 % ans =
-%            56685.0004043411 % m2
+%           47152.1358412295 % m2
 % ans =
-%            29192.3903474528 % m2
+%           26381.9607413528 % m2
 
 % If no intensity level is passed in the function has no basis for discriminating 
 % what is or isnt and impact and simply returns to total area in the domain
@@ -144,19 +144,17 @@ sur.area(10000) % g m-2
 sur.area()
 
 % ans =
-%      4622500
+%      3900625
      
-% This includes padding cells around the domain
-
 % To estiamte the maximum areal extent of any impact, the intensity passed
 % can be some implausibly small level
 
 sur.area(0.0001) % g m-2
      
 % ans =
-%           992888.181197206
+%           1004676.77990949
 
-% Which in this case amounts to just under a quarter of the domain.
+% Which in this case amounts to just over a quarter of the domain.
 
 %% Calculate the total mass of an impact
 
@@ -170,7 +168,7 @@ sur.area(0.0001) % g m-2
 sur.volume
 
 % ans =
-%           1008269179.51625
+%           1020129643.125
 
 % This integrates over the whole domain and returns the total mass, which
 % in this case is just over 1 million kg of solids. Notice that this value
@@ -181,7 +179,7 @@ sur.volume
 solidsRun.log.Masses.solids.balance.run
 
 % ans =
-% 1008269179.5260 % g
+% 1020124047.9424 % g
 
 % We can also pass in an intensity level to the volume method to return the
 % mass within the area above that intensity
@@ -189,7 +187,7 @@ solidsRun.log.Masses.solids.balance.run
 sur.volume(4)
 
 % ans =
-%              1007907799.11
+%              1019831496.25
 
 % So practically all of the mass is concentrated at intensities above 4 g
 % m-2.
@@ -197,15 +195,15 @@ sur.volume(4)
 sur.volume(192)
 
 % ans =
-%           995817844.923125
+%           1000849015.625
 
 
 sur.volume(1553)
 
 % ans =
-%           937723434.79375
+%           940455281.25
 
-% So ~93% of the mass is concentrated above a flux level of 1553 g m-2 y-1
+% So ~94% of the mass is concentrated above a flux level of 1553 g m-2 y-1
 
 %% Find the average value 
 
@@ -214,13 +212,13 @@ sur.volume(1553)
 sur.mean(4)
 
 % ans =
-%            1876.9700390789 % g m-2
+%            1753.42313081822 % g m-2
 
 % The average over the whole domain can be arrived at thus:
 sur.mean(0)
 
 % ans =
-%            218.12205073364
+%            261.529791539817
            
 %% Find the value at a particular location
 
@@ -232,7 +230,7 @@ sur.mean(0)
 sur.valueAt(351000,1068800) % easting, northing
 
 % ans =
-%           15.3138942064463 % g m-2
+%           4.708308275 % g m-2
 
 % A useful way to characterise the accuracy of a model output is to
 % determine how far - in spatial distance - a given location is from a
@@ -243,9 +241,9 @@ sur.valueAt(351000,1068800) % easting, northing
 sur.distanceToValue(351000,1068800, 4)
 
 % ans =
-%           28.6286013749386
+%           2.50111103373195
 
-% In this case the nearest location with a value of 4 g m-2 is only 28 m away 
+% In this case the nearest location with a value of 4 g m-2 is only 2 m away 
 % the specified location (which could represent a sample exhibiting a value
 % of 4 g m-2)
 

@@ -113,9 +113,14 @@ classdef EmBZ < NewDepomod.Run.Chemical
         end
         
         function tq = impliedTreatmentQuantity(EBR)
+            % this outputs treatment quantity in grams
             massReleased    = EBR.massReleased;
             runDurationDays = EBR.runDurationDays;
-            tq = Depomod.EmBZ.massReleased2MassTreated(massReleased,runDurationDays)
+            tq = Depomod.EmBZ.massReleased2MassTreated(massReleased,runDurationDays)*1000.0;
+        end
+        
+        function tf = treatmentFactor(EBR)
+            tf = Depomod.EmBZ.grams2Biomass(EBR.impliedTreatmentQuantity)/EBR.biomass;
         end
         
     end 

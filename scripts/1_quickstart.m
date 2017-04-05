@@ -1,7 +1,7 @@
 %% What?
 
 % This describes how to create a new project from a template and run the
-% model using the command line interface.
+% model using the graphical user interface.
 
 
 %% Define name and location
@@ -24,18 +24,18 @@ project = NewDepomod.Project.createFromTemplate(rootDir, projectName, 'force',1)
 % project = 
 %   Project with properties:
 % 
-%         version: 2
-%        location: [1x1 NewDepomod.PropertiesFile]
-%      bathymetry: [1x1 NewDepomod.BathymetryFile]
-%            name: 'bay_of_fish'
-%            path: [1x34 char]
-%      solidsRuns: [1 Depomod.Run.Collection]
-%        EmBZRuns: [1 Depomod.Run.Collection]
-%        TFBZRuns: [0 Depomod.Run.Collection]
-%     SNSCurrents: [1x1 NewDepomod.Currents.Profile]
-%     NSNCurrents: [1x1 NewDepomod.Currents.Profile]
+%        version: 2
+%       location: [1x1 NewDepomod.PropertiesFile]
+%     bathymetry: [1x1 NewDepomod.BathymetryFile]
+%      flowmetry: [1x1 NewDepomod.FlowmetryFile]
+%           name: 'bay_of_fish'
+%           path: 'C:\newdepomod_projects\bay_of_fish'
+%     solidsRuns: [1 Depomod.Run.Collection]
+%       EmBZRuns: [1 Depomod.Run.Collection]
+%       TFBZRuns: [1 Depomod.Run.Collection]
 
-% Notice there includes 1 solids run and 1 EmBZ run
+% Notice there includes 1 solids run and 1 EmBZ run as well as objects
+% describing the bathymetry and flow data
      
 %% View the bathymetry
 
@@ -58,12 +58,15 @@ flowProfile.Bins{3}.scatterPlot % surface
 % Select the first solids run
 solidsRun = project.solidsRuns.item(1)
 
+% solidsRun = 
 %   Solids with properties:
 % 
 %              defaultPlotLevels: [4 192 1553 10000]
 %                    defaultUnit: 'g m^{-2} y^{-1}'
+%                      modelFile: [1x1 NewDepomod.PropertiesFile]
 %         physicalPropertiesFile: [1x1 NewDepomod.PropertiesFile]
 %              configurationFile: [1x1 NewDepomod.PropertiesFile]
+%                    runtimeFile: [1x1 NewDepomod.PropertiesFile]
 %                     inputsFile: [1x1 NewDepomod.InputsPropertiesFile]
 %            iterationInputsFile: []
 %         exportedTimeSeriesFile: []
@@ -71,7 +74,7 @@ solidsRun = project.solidsRuns.item(1)
 %                      solidsSur: []
 %                      carbonSur: []
 %             iterationRunNumber: '1'
-%                  modelFileName: [1x37 char]
+%                  modelFileName: 'bay_of_fish-1-NONE.depomodmodelproperties'
 %                        project: [1x1 NewDepomod.Project]
 %                    cfgFileName: []
 %                      runNumber: '1'
@@ -79,7 +82,7 @@ solidsRun = project.solidsRuns.item(1)
 
 % Notice this references all of the input (e.g. cages, inputs, physical)
 % files and all of the output files (sur(face), time series) which will be
-% written when the mdoel is executed. So this object can be used to
+% written when the model is executed. So this object can be used to
 % navigate all of the information related to a particular run.
 
 % Check out the biomass
@@ -114,10 +117,15 @@ solidsRun.cages.consolidatedCages.cageVolume % m3
           
 %% Execute model run
 
-command = solidsRun.execute('modelDefaultsFilePath', solidsRun.physicalPropertiesPath); 
-
+% 1 - Open up user interface
+% 2 - Open up bay_of_fish project
+% 3 - Navigate to models
+% 4 - Right-click on the solids (NONE) run #1
+% 5 - Select single run
 
 %% Read results files
+
+% Once model run has completed...
 
 % Check run ITI score (ITI contour around 80% particles)
 solidsRun.log.Eqs.benthic.iti
@@ -138,4 +146,4 @@ solidsRun.solidsSur.valueAt(351000,1068800) % easting, northing
 % plot impact
 solidsRun.plot
 
-
+%%

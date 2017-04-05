@@ -24,10 +24,13 @@
 %                               including the the number of particles and the time points at 
 %                               which to output spatial impact results
 %
+%   - runtime file:             This describes the file paths to some of
+%                               the files described above
+%
 % Each of these can be manipulated and written back to file
 % programmatically (except for cages, at the moment).
 %
-%
+
 
 %% Instantiate run
 
@@ -47,13 +50,15 @@ solidsInputs = solidsRun.inputsFile;
 % This might already be set correctly and therefore be unecessary
 solidsInputs.FeedInputs.uuid = solidsRun.cages.consolidatedCages.cage(1).inputsId;
 % set the biomass
-solidsInputs.setBiomass(2500.0);
+solidsInputs.setBiomass(2500.0, 'days', 100);
 % save to file
 solidsInputs.toFile;
 
 %% Set the required run time in the model file
 
-% there are two run times in the model file:
+% This might be required if the length of the model run is changed
+%
+% There are two run times in the model file:
 %
 %   - releasePeriod: the time over which to release particles (should be
 %                    consistent with that described in the inputs file
@@ -117,7 +122,7 @@ runPeriodDays = str2num(solidsInputs.FeedInputs.numberOfTimeSteps) / 24.0
 samplingShifts = [0 2 4 6 8]
 
 % subtract each from 365 days and convert to milliseconds
-samplingDays = floor(runPeriodDays - samplingShifts).*(24*60*60*1000) % seconds
+samplingDays = floor(runPeriodDays - samplingShifts).*(24*60*60*1000) % milliseconds
 
 % samplingDays =
 %   Column 1
@@ -158,6 +163,7 @@ solidsConfig.Transports.recordTimes=samplingString
 % solidsConfig.Model.maxNumberOfModelIterations='52'
 % solidsConfig.Model.showConsoleOutput=false
 % solidsConfig.Model.stockingDensityLimit=Infinity
+solidsConfig.Model.writeIntermediateFiles='true'
 % solidsConfig.RelseaseManager.numberOfParticlesPerCageFinalRuns='10'
 % solidsConfig.RelseaseManager.numberOfParticlesPerCageScopingRuns='1'
 % 

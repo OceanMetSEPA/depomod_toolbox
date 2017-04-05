@@ -68,7 +68,7 @@ sur = project.EmBZRuns.number(1).surWithDecay
 % Alternatively, a sur file can be instantiated directly by using
 % the direct file path, e.g.
 
-sur = Depomod.Sur.Residue.fromFile('C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-EMBZ-S-1-chemical-g1.sur', 'version', 2)
+sur = Depomod.Sur.Residue.fromFile('C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-1-EMBZ-N-chemical-g1.depomodresultssur', 'version', 2)
 
 % sur = 
 %   Residue with properties:

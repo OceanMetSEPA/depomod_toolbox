@@ -30,7 +30,7 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
             % Note: this clears the inputs data table, including chemical
             % data
             
-            IPF.FeedInputs.biomass         = num2str(biomass)
+            IPF.FeedInputs.biomass         = num2str(biomass);
             IPF.FeedInputs.stockingDensity = num2str(biomass * 1000.0 / IPF.run.cages.cageVolume);
             
             feedWaterPercentage = 9;
@@ -149,6 +149,15 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
             IPF.data(treatmentSteps+1:totalHours, 6) = expExcretionProfile(expExcretionSteps)
             
             IPF.data(treatmentSteps+1:totalHours, 3) = 0.0;
+        end
+        
+        function setEmBZTreatmentFactor(IPF, factor, varargin)
+            biomass          = str2num(IPF.FeedInputs.biomass);
+            treatmentBiomass = biomass * factor;
+            
+            treatmentQuantity = Depomod.EmBZ.biomass2Grams(treatmentBiomass);
+            
+            IPF.setEmBZQuantity(treatmentQuantity);            
         end
     end
     

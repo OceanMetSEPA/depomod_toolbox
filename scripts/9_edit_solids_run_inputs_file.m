@@ -59,7 +59,7 @@ inputs = project.solidsRuns.number(1).inputsFile
 % Alternatively, an inputs file can be instantiated directly by using
 % the direct file path, e.g.
 
-inputs = NewDepomod.InputsPropertiesFile('C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-NONE-N-1-allCages.depomodinputsproperties')
+inputs = NewDepomod.InputsPropertiesFile('C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-1-NONE-allCages.depomodinputsproperties')
 
 % inputs = 
 %   InputsPropertiesFile with properties:
@@ -83,7 +83,7 @@ inputs = NewDepomod.InputsPropertiesFile('C:\newdepomod_projects\bay_of_fish\dep
 
 project.solidsRuns.number(1).inputsFilePath
 % ans =
-% C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-NONE-N-1-allCages.depomodinputsproperties
+% C:\newdepomod_projects\bay_of_fish\depomod\inputs\bay_of_fish-1-NONE-allCages.depomodinputsproperties
 
 % The drawback of instantiating the file directly like this is that
 % linkages to the other run information is missing. For example, the
@@ -135,6 +135,10 @@ inputs.FeedInputs.uuid = solidsRun.cages.consolidatedCages.cage(1).inputsId;
 % This simply access the associated cage file and looks at the id for the
 % first cage. This requires instantiation of the inputs file via the
 % project and run in order for the associated cage file to be in scope.
+%
+% This step is probably unecessary if the files are already setup correctly
+% but is a useful step to ensure consistency between the two files (inputs
+% and cages).
 
 %% A simple biomass scenario
 
@@ -252,6 +256,10 @@ inputs.data(1,1)
 % t-1 day-1), water content, digestibility rates, etc. in order to convert the
 % biomass into a discharge rate. These paramters can be specified as additional 
 % options if the default values are to be overridden.
+%
+% Note, these methods require the inputs file to be instantiated via the
+% parent model run so that the associated cages can be accessed and the
+% relation between biomass and stocking density derived.
 
 %% More complicated scenarios
 
