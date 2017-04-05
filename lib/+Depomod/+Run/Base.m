@@ -206,7 +206,8 @@ classdef (Abstract) Base < handle
                         end
 
                         figure(F)
-                        contourhandle = patch(x,y,'red', 'FaceAlpha', val, 'LineStyle', ':');
+                        validIndexes = ~isnan(x) & ~isnan(y);
+                        contourhandle = patch(x(validIndexes),y(validIndexes),'red', 'FaceAlpha', val, 'LineStyle', ':');
 
                         i = i + contour(2,i) + 1;
                     end

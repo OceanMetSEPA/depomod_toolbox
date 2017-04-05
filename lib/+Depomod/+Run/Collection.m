@@ -231,7 +231,8 @@ classdef Collection < dynamicprops
             
             % Update model file with number
             modelFile = newRun.modelFile;
-            modelFile.Model.run.number=num2str(newRunNumber);
+            modelFile.Model.run.number = num2str(newRunNumber); % need to establish what tag and number are?
+            modelFile.Model.run.tag    = num2str(newRunNumber);
             modelFile.toFile;
             
             % Update runtime file with paths

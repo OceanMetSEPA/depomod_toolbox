@@ -19,7 +19,7 @@ end
 %% initialize project
 
 % create from template with desired location and name
-project = NewDepomod.Project.createFromTemplate(rootDir, projectName, 'force',1)
+project = NewDepomod.Project.createFromTemplate(rootDir, projectName)
  
 % project = 
 %   Project with properties:

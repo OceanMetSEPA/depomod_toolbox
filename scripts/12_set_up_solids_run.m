@@ -163,7 +163,7 @@ solidsConfig.Transports.recordTimes=samplingString
 % solidsConfig.Model.maxNumberOfModelIterations='52'
 % solidsConfig.Model.showConsoleOutput=false
 % solidsConfig.Model.stockingDensityLimit=Infinity
-solidsConfig.Model.writeIntermediateFiles='true'
+% solidsConfig.Model.writeIntermediateFiles='true'
 % solidsConfig.RelseaseManager.numberOfParticlesPerCageFinalRuns='10'
 % solidsConfig.RelseaseManager.numberOfParticlesPerCageScopingRuns='1'
 % 
