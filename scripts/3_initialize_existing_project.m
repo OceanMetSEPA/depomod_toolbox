@@ -9,10 +9,8 @@
 %           (domain/bathymetry/land data)
 %
 %   - \cages
-%       - bay_of_fish-NONE-1.depomodcagesxml
-%       - bay_of_fish-NONE-2.depomodcagesxml
-%       - bay_of_fish-EMBZ-1.depomodcagesxml
-%       - bay_of_fish-EMBZ-2.depomodcagesxml
+%       - bay_of_fish-1.depomodcagesxml
+%       - bay_of_fish-2.depomodcagesxml
 %       - etc...
 %           (cage definitions for every run)
 %
@@ -29,31 +27,33 @@
 %           (discharge definitions for every run (feed inputs, etc.))
 %
 %   - \intermediate
-%       - bay_of_fish-NONE-1.depomodcagesxml
-%       - bay_of_fish-NONE-1.depomodrunlog
-%       - bay_of_fish-EMBZ-1-carbon-g0.sur
-%       - bay_of_fish-EMBZ-1-carbon-g1.sur
-%       - bay_of_fish-EMBZ-2-consolidated-g1.depomodtimeseries
-%       - bay_of_fish-EMBZ-2-exported-g1.depomodtimeseries
+%       - bay_of_fish-1-NONE-N.depomodcagesxml
+%       - bay_of_fish-1-NONE-N.depomodresultslog
+%       - bay_of_fish-1-NONE-N-carbon-g0.depomodresultssur
+%       - bay_of_fish-1-NONE-N-carbon-g1.depomodresultssur
+%       - bay_of_fish-1-NONE-N-consolidated-g1.depomodtimeseries
+%       - bay_of_fish-1-NONE-N-exported-g1.depomodtimeseries
 %       - etc...
 %           (results files for every run (surface, time series, summary log, etc.); only
 %            exist following successful run completion)
 %
 % - \models
-%       - bay_of_fish-NONE-1-Configuration.properties
-%       - bay_of_fish-NONE-1-Model.properties
-%       - bay_of_fish-NONE-1.depomodphysicalproperties
-%       - bay_of_fish-Location.properties
-%       - bay_of_fish-EMBZ-1-Configuration.properties
-%       - bay_of_fish-EMBZ-1-Model.properties
-%       - bay_of_fish-EMBZ-1.depomodphysicalproperties
+%       - bay_of_fish-1-NONE.depomodconfigurationproperties
+%       - bay_of_fish-1-NONE.depomodmodelproperties
+%       - bay_of_fish-1-NONE.depomodphysicalproperties
+%       - bay_of_fish-1-NONE.depomodruntimeproperties
+%       - bay_of_fish.depomodlocationproperties
+%       - bay_of_fish-1-EMBZ.depomodconfigurationproperties
+%       - bay_of_fish-1-EMBZ.depomodmodelproperties
+%       - bay_of_fish-1-EMBZ.depomodphysicalproperties
+%       - bay_of_fish-1-EMBZ.depomodruntimeproperties
 %       - etc...
 %           (set up definitions for every run)
 %
 %   - \results
-%       - bay_of_fish-NONE-1.depomodrunlog
-%       - bay_of_fish-EMBZ-1-carbon-g0.sur
-%       - bay_of_fish-EMBZ-1-carbon-g1.sur
+%       - bay_of_fish-1-NONE-N.depomodresultslog
+%       - bay_of_fish-1-NONE-N-carbon-g0.depomodresultssur
+%       - bay_of_fish-1-NONE-N-carbon-g1.depomodresultssur
 %       - etc...
 %           (results files for optimised runs; only exist following successful run 
 %            completion)
@@ -75,21 +75,20 @@ project = Depomod.Project.create(projectDir)
 % project = 
 %   Project with properties:
 % 
-%         version: 2
-%        location: [1x1 NewDepomod.PropertiesFile]
-%      bathymetry: [1x1 NewDepomod.BathymetryFile]
-%            name: 'bay_of_fish'
-%            path: [1x34 char]
-%      solidsRuns: [1 Depomod.Run.Collection]
-%        EmBZRuns: [1 Depomod.Run.Collection]
-%        TFBZRuns: [0 Depomod.Run.Collection]
-%     SNSCurrents: [1x1 NewDepomod.Currents.Profile]
-%     NSNCurrents: [1x1 NewDepomod.Currents.Profile]
+%        version: 2
+%       location: [1x1 NewDepomod.PropertiesFile]
+%     bathymetry: [1x1 NewDepomod.BathymetryFile]
+%      flowmetry: [1x1 NewDepomod.FlowmetryFile]
+%           name: 'bay_of_fish'
+%           path: 'C:\newdepomod_projects\bay_of_fish'
+%     solidsRuns: [1 Depomod.Run.Collection]
+%       EmBZRuns: [1 Depomod.Run.Collection]
+%       TFBZRuns: [1 Depomod.Run.Collection]
 
 % This object is the MATLAB representation of the NewDepomod project file
 % structure. The project object understands all of the file relations and
 % therefore can be used to navigate the files in the project, edit and save
-% them, and ultimately to execute the model
+% them
 
 %% Access project properties
 
@@ -145,6 +144,7 @@ project.EmBZRuns
 
 project.EmBZRuns.number(1)
 
+% ans = 
 %   EmBZ with properties:
 % 
 %                   exportFactor: 0.74
@@ -154,6 +154,7 @@ project.EmBZRuns.number(1)
 %                      modelFile: [1x1 NewDepomod.PropertiesFile]
 %         physicalPropertiesFile: [1x1 NewDepomod.PropertiesFile]
 %              configurationFile: [1x1 NewDepomod.PropertiesFile]
+%                    runtimeFile: [1x1 NewDepomod.PropertiesFile]
 %                     inputsFile: [1x1 NewDepomod.InputsPropertiesFile]
 %            iterationInputsFile: []
 %         exportedTimeSeriesFile: []
@@ -161,7 +162,7 @@ project.EmBZRuns.number(1)
 %                      solidsSur: []
 %                      carbonSur: []
 %             iterationRunNumber: '1'
-%                  modelFileName: [1x37 char]
+%                  modelFileName: 'bay_of_fish-1-EMBZ.depomodmodelproperties'
 %                        project: [1x1 NewDepomod.Project]
 %                    cfgFileName: []
 %                      runNumber: '1'
@@ -169,4 +170,5 @@ project.EmBZRuns.number(1)
 
 % Notice this last output represents a single run (EmBZ run #1). It has
 % several input files but no output files as it has not be executed yet.
+
 %%

@@ -191,6 +191,26 @@ classdef Project < Depomod.Project
             f = P.flowmetry;
         end
         
+        function [a, b, c, d] = domainBounds(P)
+            % Returns the model domain bounds described on the basis of the
+            % minimum and maximum easting and northings. The order of the
+            % outputs is min east, max east, min north, max north.
+            
+            minE = str2num(P.bathymetry.Domain.spatial.minX);
+            maxE = str2num(P.bathymetry.Domain.spatial.maxX);
+            minN = str2num(P.bathymetry.Domain.spatial.minY);
+            maxN = str2num(P.bathymetry.Domain.spatial.maxY);
+
+            if nargout == 1
+                a = [minE, maxE, minN, maxN];
+            else
+                a = minE;
+                b = maxE;
+                c = minN;
+                d = maxN;
+            end
+        end
+        
         function clonedProject = clone(P, clonePath)
             % Function uses new parent directory as argument but appends
             % name as final residing directory for project. This makes it

@@ -401,23 +401,23 @@ classdef (Abstract) Base < handle
             v = trapz(S.Y, trapz(S.X, z, 2), 1);
         end
         
-        function [ave] = averageConcentration(S, level)
+        function [ave] = mean(S, level)
             % Returns the average concentration within a specified contour level as described by the .sur file
             % data.
             %
             % Usage:
             %
-            %    sur.average(level)
+            %    sur.mean(level)
             %
             % OUTPUT:
             %    
-            %    aveConc: a double describing the average concentration within the given contour concentration.
+            %    ave: a double describing the average concentration within the given contour concentration.
             %
             % EXAMPLES:
             %
             %    sur = Depomod.Outputs.Sur(path)
             %
-            %    sur.average(0.763)
+            %    sur.mean(0.763)
             %    ans =
             %       73.347096943319883
             %

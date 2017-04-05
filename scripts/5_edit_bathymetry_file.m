@@ -155,33 +155,4 @@ bathy.toFile
 %
 % bathy.toFile('new\file\path')
 
-%% Writing new information and data to *AutoDepomod* bathy files
-
-% The newly edited data can also be written back to old-style AutoDepomod
-% bathymetry files. If the BathymetryFile object was instantiated using
-% AutoDepomod bathy files then these will be memoised on the object in the
-% following properties
-
-bathy.GridgenBathymetryFile
-bathy.GridgenDomainFile
-
-% If so, these can be overwritten with the new information like this,
-
-bathy.toGridgenFiles;
-
-% If not, the object needs to be told where the old-style files are like
-% this
-
-bathy.GridgenBathymetryFile = AutoDepomod.BathymetryFile(gridgenDataPath);
-bathy.GridgenDomainFile     = AutoDepomod.DomainFile(gridgenIniPath);
-
-% If no gridgen bathy files exist but are required, then these can be found
-% in the template, copied to the requisite location and the above code
-% pointed to them. Then, do this
-
-bathy.toGridgenFiles;
-
-% This requirement occurs because of the current status of the command-line
-% NewDepomod tool.
-
 %%

@@ -6,8 +6,8 @@
 % .depomodtimeseries. For each run the following files types are 
 % outputted by the command line version of NewDepomod
 %
-%   bay_of_fish-EMBZ-S-1-consolidated-g1.depomodtimeseries
-%   bay_of_fish-EMBZ-S-1-exported-g1.depomodtimeseries
+%   bay_of_fish-1-EMBZ-N-consolidated-g1.depomodtimeseries
+%   bay_of_fish-1-EMBZ-N-exported-g1.depomodtimeseries
 %
 % That is, a timeseries of "consolidated" mass in the domain and a
 % timeseries of exported mass.
@@ -80,7 +80,7 @@ exportedTS     = project.solidsRuns.number(1).exportedTimeSeriesFile
 % Alternatively, a time series file can be instantiated directly by using
 % the direct file path, e.g.
 
-ts = NewDepomod.TimeSeriesFile('C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-NONE-N-1-consolidated-g1.depomodtimeseries')
+ts = NewDepomod.TimeSeriesFile('C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-1-NONE-N-consolidated-g1.depomodtimeseries')
 
 % ts = 
 %   TimeSeriesFile with properties:
@@ -108,10 +108,16 @@ ts = NewDepomod.TimeSeriesFile('C:\newdepomod_projects\bay_of_fish\depomod\inter
 %
 % Incidently, the direct file path can be discovered from a project this
 % way:
-project.solidsRuns.number(1).solidsSurPath
+project.solidsRuns.number(1).consolidatedTimeSeriesFilePath
 
 % ans =
-% C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-NONE-N-1-solids-g0.sur
+% C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-1-NONE-N-consolidated-g1.depomodtimeseries
+
+% or
+project.solidsRuns.number(1).exportedTimeSeriesFilePath
+
+% ans =
+% C:\newdepomod_projects\bay_of_fish\depomod\intermediate\bay_of_fish-1-NONE-N-exported-g1.depomodtimeseries
 
 
 

@@ -103,18 +103,17 @@ newSolidsRun.inputsFile.FeedInputs.biomass
 % e.g.
 
 % set biomass
-newRun.inputsFile.setBiomass(4000);
+newSolidsRun.inputsFile.setBiomass(4000);
 % save to file
-newRun.inputsFile.toFile;
+newSolidsRun.inputsFile.toFile;
 
 % Adjust some parameters
-newRun.physicalPropertiesFile.Transports.suspension.walker.dispersionCoefficientX = '0.2';
-newRun.physicalPropertiesFile.Transports.suspension.walker.dispersionCoefficientY = '0.2';
-newRun.physicalPropertiesFile.Transports.resuspension.walker.dispersionCoefficientX = '0.2';
-newRun.physicalPropertiesFile.Transports.resuspension.walker.dispersionCoefficientY = '0.2';
+newSolidsRun.physicalPropertiesFile.Transports.suspension.walker.dispersionCoefficientX = '0.2';
+newSolidsRun.physicalPropertiesFile.Transports.suspension.walker.dispersionCoefficientY = '0.2';
+newSolidsRun.physicalPropertiesFile.Transports.resuspension.walker.dispersionCoefficientX = '0.2';
+newSolidsRun.physicalPropertiesFile.Transports.resuspension.walker.dispersionCoefficientY = '0.2';
 % save to file
-newRun.physicalPropertiesFile.toFile;
+newSolidsRun.physicalPropertiesFile.toFile;
 
-newRun.execute('modelDefaultsFilePath', newRun.physicalPropertiesPath); 
 
 %%

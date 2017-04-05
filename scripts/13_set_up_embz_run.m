@@ -24,6 +24,9 @@
 %                               including the the number of particles and the time points at 
 %                               which to output spatial impact results
 %
+%   - runtime file:             This describes the file paths to some of
+%                               the files described above
+%
 % Each of these can be manipulated and written back to file
 % programmatically (except for cages, at the moment).
 %
@@ -46,8 +49,8 @@ EmBZInputs = EmBZRun.inputsFile;
 % This might already be set correctly and therefore be unecessary
 EmBZInputs.FeedInputs.uuid = EmBZRun.cages.consolidatedCages.cage(1).inputsId;
 % set the biomass
-EmBZInputs.setBiomass(2000.0, 'days', 118);
-EmBZInputs.setEmBZQuantity(500.0);
+EmBZInputs.setBiomass(2000.0, 'days', 118); % t
+EmBZInputs.setEmBZQuantity(500.0);          % g
 
 % save to file
 EmBZInputs.toFile;
@@ -159,6 +162,7 @@ EmBZConfig.Transports.recordTimes=samplingString
 % EmBZConfig.Model.maxNumberOfModelIterations='52'
 % EmBZConfig.Model.showConsoleOutput=false
 % EmBZConfig.Model.stockingDensityLimit=Infinity
+EmBZConfig.Model.writeIntermediateFiles='true'
 % EmBZConfig.RelseaseManager.numberOfParticlesPerCageFinalRuns='10'
 % EmBZConfig.RelseaseManager.numberOfParticlesPerCageScopingRuns='1'
 % 

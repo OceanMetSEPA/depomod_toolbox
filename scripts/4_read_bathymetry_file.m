@@ -76,22 +76,6 @@ project.bathymetryDataPath
 % ans =
 % C:\newdepomod_projects\bay_of_fish\depomod\bathymetry\bay_of_fish.depomodbathymetryproperties
 
-%% Instantiate bathy file from *AutoDepomod* bathymetry files
-
-% Finally, the bathymetry can be read from old-style bathy files.
-% AutoDepomod used 3 bathymetry files where NewDepomod uses 1.
-% BathymetryFile objects can be created using those old files too. The need
-% for this is due to the file formats required by the NewDepomod
-% command-line tool and should go away eventually.
-%
-% Anyway, simply pass in the file paths of the "gridgen" "ini" and "data"
-% files to this function:
-
-dataPath = 'C:\newdepomod_projects\bay_of_fish\depomod\bathymetry\bay_of_fish.depomodbathymetrygridgendata'
-iniPath  = 'C:\newdepomod_projects\bay_of_fish\depomod\bathymetry\bay_of_fish.depomodbathymetrygridgenini'
-
-bathy = NewDepomod.BathymetryFile.createFromGridgenFiles(iniPath, dataPath)
-
 %% Read the bathy object
 
 % Once the bathy data has been erad in, the pertinent information is held 

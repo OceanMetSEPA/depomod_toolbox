@@ -201,18 +201,38 @@ classdef Base < Depomod.Run.Base
         
         function p = logFilePath(R)
             % Returns full path for the model log file
-            p = strcat(R.project.intermediatePath, '\', R.modelFileRoot, '.depomodrunlog');
+            p = strcat(R.project.resultsPath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '.depomodresultslog');
         end
         
-        function p = surPath(R, type, index)
+        function p = surPath(R, type, varargin)
             
-            if ~exist('index', 'var')
-                index = 0; % Default is the 0 indexed sur file
+            gIndex      = 0; % Default is the 0 indexed sur file
+            timestamp   = [];
+            
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'g'
+                  gIndex = varargin{i+1};
+                case 't'
+                  timestamp = varargin{i+1};
+              end
             end
             
-            oldStylePath = strcat(R.project.intermediatePath, '\', R.iterationRunFileRoot, ['-g', num2str(index), '.sur']);
-            newStylePath = strcat(R.project.intermediatePath, '\', R.iterationRunFileRoot, ['-', type, '-g', num2str(index), '.sur']);
+            oldStylePath = strcat(R.project.resultsPath, '\', R.iterationRunFileRoot, ['-g', num2str(gIndex), '.sur']);
 
+            if isempty(timestamp)            
+                newStylePath = strcat(R.project.resultsPath, '\', R.iterationRunFileRoot, ['-', R.modelFile.Model.run.tide, '-', type, '-g', num2str(gIndex), '.depomodresultssur']);
+            else
+                if timestamp < 1000
+                    % can't be millsecond output measure
+                    outputTimes = strsplit(R.configurationFile.Transports.recordTimes, ',');
+                    timestamp = outputTimes{timestamp};
+                else
+                    timestamp = num2str(timestamp);
+                end  
+                newStylePath = strcat(R.project.resultsPath, '\', R.iterationRunFileRoot, ['-', R.modelFile.Model.run.tide, '-', type, '-g', num2str(gIndex), '-', timestamp, '.depomodresultssur']);
+            end
+            
             if exist(oldStylePath, 'file')
                 p = oldStylePath;
             else
@@ -241,11 +261,11 @@ classdef Base < Depomod.Run.Base
         end
         
         function c = consolidatedTimeSeriesFilePath(R)
-            c = [R.project.intermediatePath, '\', R.iterationRunFileRoot, '-consolidated-g1.depomodtimeseries'];
+            c = [R.project.intermediatePath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '-consolidated-g1.depomodtimeseries'];
         end
         
         function e = exportedTimeSeriesFilePath(R)
-            e = [R.project.intermediatePath, '\', R.iterationRunFileRoot, '-exported-g1.depomodtimeseries'];
+            e = [R.project.intermediatePath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '-exported-g1.depomodtimeseries'];
         end
         
         function set.iterationRunNumber(R, number)

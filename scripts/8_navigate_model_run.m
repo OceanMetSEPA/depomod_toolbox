@@ -19,20 +19,21 @@ solidsRun = project.solidsRuns.item(1)
 % 
 %              defaultPlotLevels: [4 192 1553 10000]
 %                    defaultUnit: 'g m^{-2} y^{-1}'
+%                      modelFile: [1x1 NewDepomod.PropertiesFile]
 %         physicalPropertiesFile: [1x1 NewDepomod.PropertiesFile]
 %              configurationFile: [1x1 NewDepomod.PropertiesFile]
+%                    runtimeFile: [1x1 NewDepomod.PropertiesFile]
 %                     inputsFile: [1x1 NewDepomod.InputsPropertiesFile]
-%            iterationInputsFile: [1x1 NewDepomod.InputsPropertiesFile]
-%         exportedTimeSeriesFile: [1x1 NewDepomod.TimeSeriesFile]
-%     consolidatedTimeSeriesFile: [1x1 NewDepomod.TimeSeriesFile]
-%                      solidsSur: [1x1 Depomod.Sur.Solids]
-%                      carbonSur: [1x1 Depomod.Sur.Solids]
+%            iterationInputsFile: []
+%         exportedTimeSeriesFile: []
+%     consolidatedTimeSeriesFile: []
+%                      solidsSur: []
+%                      carbonSur: []
 %             iterationRunNumber: '1'
-%                  modelFileName: [1x37 char]
+%                  modelFileName: 'bay_of_fish-1-NONE.depomodmodelproperties'
 %                        project: [1x1 NewDepomod.Project]
 %                    cfgFileName: []
 %                      runNumber: '1'
-%                            log: [1x1 NewDepomod.PropertiesFile]
 %                          cages: [2 Depomod.Layout.Site]
 
 % Notice this references all of the input (e.g. cages, inputs, physical)
@@ -42,10 +43,14 @@ solidsRun = project.solidsRuns.item(1)
 %
 % The pertinent properties on this run object are
 %
+%   INPUTS
+%
 %     physicalPropertiesFile: Properties file describing configuration of
 %                             physical transport parameters
 %
 %          configurationFile: Properties file describing run configuration options
+%
+%                runtimeFile: Properties file describing run filepaths
 %
 %                 inputsFile: Properties file describing feed inputs and
 %                             particulate discharges
@@ -53,6 +58,8 @@ solidsRun = project.solidsRuns.item(1)
 %                  modelFile: Properties file  run configuration options
 %
 %                      cages: Representation of the run cage definition
+%
+%   OUTPUTS
 %
 %                  solidsSur: Sur(face) file describing the distribution of
 %                             organic solids predicted by the model
@@ -131,7 +138,6 @@ solidsRun.plot
 solidsRun.consolidatedTimeSeriesFile.toTimeSeries(2).plot
 solidsRun.exportedTimeSeriesFile.toTimeSeries(2).plot
               
-              
-              
+%%          
               
               
