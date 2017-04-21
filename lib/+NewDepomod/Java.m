@@ -1,9 +1,9 @@
-classdef Java < Depomod.Java
+classdef Java
     
     properties (Constant = true)
         versionName    = 'newDEPOMOD'
         versionNo      = 2;
-        runCommand     = 'newDEPOMOD\scripts\RunModel.bat';
+        runCommand     = '"C:\Program Files\depomodruntimecontainer\bin\depomodruntimecontainer"';
         exportCommand  = 'newDEPOMOD\scripts\RunExporter.bat';
     end
     
@@ -25,7 +25,7 @@ classdef Java < Depomod.Java
         end
         
         function r = exportCommandStringWithOptions(J, run, newProjectPath, varargin)
-            r = [J.networkLocation, J.exportCommand, J.buildExportCommandOptions(run, newProjectPath, varargin{:})];
+            r = [J.exportCommand, J.buildExportCommandOptions(run, newProjectPath, varargin{:})];
         end
         
         function options = buildExportCommandOptions(J, run, newProjectPath, varargin)
@@ -58,70 +58,59 @@ classdef Java < Depomod.Java
         end
         
         function options = buildRunCommandOptions(J, varargin)
-            siteName = '';
-            dataPath = '';
-            singleRunOnly = 1;
-            logOutput     = 0;
-            verbose       = 1;
-            modelParametersFile    = '';
-            modelLocationFile      = '';
-            modelConfigurationFile = '';
-            modelDefaultsFilePath  = '';
-            maxBioMassLimit        = '';
+            singleRunOnly     = 1;
+            showConsoleOutput = 1;
+            modelRunTimeFile  = '';
+            nosplash          = 1;
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
-                case 'siteName'
-                  siteName = varargin{i+1};
-                case 'dataPath'
-                  dataPath = varargin{i+1};
                 case 'singleRunOnly'
                   singleRunOnly = varargin{i+1};
-                case 'logOutput'
-                  logOutput = varargin{i+1};
-                case 'verbose'
-                  verbose = varargin{i+1};
-                case 'modelParametersFile'
-                  modelParametersFile = varargin{i+1};
-                case 'modelLocationFile'
-                  modelLocationFile = varargin{i+1};
-                case 'modelConfigurationFile'
-                  modelConfigurationFile = varargin{i+1};
-                case 'modelDefaultsFilePath'
-                  modelDefaultsFilePath = varargin{i+1};
-                case 'maxBioMassLimit'
-                  maxBioMassLimit = varargin{i+1};
+                case 'modelRunTimeFile'
+                  modelRunTimeFile = varargin{i+1};
+                case 'nosplash'
+                  nosplash = varargin{i+1};
+                case 'showConsoleOutput'
+                  showConsoleOutput = varargin{i+1};
               end
             end
             
             options = [...
-                ' /dataPath "',    dataPath, '"', ...
-                ' /siteName "',     siteName, '"', ...
-                ' /modelParametersFile "',    modelParametersFile, '"', ...
-                ' /modelLocationFile "',      modelLocationFile, '"', ...
-                ' /modelConfigurationFile "', modelConfigurationFile, '"', ...
+                ' --modelRunTimeFile "',    modelRunTimeFile, '"', ...
                 ];
             
-            
-            if ~isempty(modelDefaultsFilePath)
-                options = [options, ' /modelDefaultsFilePath "', modelDefaultsFilePath, '"'];
-            end
-            
-            if ~isempty(maxBioMassLimit)
-                options = [options, ' /maxBioMassLimit', maxBioMassLimit];
-            end
-            
-            if verbose
-                options = [options, ' /verbose'];
+            if nosplash
+                options = [options, ' --nosplash'];
             end
             
             if singleRunOnly
-                options = [options, ' /singleRunOnly'];
+                options = [options, ' --singleRunOnly'];
             end
             
-            if logOutput
-                options = [options, ' /logOutput'];
+            if showConsoleOutput
+                options = [options, ' --showConsoleOutput'];
             end
+        end
+                
+        function command = run(J, varargin)
+            command = J.runCommandStringWithOptions(varargin{:});
+            commandStringOnly = 0;
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+              switch varargin{i}
+                case 'commandStringOnly'
+                  commandStringOnly = varargin{i+1};
+              end
+            end
+            
+            if ~commandStringOnly                
+                system(['C: & ', command, ' &']);
+            end
+        end
+        
+        function r = runCommandStringWithOptions(J, varargin)
+            r = [J.runCommand, J.buildRunCommandOptions(varargin{:})];
         end
     end
     

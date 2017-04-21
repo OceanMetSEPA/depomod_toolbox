@@ -10,3 +10,6 @@ ModelTime.endTime=31989600000
 Model.run.useNumber=true
 ModelTime.delta=60000
 ModelTime.releasePeriod=31557600000
+Model.iterationParameter=STOCKINGDENSITY
+Model.run.numberOfParticles=1
+Model.run.runType=SCOPING

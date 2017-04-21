@@ -4,6 +4,14 @@ classdef FlowmetryFile < NewDepomod.DataPropertiesFile
         depthCount;
     end
     
+    methods (Static = true)
+        function ff = fromRCMProfile(profile, varargin)
+            % not supported yet.
+            
+            
+        end
+    end
+    
     methods
         
         function F = FlowmetryFile(filePath)

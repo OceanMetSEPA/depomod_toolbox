@@ -149,6 +149,12 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
             IPF.data(treatmentSteps+1:totalHours, 6) = expExcretionProfile(expExcretionSteps)
             
             IPF.data(treatmentSteps+1:totalHours, 3) = 0.0;
+            
+            biomass                    = str2num(IPF.FeedInputs.biomass);
+            biomassEquivalentTreatment = Depomod.EmBZ.biomass2Grams(biomass);
+            
+            factor = quantity / biomassEquivalentTreatment;
+            IPF.FeedInputs.overTreatmentFactor=num2str(factor);
         end
         
         function setEmBZTreatmentFactor(IPF, factor, varargin)
@@ -157,7 +163,7 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
             
             treatmentQuantity = Depomod.EmBZ.biomass2Grams(treatmentBiomass);
             
-            IPF.setEmBZQuantity(treatmentQuantity);            
+            IPF.setEmBZQuantity(treatmentQuantity);
         end
     end
     

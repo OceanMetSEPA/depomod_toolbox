@@ -10,3 +10,6 @@ ModelTime.endTime=19699200000
 Model.run.useNumber=true
 ModelTime.delta=60000
 ModelTime.releasePeriod=19267200000
+Model.iterationParameter=OVERTREATMENTFACTOR
+Model.run.numberOfParticles=10
+Model.run.runType=REFINING

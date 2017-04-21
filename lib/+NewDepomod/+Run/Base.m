@@ -410,56 +410,35 @@ classdef Base < Depomod.Run.Base
             % Invokes Depomod on the model run configuration, overwriting
             % any output files  
             
-            if Depomod.Java.isValidProject(R.project)
-                dataPath = R.project.parentPath;
                 
-                jv = NewDepomod.Java;
-                
-                commandStringOnly = 0;
-                useCurrentRelease = 0;
-                modelDefaultsFilePath = '';
-                singleRunOnly = 1;
-                logOutput = 0;
-                            
-                for i = 1:2:length(varargin)
-                  switch varargin{i}
-                    case 'release'
-                      release = varargin{i+1};
-                    case 'commandStringOnly'
-                      commandStringOnly = varargin{i+1};
-                    case 'useCurrentRelease'
-                      useCurrentRelease = varargin{i+1};
-                    case 'modelDefaultsFilePath'
-                      modelDefaultsFilePath = varargin{i+1};
-                    case 'singleRunOnly'
-                      singleRunOnly = varargin{i+1};
-                    case 'logOutput'
-                      logOutput = varargin{i+1};
-                  end
-                end
-            
-                if exist('release', 'var')
-                    jv.release = release; 
-                end
-                
-                cmd = jv.run(...
-                    'singleRunOnly', singleRunOnly, ...
-                    'useCurrentRelease', useCurrentRelease, ...
-                    'commandStringOnly', commandStringOnly, ...
-                    'modelDefaultsFilePath', modelDefaultsFilePath, ...
-                    'siteName', R.project.name, ...
-                    'dataPath', dataPath, ...
-                    'modelParametersFile',    R.modelFileName, ...
-                    'modelLocationFile',      [R.project.name, '-Location.properties'], ...
-                    'modelConfigurationFile', [R.modelFileRoot, '-Configuration.properties'], ...
-                    'logOutput', logOutput ...
-                    );
-            else
-               error('Depomod:Java', ...
-                    [ 'This is not a valid project for running the Java module. ', ...
-                      'The parent directory must be named after the project.' ...
-                      ]);
+            jv = NewDepomod.Java;
+
+            commandStringOnly = 0;
+            singleRunOnly = 1;
+            showConsoleOutput = 1;
+            nosplash = 1;
+
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'commandStringOnly'
+                  commandStringOnly = varargin{i+1};
+                case 'singleRunOnly'
+                  singleRunOnly = varargin{i+1};
+                case 'showConsoleOutput'
+                  showConsoleOutput = varargin{i+1};
+                case 'nosplash'
+                  nosplash = varargin{i+1};
+              end
             end
+
+            cmd = jv.run(...
+                'singleRunOnly', singleRunOnly, ...
+                'commandStringOnly', commandStringOnly, ...
+                'modelRunTimeFile',    R.runtimePath, ...
+                'showConsoleOutput', showConsoleOutput, ...
+                'nosplash', nosplash ...
+                );
+ 
         end
                  
         function initializeCages(R)
