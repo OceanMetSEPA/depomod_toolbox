@@ -60,7 +60,7 @@ classdef Base < Depomod.Run.Base
             end
         end
         
-        function [bool, sitename, type, tide, number, g, ext] = isValidConfigFileName(filename)
+        function [bool, sitename, type, tide, number, filetype, ext] = isValidConfigFileName(filename)
             [sitename, type, tide, number, filetype, ext] = AutoDepomod.Run.Base.cfgFileParts(filename);
            
             bool = ~isempty(sitename) && ~isempty(type) && ~isempty(tide) && ~isempty(number) && ~isempty(ext);
@@ -76,7 +76,7 @@ classdef Base < Depomod.Run.Base
             end
         end
         
-        function [sitename, type, tide, number, g, ext] = cfgFileParts(filename)
+        function [sitename, type, tide, number, filetype, ext] = cfgFileParts(filename)
             [~,t]=regexp(filename, AutoDepomod.Run.Base.FilenameRegex, 'match', 'tokens');
                         
             if isempty(t)

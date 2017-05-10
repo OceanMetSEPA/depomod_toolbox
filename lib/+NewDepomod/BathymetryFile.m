@@ -88,7 +88,12 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             
             colormap(bone);
             map = colormap;
-            map(end,:) = [0 0.3 0];
+            
+            if max(max(B.data)) >= 10
+                % colour the land green
+                map(end,:) = [0 0.3 0];
+            end
+            
             colormap(map);
             c = colorbar;
             ylabel(c,'depth (m)');

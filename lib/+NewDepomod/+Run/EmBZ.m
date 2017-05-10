@@ -61,7 +61,7 @@ classdef EmBZ < NewDepomod.Run.Chemical
         end  
          
         function p = chemicalSurWithDecayPath(R)
-            p = R.surPath('chemical', 1);
+            p = R.surPath('chemical', 'g', 1);
         end
         
         function cs = get.chemicalSurWithDecay(R)

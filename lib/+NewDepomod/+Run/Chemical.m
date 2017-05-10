@@ -68,7 +68,7 @@ classdef Chemical < NewDepomod.Run.Base
         end
         
         function s = sur(R) % shortcut method/backwards compatibility
-            s = R.chemicalSur;
+            s = sur@NewDepomod.Run.Base(R, 'type', 'chemical')
         end
         
         function mr = massReleased(CR)
