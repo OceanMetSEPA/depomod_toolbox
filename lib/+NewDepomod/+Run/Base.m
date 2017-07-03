@@ -261,11 +261,11 @@ classdef Base < Depomod.Run.Base
         end
         
         function c = consolidatedTimeSeriesFilePath(R)
-            c = [R.project.intermediatePath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '-consolidated-g1.depomodtimeseries'];
+            c = [R.project.intermediatePath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '-consolidated-g1-1.depomodtimeseriesdata'];
         end
         
         function e = exportedTimeSeriesFilePath(R)
-            e = [R.project.intermediatePath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '-exported-g1.depomodtimeseries'];
+            e = [R.project.intermediatePath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '-exported-g1-1.depomodtimeseriesdata'];
         end
         
         function set.iterationRunNumber(R, number)
@@ -408,14 +408,9 @@ classdef Base < Depomod.Run.Base
             end
             
             if isempty(timestamp)
-                config = R.configurationFile;
-                try
-                    timestamp = cellfun(@str2num, strsplit(config.Transports.recordTimes, ','));
-                    varargin{end+1} = 't';
-                    varargin{end+1} = timestamp;
-                catch
-                    % if no field in file
-                end
+                timestamp = R.outputTimestamps()
+                varargin{end+1} = 't';
+                varargin{end+1} = timestamp;
             end
             
             if isempty(timestamp) | length(timestamp) < 2
@@ -429,7 +424,17 @@ classdef Base < Depomod.Run.Base
                     s = s.add(surs{t});
                 end
 
-                s.scale(1/length(surs));
+                s.scale(1.0/length(surs));
+            end
+        end
+        
+        function t = outputTimestamps(R)
+            config = R.configurationFile;
+            
+            try
+                t = cellfun(@str2num, strsplit(config.Transports.recordTimes, ','));
+            catch
+                t = []
             end
         end
         
@@ -509,138 +514,72 @@ classdef Base < Depomod.Run.Base
             R.log = NewDepomod.PropertiesFile(R.logFilePath); % R.iterationRunNumber presumably added at some point
         end
         
-        function F = animate(R,varargin)
-            
-            x0=10;
-            y0=10;
-            width=800;
-            height=800;
-            
-            levels = R.defaultPlotLevels;
-            
-            sur = [];
-            impact = 1;
-            plotCages = 1;
-            
-            for i = 1:2:length(varargin)
-              switch varargin{i}
-                case 'x0'
-                  x0 = varargin{i+1};
-                case 'y0'
-                  y0 = varargin{i+1};
-                case 'width'
-                  width = varargin{i+1};
-                case 'height'
-                  height = varargin{i+1};
-                case 'levels'
-                  levels = varargin{i+1};
-                case 'impact'
-                  impact = varargin{i+1};
-                case 'cages'
-                  plotCages = varargin{i+1};
-                case 'sur'
-                  sur = varargin{i+1};
-                  impact = 1; % if sur passed, definately plot an impact
-              end
-            end
-            
-            noLevels = length(levels);
-            
-            F = figure;
-            R.project.bathymetry.plot('contour', 1);            
-            hold on
-            set(gcf,'units','points','position',[x0,y0,width,height]);
-            box on
-            grid on
-            set(gca,'layer','top')
-            xlabel('Northing');
-            ylabel('Easting');
-
-            if plotCages
-                cages = R.cages.consolidatedCages.cages;
-
-                figure(F)
-                scatter(cellfun(@(c) c.x, cages), cellfun(@(c) c.y, cages), 'ko', 'MarkerFaceColor', 'k', 'LineWidth', 2.0, 'Visible', 'on', 'Clipping', 'on')
-                set(gca,'layer','top')
-            end
-
-            if isempty(sur)
-                sur = R.sur;
-            end
-            
-            t=title([R.project.name, ': run - ', num2str(R.runNumber)]);
-            % escape underscores in title
-            set(t,'Interpreter','none');
-
-            if impact & ~isempty(sur)
-%                 legendContours = [];
-%                 legendlabels   = {};
-                handles = []
-
-                for s = 1:length(sur)
-                    thisSur = sur{s};
-                                        
-                    for h = 1:length(handles)
-                        if ishandle(handles(h))
-                            delete(handles(h));
-                        end
-                    end
-                    
-                    handles = []
-                    
-                    for l = 1:noLevels
-                        level = levels(l);
-
-                        contour = thisSur.contour(level, 'plot', 0);
-
-                        val = 0.1 + ((0.5/noLevels) * (l));
-
-                        i = 1;
-
-                        while i <= size(contour,2)
-                            x = [];
-                            y = [];
-
-                            for j = i+1:i+contour(2,i)
-                                x(1,end+1) = contour(1,j);
-                                y(1,end+1) = contour(2,j);
-                            end
-
-                            figure(F)
-                            validIndexes = ~isnan(x) & ~isnan(y);
-                            handles(end+1) = patch(x(validIndexes),y(validIndexes),'red', 'FaceAlpha', val, 'LineStyle', ':');
-
-                            drawnow 
-                            
-                            i = i + contour(2,i) + 1;
-                        end
-
-%                         if ~isempty(contour)
-%                             legendContours(end+1) = handles(end);
-%                             legendlabels{end+1}   = [num2str(level), ' ', R.defaultUnit];
-%                         end
-                    end
-                    
-
-%                     leg = legend(legendContours,legendlabels);
+%         function F = animate(R,varargin)
+%             
+%             x0=10;
+%             y0=10;
+%             width=800;
+%             height=800;
+%             
+%             levels = R.defaultPlotLevels;
+%             
+%             sur = [];
+%             impact = 1;
+%             plotCages = 1;
+%             
+%             for i = 1:2:length(varargin)
+%               switch varargin{i}
+%                 case 'x0'
+%                   x0 = varargin{i+1};
+%                 case 'y0'
+%                   y0 = varargin{i+1};
+%                 case 'width'
+%                   width = varargin{i+1};
+%                 case 'height'
+%                   height = varargin{i+1};
+%                 case 'levels'
+%                   levels = varargin{i+1};
+%                 case 'impact'
+%                   impact = varargin{i+1};
+%                 case 'cages'
+%                   plotCages = varargin{i+1};
+%                 case 'sur'
+%                   sur = varargin{i+1};
+%                   impact = 1; % if sur passed, definately plot an impact
+%               end
+%             end
+%             
+%             noLevels = length(levels);
+%             
 % 
-%                     PatchInLegend = findobj(leg, 'type', 'patch'); 
+%             if isempty(sur)
+%                 sur = R.sur;
+%             end
+%             
+%             
+%             loops = size(sur,1);
+%             frames(1:loops) = struct('cdata',[],'colormap',[]);
 % 
-%                     % to find the patch objects in your legend. You can then set their transparency using 
-%                     for l = 1:noLevels
-%                         try
-%                             % start with alpha 0.5 and split the rest between 0.5-1.0
-%                             val = 0.5 + (0.5-(0.5/noLevels) * (l - 1));
-%                             set(PatchInLegend(l), 'facea', val);  
-%                         catch
-%                         end
-%                     end
-                end
-            end
-            
-            set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
-        end
+%             if impact & ~isempty(sur)
+% 
+%                 for s = 1:length(sur)
+%                     thisSur = sur{s};
+%                     
+%                     drawnow
+%                     F = figure('visible','off');
+%                     R.plot('sur', thisSur)
+%                     frames(s) = getframe(F); 
+%                     
+%                 end
+%             end
+%             
+%             set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
+%             set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
+%             
+%             fig = figure('visible','on');
+%             movie(fig,frames)
+%             close(F)
+%         end        
                 
     end
 

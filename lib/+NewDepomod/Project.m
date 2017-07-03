@@ -325,7 +325,7 @@ classdef Project < Depomod.Project
             end
 
             % change project name
-            movefile(P.path,[P.parentPath, '\', newName]);
+            movefile(P.path,[P.parentPath, '\', newName], 'f');
             
             renamedProject = NewDepomod.Project.create([P.parentPath, '\', newName]);
             
@@ -336,6 +336,8 @@ classdef Project < Depomod.Project
                     strrep(NewDepomod.Project.escapeFilePath(P.path), '\\','\'), ...
                     strrep(NewDepomod.Project.escapeFilePath(renamedProject.path), '\\','\') ...
                 );
+            
+                Depomod.FileUtils.replaceInFile(run.runtimePath, oldName, newName);
             end
             
             

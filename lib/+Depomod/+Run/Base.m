@@ -129,9 +129,10 @@ classdef (Abstract) Base < handle
             
             levels = R.defaultPlotLevels;
             
-            sur = [];
-            impact = 1;
+            sur       = [];
+            impact    = 1;
             plotCages = 1;
+            visible   = 'on';
             
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -152,12 +153,14 @@ classdef (Abstract) Base < handle
                 case 'sur'
                   sur = varargin{i+1};
                   impact = 1; % if sur passed, definately plot an impact
+                case 'visible'
+                  visible = varargin{i+1};
               end
             end
             
             noLevels = length(levels);
             
-            F = figure;
+            F = figure('visible', visible);
             R.project.bathymetry.plot('contour', 1);            
             hold on
             set(gcf,'units','points','position',[x0,y0,width,height]);
@@ -223,14 +226,17 @@ classdef (Abstract) Base < handle
                 PatchInLegend = findobj(leg, 'type', 'patch'); 
 
                 % to find the patch objects in your legend. You can then set their transparency using 
-                for l = 1:noLevels
+                for l = 1:size(PatchInLegend,1)
                     % start with alpha 0.5 and split the rest between 0.5-1.0
                     val = 0.5 + (0.5-(0.5/noLevels) * (l - 1));
                     set(PatchInLegend(l), 'facea', val);               
                 end
             end
+            
             set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
             set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
+            
+            drawnow
         end
     end
 

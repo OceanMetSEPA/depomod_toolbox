@@ -9,8 +9,18 @@ classdef DataPropertiesFile < NewDepomod.PropertiesFile
     
     methods
         
-        function DPF = DataPropertiesFile(filePath)
-            DPF = DPF@NewDepomod.PropertiesFile(filePath);  
+        function DPF = DataPropertiesFile(filePath, varargin)
+            DPF = DPF@NewDepomod.PropertiesFile(filePath); 
+            
+            if ~isempty(varargin)
+                for i = 1:2:size(varargin,2) % only bother with odd arguments, i.e. the labels
+                    switch varargin{i}
+                      case 'dataColumnCount'
+                        addprop(DPF,'dataColumnCount');
+                        DPF.dataColumnCount = varargin{i + 1};
+                    end
+                end   
+            end
             
             if exist('filePath', 'var')
                 DPF.parseDataFromFile();
@@ -35,6 +45,10 @@ classdef DataPropertiesFile < NewDepomod.PropertiesFile
             while ~isequal(tline(1:length(DPF.endOfDataMarker)+1), ['#',DPF.endOfDataMarker])
                 tline = fgets(fid);
                 rowCount = rowCount+1;
+                
+                if regexp(tline, '#\r\n') % fudge to address corrupt endOfDataMarker
+                    break
+                end
             end
 
             dataEndIdx = rowCount-1; % subtract 1 for last row BEFORE end marker

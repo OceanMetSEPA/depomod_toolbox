@@ -91,6 +91,10 @@ classdef Java
             if showConsoleOutput
                 options = [options, ' --showConsoleOutput'];
             end
+            
+            if 1
+                options = [options, ' --loggerOutputLevel "finest" --loggerOutputFile "C:/newdepomod_projects/depomodOutput.log"'];
+            end
         end
                 
         function command = run(J, varargin)
