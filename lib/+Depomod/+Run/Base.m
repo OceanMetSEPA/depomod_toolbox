@@ -109,7 +109,7 @@ classdef (Abstract) Base < handle
             % model run sur file associated with the passed in index. The
             % index relates to the G-model status of the sur file, as
             % indicated by the 'g-' sequence in the filename.
-            
+
             [e, n] = R.project.southWest;
             version = R.project.version;
                         

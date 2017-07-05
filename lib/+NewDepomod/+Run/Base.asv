@@ -372,6 +372,8 @@ classdef Base < Depomod.Run.Base
         function s = sur(R, varargin) % shortcut method/backwards compatibility
             type      = 'solids';
             
+            
+            if isequal(class(R), 'NewDepomod.Run.Chemical')
             gIndex    = 0;
             timestamp = [];
             
@@ -417,7 +419,6 @@ classdef Base < Depomod.Run.Base
             if isempty(timestamp) | length(timestamp) < 2
                 error('Insufficient output times specified')
             else
-                varargin{:}
                 surs = R.sur(varargin{:});
 
                 s = surs{1};
