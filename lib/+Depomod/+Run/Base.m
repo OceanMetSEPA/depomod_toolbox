@@ -63,7 +63,6 @@ classdef (Abstract) Base < handle
         runNumber;   % model run number
         log;         % property for memoizing log information for this run, saves multiple calls
         cages;
-        tide;
     end
     
     methods
@@ -81,10 +80,6 @@ classdef (Abstract) Base < handle
         function bool = isTFBZ(R)
             % Returns true if the model run is a TFBZ run
             bool = ~isempty(regexp(class(R), 'TFBZ', 'ONCE'));
-        end
-        
-        function t = get.tide(R)
-            [~, ~, t, ~, ~, ~] = AutoDepomod.Run.Base.cfgFileParts(R.cfgFileName, R.project.version);
         end
 
         function l = get.log(R)
@@ -122,10 +117,10 @@ classdef (Abstract) Base < handle
         
         function F = plot(R,varargin)
             
-            x0=10;
-            y0=10;
-            width=800;
-            height=800;
+            x0=0;
+            y0=0;
+            width=600;
+            height=600;
             
             levels = R.defaultPlotLevels;
             
@@ -159,9 +154,10 @@ classdef (Abstract) Base < handle
             end
             
             noLevels = length(levels);
-            
+                        
             F = figure('visible', visible);
-            R.project.bathymetry.plot('contour', 1);            
+            R.project.bathymetry.plot('contour', 1);    
+            daspect([1 1 1])
             hold on
             set(gcf,'units','points','position',[x0,y0,width,height]);
             box on
@@ -169,23 +165,18 @@ classdef (Abstract) Base < handle
             set(gca,'layer','top')
             xlabel('Northing');
             ylabel('Easting');
-
-            if plotCages
-                cages = R.cages.consolidatedCages.cages;
-
-                figure(F)
-                scatter(cellfun(@(c) c.x, cages), cellfun(@(c) c.y, cages), 'ko', 'MarkerFaceColor', 'k', 'LineWidth', 2.0, 'Visible', 'on', 'Clipping', 'on')
-                set(gca,'layer','top')
-            end
-
-            if isempty(sur)
-                sur = R.sur;
-            end
             
             t=title([R.project.name, ': run - ', num2str(R.runNumber)]);
-            % escape underscores in title
-            set(t,'Interpreter','none');
-
+            set(t,'Interpreter','none'); % escape underscores in title            
+            
+            if isempty(sur)
+                try
+                    sur = R.sur;
+                catch
+                    impact = 0;
+                end
+            end
+            
             if impact & ~isempty(sur)
                 legendContours = [];
                 legendlabels   = {};
@@ -210,7 +201,7 @@ classdef (Abstract) Base < handle
 
                         figure(F)
                         validIndexes = ~isnan(x) & ~isnan(y);
-                        contourhandle = patch(x(validIndexes),y(validIndexes),'red', 'FaceAlpha', val, 'LineStyle', ':');
+                        contourhandle = fill(x(validIndexes),y(validIndexes),'red', 'FaceAlpha', val, 'LineStyle', ':');
 
                         i = i + contour(2,i) + 1;
                     end
@@ -234,7 +225,15 @@ classdef (Abstract) Base < handle
             end
             
             set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
+            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+            
+            if plotCages
+                cages = R.cages.consolidatedCages.cages;
+
+                figure(F)
+                scatter3(cellfun(@(c) c.x, cages), cellfun(@(c) c.y, cages),repmat(max(max(R.project.bathymetry.data))+1,length(cages),1), 'ko', 'MarkerFaceColor', 'k', 'LineWidth', 2.0, 'Visible', 'on', 'Clipping', 'on');
+                set(gca,'layer','top')
+            end
             
             drawnow
         end

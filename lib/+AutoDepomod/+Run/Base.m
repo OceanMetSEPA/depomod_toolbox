@@ -91,7 +91,7 @@ classdef Base < Depomod.Run.Base
                 type     = t{1}{2};
                 tide     = t{1}{3};
                 number   = t{1}{4};
-                filetype        = t{1}{5};
+                filetype = t{1}{5};
                 ext      = t{1}{6};
             end
         end
@@ -109,6 +109,7 @@ classdef Base < Depomod.Run.Base
     
     properties
         sur@Depomod.Sur.Base;
+        tide;
     end
     
     methods
@@ -166,6 +167,10 @@ classdef Base < Depomod.Run.Base
             end
             
             s = R.sur; 
+        end
+        
+        function t = get.tide(R)
+            [~, ~, t, ~, ~, ~] = AutoDepomod.Run.Base.cfgFileParts(R.cfgFileName);
         end
          
         function b = biomass(R)

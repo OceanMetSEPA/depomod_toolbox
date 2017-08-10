@@ -139,6 +139,7 @@ classdef Base < Depomod.Run.Base
         carbonSur@Depomod.Sur.Solids;
         iterationRunNumber = [];
         modelFileName = '';
+        tide;
     end
     
     properties (Hidden = true)
@@ -369,6 +370,14 @@ classdef Base < Depomod.Run.Base
             c = R.consolidatedTimeSeriesFile;
         end
         
+        function t = get.tide(R)
+            if isempty(R.tide) | R.clearRunFileProperties
+                R.tide = R.modelFile.Model.run.tide;
+            end
+            
+            t = R.tide;
+        end
+        
         function s = sur(R, varargin) % shortcut method/backwards compatibility
             type      = 'solids';
             
@@ -514,74 +523,7 @@ classdef Base < Depomod.Run.Base
         
         function initializeLog(R)
             R.log = NewDepomod.PropertiesFile(R.logFilePath); % R.iterationRunNumber presumably added at some point
-        end
-        
-%         function F = animate(R,varargin)
-%             
-%             x0=10;
-%             y0=10;
-%             width=800;
-%             height=800;
-%             
-%             levels = R.defaultPlotLevels;
-%             
-%             sur = [];
-%             impact = 1;
-%             plotCages = 1;
-%             
-%             for i = 1:2:length(varargin)
-%               switch varargin{i}
-%                 case 'x0'
-%                   x0 = varargin{i+1};
-%                 case 'y0'
-%                   y0 = varargin{i+1};
-%                 case 'width'
-%                   width = varargin{i+1};
-%                 case 'height'
-%                   height = varargin{i+1};
-%                 case 'levels'
-%                   levels = varargin{i+1};
-%                 case 'impact'
-%                   impact = varargin{i+1};
-%                 case 'cages'
-%                   plotCages = varargin{i+1};
-%                 case 'sur'
-%                   sur = varargin{i+1};
-%                   impact = 1; % if sur passed, definately plot an impact
-%               end
-%             end
-%             
-%             noLevels = length(levels);
-%             
-% 
-%             if isempty(sur)
-%                 sur = R.sur;
-%             end
-%             
-%             
-%             loops = size(sur,1);
-%             frames(1:loops) = struct('cdata',[],'colormap',[]);
-% 
-%             if impact & ~isempty(sur)
-% 
-%                 for s = 1:length(sur)
-%                     thisSur = sur{s};
-%                     
-%                     drawnow
-%                     F = figure('visible','off');
-%                     R.plot('sur', thisSur)
-%                     frames(s) = getframe(F); 
-%                     
-%                 end
-%             end
-%             
-%             set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-%             set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
-%             
-%             fig = figure('visible','on');
-%             movie(fig,frames)
-%             close(F)
-%         end        
+        end     
                 
     end
 

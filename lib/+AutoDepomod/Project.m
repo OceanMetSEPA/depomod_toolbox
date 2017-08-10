@@ -18,7 +18,7 @@ classdef Project < Depomod.Project
             % package root path. This name is based upon the standard .ini
             % file located in the package root directory.
             
-            iniFileRegex = 'SEPA-(.*).ini'; % regex to identify .ini file and parse out site name
+            iniFileRegex = '.+\SEPA-(.*).ini'; % regex to identify .ini file and parse out site name
             files = Depomod.FileUtils.fileFinder(path);       % find all files in root directory
             file  = {};
             

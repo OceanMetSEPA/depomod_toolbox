@@ -91,7 +91,8 @@ classdef (Abstract) Base < handle
             
             % Create ax x by y data grid as a Z-coordinate for describing
             % the .sur data
-            s.Z = zeros(size(s.X,1),size(s.Y,1));
+%             s.Z = zeros(size(s.X,1),size(s.Y,1));
+            s.Z = zeros(size(s.Y,1),size(s.X,1));
 
             % Get the list of .sur data values from the appropriate column
             % (defined on subclass)

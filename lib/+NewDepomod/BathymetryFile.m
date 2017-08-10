@@ -50,7 +50,7 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
         end
         
         function dcc = dataColumnCount(B)
-            dcc = str2num(B.Domain.data.numberOfElementsY);
+            dcc = str2num(B.Domain.data.numberOfElementsX);
         end
         
         function pl = plot(B, varargin)
@@ -79,10 +79,12 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             );
             
             if contour
-                pl = contourf(X,Y,flipud(B.data));
+                [~,pl] = contourf(X,Y,flipud(B.data));
             else
                 pl = pcolor(X,Y,flipud(B.data));
             end
+            
+            daspect([1 1 1])
             
             shading flat;
             
