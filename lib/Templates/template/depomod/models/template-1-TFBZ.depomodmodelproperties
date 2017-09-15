@@ -1,15 +1,15 @@
-#Mon Mar 27 15:28:15 BST 2017
-Model.run.tide=N
-Model.run.plugLoadPeriod=168
-ModelTime.startTime=0
-Model.run.tag=1
-Model.run.number=1
-ModelTime.timeUnitsSiConversionFactor=0.001
+#Fri Sep 15 12:08:28 BST 2017
+Model.iterationParameter=OVERTREATMENTFACTOR
 Model.run.compound=TFBZ
-ModelTime.endTime=1728000000
+Model.run.number=1
+Model.run.numberOfParticles=10
+Model.run.plugLoadPeriod=168
+Model.run.runType=REFINING
+Model.run.tag=1
+Model.run.tide=N
 Model.run.useNumber=true
 ModelTime.delta=60000
+ModelTime.endTime=1728000000
 ModelTime.releasePeriod=1296000000
-Model.iterationParameter=OVERTREATMENTFACTOR
-Model.run.numberOfParticles=10
-Model.run.runType=REFINING
+ModelTime.startTime=0
+ModelTime.timeUnitsSiConversionFactor=0.001

@@ -204,7 +204,16 @@ classdef Collection < dynamicprops
             highestRunNumber = C.highestRunNumber;
             newRunNumber     = highestRunNumber + 1;
             
-            templateRun = C.number(highestRunNumber);
+            template = highestRunNumber;
+            
+            for i = 1:length(varargin)
+              switch varargin{i}
+                case 'template'
+                  template = varargin{i + 1};
+              end
+            end
+            
+            templateRun = C.number(template);
             
             newModelPath  = regexprep(templateRun.modelPath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']);
             copyfile(templateRun.modelPath, newModelPath);

@@ -128,6 +128,7 @@ classdef (Abstract) Base < handle
             impact    = 1;
             plotCages = 1;
             visible   = 'on';
+            contour   = 1;
             
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -150,13 +151,15 @@ classdef (Abstract) Base < handle
                   impact = 1; % if sur passed, definately plot an impact
                 case 'visible'
                   visible = varargin{i+1};
+                case 'contour'
+                  contour = varargin{i+1};
               end
             end
             
             noLevels = length(levels);
                         
             F = figure('visible', visible);
-            R.project.bathymetry.plot('contour', 1);    
+            R.project.bathymetry.plot('contour', contour);    
             daspect([1 1 1])
             hold on
             set(gcf,'units','points','position',[x0,y0,width,height]);

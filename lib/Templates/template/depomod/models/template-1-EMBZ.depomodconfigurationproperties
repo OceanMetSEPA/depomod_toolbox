@@ -1,5 +1,5 @@
-#2017/03/27 15:26:46
-#Mon Mar 27 15:26:46 BST 2017
+#2017/09/14 22:32:03
+#Thu Sep 14 22:32:03 BST 2017
 RelseaseManager.numberOfParticlesPerCageFinalRuns=10
 Transports.writeParticles=false
 Model.defaultSpecificFeedingRatePercent=0.7
@@ -11,6 +11,7 @@ Model.stockingDensityUseMax=TRUE
 Model.defaultStockingDensity=23
 Model.specificFeedingRatePercentUseMax=FALSE
 Model.minimumStockingDensity=10
+Model.overTreatmentFactorLimit=5.0
 Model.showConsoleOutput=false
 Model.defaultCageVolumeAdjust=1.0
 Model.maximumSpecificFeedingRatePercent=1.0
@@ -19,9 +20,7 @@ Model.minimumSpecificFeedingRatePercent=0.1
 Transports.numberOfExecutorThreads=ALL_AVAILABLE
 Transports.writeIterations=false
 Model.biomassLimit=Infinity
-Model.writeIntermediateFiles=true
+Model.writeIntermediateFiles=false
 Transports.dropOutOfDomain=false
 RelseaseManager.numberOfParticlesPerCageScopingRuns=1
 RelseaseManager.releaseCycleMode=SINGLERELEASE
-Model.overTreatmentFactorLimit=5.0
-Model.overTreatmentFactorUseMax=TRUE

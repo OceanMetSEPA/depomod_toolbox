@@ -52,6 +52,8 @@ classdef EmBZ < AutoDepomod.Run.Chemical
         % compliance interval). It is a function of the excretion rate and the decay rate.
         exportFactor = 0.74;
         surWithDecay@Depomod.Sur.Residue;
+        defaultPlotLevels = [0.1, 0.763, 2.0, 10.0 25.0];
+        defaultUnit = 'ug kg^{-1}';
     end
     
     methods      
