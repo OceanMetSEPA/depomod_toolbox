@@ -126,13 +126,55 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             boolMatrix = ~B.landIndexes;
         end
         
+        function boolMatrix = drySeabedIndexes(B)
+            boolMatrix = B.data < 10 & B.data > 0;
+        end
+        
+        function boolMatrix = shallowSeabedIndexes(B, depth)
+            boolMatrix = B.data < 0 & B.data > depth;
+        end
+        
+        function boolMatrix = deepSeabedIndexes(B, depth)
+            boolMatrix = B.data < depth;
+        end
+        
         function adjustSeabedDepths(B, value)
             B.data(B.seabedIndexes) = B.data(B.seabedIndexes) - value;
             B.data(B.data >= 10) = 10;
         end
         
-        function smoothSeabed(B)
+        function adjustDrySeabedDepths(B, value)
+            if ~exist('value', 'var') | value > 0
+                value = 10;
+            end
+            
+            B.data(B.drySeabedIndexes) = value;
+        end
+                    
+        function adjustShallowSeabedDepths(B, value)            
+            B.data(B.shallowSeabedIndexes(value)) = value;
+        end
+        
+        function disambiguateShoreline(B, value)  
+            if ~exist('value', 'var')
+                value = -1;
+            end          
+            
+            B.adjustDrySeabedDepths;          
+            B.adjustShallowSeabedDepths(value);
+        end
+        
+        function smoothSeabed(B, varargin)
             [seabedX,seabedY] = find(B.data ~= 10);
+            
+            if ~isempty(varargin)
+                for i = 1:2:size(varargin,2) % only bother with odd arguments, i.e. the labels
+                    switch varargin{i}
+                      case 'indexes'
+                        [seabedX,seabedY] = find(varargin{i + 1});
+                    end
+                end   
+            end
             
             for c = 1:length(seabedX)
                 x = seabedX(c);
@@ -157,12 +199,8 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                  elseif y == size(B.data,2)
                     B.data(x,y) = (B.data(x+1,y) + B.data(x-1,y) + B.data(x,y-1))/3.0;
                 end
-
             end
         end
-        
-        
     end
-    
 end
 

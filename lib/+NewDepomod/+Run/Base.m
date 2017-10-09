@@ -412,15 +412,56 @@ classdef Base < Depomod.Run.Base
             EmBZInputs.toFile;
         end
 
+        function setDailyOutputTimes(R)
+            R.setOutputTimesFromEnd(floor(R.runDurationDays)-1,1);
+        end
+        
+        function clearOutputTimes(R)
+            EmBZConfig = R.configurationFile
+            EmBZConfig.Transports.recordTimes='';
+            EmBZConfig.toFile
+        end
+
         function setOutputTimesFromEnd(R, days, resolution)
+            ot = R.outputTimestamps
             % configuration 
             runPeriodDays = R.runDurationDays
-            % We'll step back from 118 days in 6 hour increments over 8 days
-            samplingShifts = 0:resolution:days
+            % We'll step back from 118 days in x hour increments over 8 days
+            % First entry is the resolution size as we don't want to
+            % include the model endpoint. This does not get written if the
+            % release period and model end time are the same.
+            samplingShifts = resolution:resolution:days
             % subtract each from total days and convert to seconds
             samplingDays = floor((runPeriodDays - samplingShifts).*(24*60*60)) % seconds
+            % merge with existing, remove duplicates and sort ascending
+            samplingDays = sort(unique(horzcat(ot, samplingDays))) % seconds
             % join together as a comma separate string 
-            samplingString = strjoin(cellfun(@num2str,num2cell(samplingDays(end:-1:1)),'UniformOutput',0),',')
+            samplingString = strjoin(cellfun(@num2str,num2cell(samplingDays),'UniformOutput',0),',')
+
+            % instantiate the config file
+            EmBZConfig = R.configurationFile
+            % and set these values
+            EmBZConfig.Transports.recordTimes=samplingString;
+            EmBZConfig.Transports.recordSurfaces = 'true';
+
+            EmBZConfig.toFile
+        end
+
+        function setOutputTimes(R, startDay, endDay, resolution)
+            ot = R.outputTimestamps
+            
+            % configuration 
+%             runPeriodDays = R.runDurationDays
+%             samplingShifts = startDay:resolution:endDay
+            % subtract each from total days and convert to seconds
+            
+            
+            
+            samplingDays = floor((startDay:resolution:endDay).*(24*60*60)) % seconds
+            % merge with existing, remove duplicates and sort ascending
+            samplingDays = sort(unique(horzcat(ot, samplingDays))) % seconds
+            % join together as a comma separate string 
+            samplingString = strjoin(cellfun(@num2str,num2cell(samplingDays),'UniformOutput',0),',')
 
             % instantiate the config file
             EmBZConfig = R.configurationFile
@@ -535,7 +576,6 @@ classdef Base < Depomod.Run.Base
             % Invokes Depomod on the model run configuration, overwriting
             % any output files  
             
-                
             jv = NewDepomod.Java;
 
             commandStringOnly = 0;

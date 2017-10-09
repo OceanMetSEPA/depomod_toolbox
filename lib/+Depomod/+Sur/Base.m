@@ -356,8 +356,8 @@ classdef (Abstract) Base < handle
             else
                 z = S.Z;
             end
-%             v=sum(sum(z)*25)*25
-            v = trapz(S.Y, trapz(S.X, z, 2), 1);
+            v=sum(sum(z)*25)*25
+%             v = trapz(S.Y, trapz(S.X, z, 2), 1);
         end
         
         function [v] = positiveVolume(S, level)

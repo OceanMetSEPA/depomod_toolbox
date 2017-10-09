@@ -200,7 +200,11 @@ classdef Site
                 if isempty(cage.inProduction)
                     production_node.setTextContent('true');
                 else
-                    production_node.setTextContent(cage.inProduction);
+                    if cage.inProduction
+                        production_node.setTextContent('true');
+                    else
+                        production_node.setTextContent('false');
+                    end
                 end
 
                 cage_node.appendChild(type_node);
