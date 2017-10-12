@@ -27,7 +27,9 @@ classdef Residue < Depomod.Sur.Base
     % 
          
     properties
-        rawDataValueCol = 'outCol2'; % column in the raw data holds the concentration data
+        rawDataValueCol   = 'outCol2'; % column in the raw data holds the concentration data
+        defaultPlotLevels = [0.1, 0.763, 2.0, 10.0 25.0];
+        defaultUnit       = 'ug kg^{-1}';
     end
         
     methods      

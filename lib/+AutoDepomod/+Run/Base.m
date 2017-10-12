@@ -54,7 +54,7 @@ classdef Base < Depomod.Run.Base
             [bool, ~, ~, ~, number, ~, ~] = AutoDepomod.Run.Base.isValidConfigFileName(filename);
             
             if bool
-                runNo = number;
+                runNo = str2num(number);
             else
                 runNo = [];
             end

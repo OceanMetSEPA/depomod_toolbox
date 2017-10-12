@@ -138,8 +138,20 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             boolMatrix = B.data < depth;
         end
         
-        function adjustSeabedDepths(B, value)
-            B.data(B.seabedIndexes) = B.data(B.seabedIndexes) - value;
+        function adjustSeabedDepths(B, value, varargin)
+            
+            indexes = B.seabedIndexes;
+            
+            if ~isempty(varargin)
+                for i = 1:2:size(varargin,2) % only bother with odd arguments, i.e. the labels
+                    switch varargin{i}
+                      case 'indexes'
+                        indexes = varargin{i + 1};
+                    end
+                end   
+            end
+            
+            B.data(indexes) = B.data(indexes) - value;
             B.data(B.data >= 10) = 10;
         end
         
@@ -200,6 +212,31 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                     B.data(x,y) = (B.data(x+1,y) + B.data(x-1,y) + B.data(x,y-1))/3.0;
                 end
             end
+        end
+        
+        function l = domainLengthX(B)
+            l = str2num(B.Domain.spatial.maxX) - str2num(B.Domain.spatial.minX);
+        end
+        
+        function l = domainLengthY(B)
+            l = str2num(B.Domain.spatial.maxY) - str2num(B.Domain.spatial.minY);
+        end
+        
+        function cl = cellLengthX(B)
+            cl = B.domainLengthX/str2num(B.Domain.data.numberOfElementsX);
+        end
+        
+        function cl = cellLengthY(B)
+            cl = B.domainLengthY/str2num(B.Domain.data.numberOfElementsY);
+        end
+        
+        function [eastings, northings] = cellCentres(B)
+            cellLengthX = B.cellLengthX;
+            cellLengthY = B.cellLengthY;
+            
+            [eastings, northings] = meshgrid(...
+                (str2num(B.Domain.spatial.minX)+cellLengthX/2):cellLengthX:(str2num(B.Domain.spatial.maxX)-cellLengthX/2),...
+                (str2num(B.Domain.spatial.maxY)-cellLengthY/2):-cellLengthY:(str2num(B.Domain.spatial.minY)+cellLengthY/2));
         end
     end
 end

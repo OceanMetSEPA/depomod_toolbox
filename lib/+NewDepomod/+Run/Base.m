@@ -55,7 +55,7 @@ classdef Base < Depomod.Run.Base
             [bool, ~, number, ~, ~, ~, ~, ~, ~] = NewDepomod.Run.Base.isValidConfigFileName(filename);
             
             if bool
-                runNo = number;
+                runNo = str2num(number);
             else
                 runNo = [];
             end
@@ -411,65 +411,74 @@ classdef Base < Depomod.Run.Base
 
             EmBZInputs.toFile;
         end
-
-        function setDailyOutputTimes(R)
-            R.setOutputTimesFromEnd(floor(R.runDurationDays)-1,1);
-        end
         
         function clearOutputTimes(R)
-            EmBZConfig = R.configurationFile
+            EmBZConfig = R.configurationFile;
             EmBZConfig.Transports.recordTimes='';
-            EmBZConfig.toFile
+            EmBZConfig.toFile;
+        end
+
+        function setDailyOutputTimes(R)
+            R.setOutputTimes('resolution', 3600*24);
         end
 
         function setOutputTimesFromEnd(R, days, resolution)
-            ot = R.outputTimestamps
-            % configuration 
-            runPeriodDays = R.runDurationDays
-            % We'll step back from 118 days in x hour increments over 8 days
-            % First entry is the resolution size as we don't want to
-            % include the model endpoint. This does not get written if the
-            % release period and model end time are the same.
-            samplingShifts = resolution:resolution:days
-            % subtract each from total days and convert to seconds
-            samplingDays = floor((runPeriodDays - samplingShifts).*(24*60*60)) % seconds
-            % merge with existing, remove duplicates and sort ascending
-            samplingDays = sort(unique(horzcat(ot, samplingDays))) % seconds
-            % join together as a comma separate string 
-            samplingString = strjoin(cellfun(@num2str,num2cell(samplingDays),'UniformOutput',0),',')
-
-            % instantiate the config file
-            EmBZConfig = R.configurationFile
-            % and set these values
-            EmBZConfig.Transports.recordTimes=samplingString;
-            EmBZConfig.Transports.recordSurfaces = 'true';
-
-            EmBZConfig.toFile
+            startTime = str2num(R.modelFile.ModelTime.endTime)/1000.0 - days*24*3600; 
+            R.setOutputTimes('startTime', startTime, 'resolution', resolution);
         end
 
-        function setOutputTimes(R, startDay, endDay, resolution)
-            ot = R.outputTimestamps
+        function setOutputTimes(R, varargin) %startDay, endDay, resolution)
+            ot = R.outputTimestamps;
             
-            % configuration 
-%             runPeriodDays = R.runDurationDays
-%             samplingShifts = startDay:resolution:endDay
-            % subtract each from total days and convert to seconds
+            startTime  = str2num(R.modelFile.ModelTime.startTime)/1000.0; % ms to s
+            endTime    = str2num(R.modelFile.ModelTime.endTime)/1000.0;   % ms to s
+            resolution = 3*3600; % 3 hours
             
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'startTime'
+                  startTime = varargin{i+1};
+                case 'endTime'
+                  endTime = varargin{i+1};
+                case 'resolution'
+                  resolution = varargin{i+1};
+              end
+            end
             
+            startTime = startTime + resolution;
             
-            samplingDays = floor((startDay:resolution:endDay).*(24*60*60)) % seconds
+            samplingTimes = floor(startTime:resolution:endTime); % seconds
             % merge with existing, remove duplicates and sort ascending
-            samplingDays = sort(unique(horzcat(ot, samplingDays))) % seconds
+            samplingTimes = sort(unique(horzcat(ot, samplingTimes))); % seconds
             % join together as a comma separate string 
-            samplingString = strjoin(cellfun(@num2str,num2cell(samplingDays),'UniformOutput',0),',')
+            samplingString = strjoin(cellfun(@num2str,num2cell(samplingTimes),'UniformOutput',0),',');
 
             % instantiate the config file
-            EmBZConfig = R.configurationFile
+            EmBZConfig = R.configurationFile;
             % and set these values
             EmBZConfig.Transports.recordTimes=samplingString;
             EmBZConfig.Transports.recordSurfaces = 'true';
 
-            EmBZConfig.toFile
+            EmBZConfig.toFile;
+        end
+        
+        function percent = percentComplete(R)
+            % Checks for output files
+           startTime  = str2num(R.modelFile.ModelTime.startTime)/1000.0; % ms to s
+           endTime    = str2num(R.modelFile.ModelTime.endTime)/1000.0;   % ms to s
+           ts = R.outputTimestamps;
+           
+           lastExistingOutput = startTime;
+           
+           for t = 1:length(ts)
+               if exist(R.surPath('solids', 't', ts(t)), 'file')
+                   lastExistingOutput = ts(t);
+               else
+                   break
+               end
+           end
+           
+           percent = 100*(lastExistingOutput-startTime)/(endTime-startTime);
         end
         
         function s = sur(R, varargin) % shortcut method/backwards compatibility
@@ -503,17 +512,20 @@ classdef Base < Depomod.Run.Base
                 
         function s = meanSur(R, varargin)
             timestamp = [];
+            
             for i = 1:2:length(varargin)
               switch varargin{i}
                 case 't'
                   timestamp = varargin{i+1};
               end
             end
+            
             if isempty(timestamp)
                 timestamp = R.outputTimestamps();
                 varargin{end+1} = 't';
                 varargin{end+1} = timestamp;
             end
+            
             if isempty(timestamp) | length(timestamp) < 2
                 error('Insufficient output times specified')
             else
@@ -604,6 +616,41 @@ classdef Base < Depomod.Run.Base
                 'nosplash', nosplash ...
                 );
  
+        end
+        
+        function deleteRun(R, varargin)
+            cages = 0;
+            
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'cages'
+                  cages = varargin{i+1};
+              end
+            end
+            
+            delete(R.modelPath);
+            delete(R.runtimePath);
+            delete(R.inputsFilePath);
+            
+            if exist(R.configPath, 'file')
+                delete(R.configPath);
+            end
+            
+            if exist(R.physicalPropertiesPath, 'file')
+                delete(R.physicalPropertiesPath);
+            end
+            
+            if cages
+                delete(R.cagesPath);
+            end
+            
+            if isequal(class(R), 'NewDepomod.Run.Solids')
+                R.project.solidsRuns.refresh;
+            elseif isequal(class(R), 'NewDepomod.Run.EmBZ')
+                R.project.EmBZRuns.refresh
+            elseif isequal(class(R), 'NewDepomod.Run.EmBZ')
+                R.project.TFBZRuns.refresh
+            end
         end
                  
         function initializeCages(R)

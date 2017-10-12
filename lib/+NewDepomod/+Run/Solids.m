@@ -48,8 +48,6 @@ classdef Solids < NewDepomod.Run.Base
     end
     
     properties
-        defaultPlotLevels = [4,192,1553,10000];
-        defaultUnit = 'g m^{-2} y^{-1}';
     end
     
     methods      

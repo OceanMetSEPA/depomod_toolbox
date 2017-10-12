@@ -54,6 +54,8 @@ classdef Collection < dynamicprops
     properties
         project;
         type;
+        runFilenames = {}
+        runNumbers = []
         list = {};
     end
     
@@ -83,24 +85,28 @@ classdef Collection < dynamicprops
               end
             end
             
+            C.refresh;
+        end
+        
+        function refresh(C)
             typeString = C.type; % filename indicator of model run type 
 
             % Look in the /partrack directory of the project for files with
             % the extension .cfg. Filter these according to type if
             % necessary.
             
-            if project.version == 1
-                path = project.partrackPath;
+            if C.project.version == 1
+                path = C.project.partrackPath;
                 searchTerms = '.cfg';
             else
-                path = project.modelsPath;
+                path = C.project.modelsPath;
                 searchTerms = '.depomodmodelproperties';
             end
 
             if ~isempty(C.type)
               % If a require type exists we add the appropriate term to the
               % search terms when identifying files
-              if project.version == 1
+              if C.project.version == 1
                   if isequal(char(C.type), 'S');
                       % If the required type is benthic (B) then use the
                       % standard filename descriptor BcnstFI in the search
@@ -134,49 +140,45 @@ classdef Collection < dynamicprops
             % file.
             %
             if iscell(configFiles)
+                C.runFilenames = configFiles;
                 C.list = cell(length(configFiles),1);
 
-                for i = 1:length(configFiles)
-                    C.list{i,1} = Depomod.Run.initializeAsSubclass(project, configFiles{i});
-                end
             elseif ischar(configFiles)
-                C.list{1} = Depomod.Run.initializeAsSubclass(project, configFiles);
+                C.runFilenames{1} = configFiles;
+                C.list{1} = Depomod.Run.initializeAsSubclass(C.project, configFiles);
             end
+            
+            C.generateRunNunmbers;
         end
         
         function s = size(C)
             % Returns the size of the model run collection
-            s = size(C.list,1);
+            s = size(C.runFilenames,1);
         end
         
-        function run = item(C, index)
-            % Returns the model run at the passed in index position in the
-            % collection
+        function run = item(C, index)            
+            if isempty(C.list{index})
+                C.list{index} = Depomod.Run.initializeAsSubclass(C.project, C.runFilenames{index});
+            end
+            
             run = C.list{index};     
         end
         
         function run = number(C, runNumber)
-            % Returns the model run corresponding to the passed in run
-            % number
-            run = {};
-                        
-            for i = 1:size(C.list, 1)
-                if runNumber == str2double(C.list{i}.runNumber)
-                    index = i;
-                    break;
-                end
-            end
-            
-            if exist('index', 'var')
-                run = C.list{index};
-            end
+            run = C.item(find(C.runNumbers == runNumber));
         end
         
-        function rns = runNumbers(C)
-            rns = [];
+        function generateRunNunmbers(C)
+            v = C.project.version;
             
-            for r = 1:C.size
-                rns(r) = str2num(C.list{r}.runNumber);
+            if v == 1
+                for rfn = 1:length(C.runFilenames)
+                    C.runNumbers(rfn,1) = AutoDepomod.Run.Base.parseRunNumber(C.runFilenames{rfn});
+                end
+            elseif v == 2
+                for rfn = 1:length(C.runFilenames)
+                    C.runNumbers(rfn,1) = NewDepomod.Run.Base.parseRunNumber(C.runFilenames{rfn});
+                end
             end
         end
         
@@ -187,7 +189,6 @@ classdef Collection < dynamicprops
         
         function fr = first(C)
             fr = C.item(1);
-            
         end
         
         function lr = last(C)
@@ -235,8 +236,12 @@ classdef Collection < dynamicprops
 
             newRun = Depomod.Run.initializeAsSubclass(C.project, newModelFilename);
             
+            previousSize = C.size;
+            
             % add to collection
-            C.list{C.size+1,1} = newRun;
+            C.list{previousSize+1,1}         = newRun;
+            C.runFilenames{previousSize+1,1} = newModelFilename;
+            C.runNumbers(previousSize+1,1)   = newRunNumber;
             
             % Update model file with number
             modelFile = newRun.modelFile;

@@ -122,13 +122,12 @@ classdef (Abstract) Base < handle
             width=600;
             height=600;
             
-            levels = R.defaultPlotLevels;
-            
             sur       = [];
             impact    = 1;
             plotCages = 1;
             visible   = 'on';
             contour   = 1;
+            levels    = [];
             
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -155,8 +154,6 @@ classdef (Abstract) Base < handle
                   contour = varargin{i+1};
               end
             end
-            
-            noLevels = length(levels);
                         
             F = figure('visible', visible);
             R.project.bathymetry.plot('contour', contour);    
@@ -181,6 +178,12 @@ classdef (Abstract) Base < handle
             end
             
             if impact & ~isempty(sur)
+                if isempty(levels)
+                    levels = sur.defaultPlotLevels;
+                end
+                
+                noLevels = length(levels);
+                
                 legendContours = [];
                 legendlabels   = {};
 
@@ -211,7 +214,7 @@ classdef (Abstract) Base < handle
 
                     if ~isempty(contour)
                         legendContours(end+1) = contourhandle;
-                        legendlabels{end+1}   = [num2str(level), ' ', R.defaultUnit];
+                        legendlabels{end+1}   = [num2str(level), ' ', sur.defaultUnit];
                     end
                 end
 
