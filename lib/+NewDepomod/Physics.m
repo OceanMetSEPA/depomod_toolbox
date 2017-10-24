@@ -28,7 +28,7 @@ classdef Physics
         function uStar = shearVelocity(flowSpeed, varargin)
             regime = NewDepomod.Physics.defaultRegime;
             z      = NewDepomod.Physics.defaultBedFlowHeight;
-            z0     = NewDepomod.Physics.defaultZ0
+            z0     = NewDepomod.Physics.defaultZ0;
             
             for i = 1:2:length(varargin)
               switch varargin{i}

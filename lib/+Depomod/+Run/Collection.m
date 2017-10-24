@@ -89,6 +89,10 @@ classdef Collection < dynamicprops
         end
         
         function refresh(C)
+            C.runFilenames = {};
+            C.list = {};
+            C.runNumbers = [];
+                
             typeString = C.type; % filename indicator of model run type 
 
             % Look in the /partrack directory of the project for files with
@@ -142,8 +146,8 @@ classdef Collection < dynamicprops
             if iscell(configFiles)
                 C.runFilenames = configFiles;
                 C.list = cell(length(configFiles),1);
-
             elseif ischar(configFiles)
+                
                 C.runFilenames{1} = configFiles;
                 C.list{1} = Depomod.Run.initializeAsSubclass(C.project, configFiles);
             end
