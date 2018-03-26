@@ -275,6 +275,87 @@ classdef Collection < dynamicprops
             runtimeFile.toFile;
         end
         
+        function optimise(C, varargin)
+            initial = [];
+            refine  = 0;
+            target_iti = 10;
+            run = C.last;
+            
+            coarseError      = 0.5;
+            coarseStepFactor = 1.0;
+            fineError        = 0.1;
+            fineStepFactor   = 0.5;
+            
+            for i = 1:length(varargin)
+              switch varargin{i}
+                case 'initial'
+                  initial = varargin{i + 1};
+                case 'coarseError'
+                  coarseError = varargin{i + 1};
+                case 'coarseStepFactor'
+                  coarseStepFactor = varargin{i + 1};
+                case 'fineError'
+                  fineError = varargin{i + 1};
+                case 'fineStepFactor'
+                  fineStepFactor = varargin{i + 1};
+                case 'refine'
+                  refine = varargin{i + 1};
+                case 'targetITI'
+                  target_iti = varargin{i + 1};
+              end
+            end
+            
+            config = [...
+                coarseError, coarseStepFactor;...
+                fineError, fineStepFactor;...
+            ];
+        
+            phases = 1;
+            
+            if refine
+                phases = 2;
+            end
+            
+            if ~isempty(initial) 
+                if any(ismember(superclasses(initial), 'Depomod.Run.Base'))
+                    run = initial;
+                else
+                    run = C.number(initial);
+                end
+            end
+            
+            if ~exist(run.logFilePath, 'file')
+                run.execute('runInBackground', 0);
+            end
+            
+            if exist(run.logFilePath, 'file')
+                iti = str2num(run.log.Eqs.benthic.iti)
+
+                for i = 1:phases
+                    err  = config(i,1);
+                    step = config(i,2);
+
+                    while abs(iti - target_iti) > err
+                        scalingFactor = Depomod.ITI.toFlux(target_iti)/Depomod.ITI.toFlux(iti);
+                        scalingFactor = (scalingFactor - 1.0)*step + 1
+
+                        newRun = C.new;
+                        newRun.inputsFile.scaleBiomass(scalingFactor);
+                        newRun.inputsFile.toFile;
+
+                        newRun.execute('runInBackground', 0);
+
+                        run = C.last;
+                        iti = str2num(run.log.Eqs.benthic.iti)
+                    end
+
+                end
+            else
+                error('NewDepomod:FailedRun', ['Run did not complete'])
+            end
+            
+        end
+        
     end
     
 end

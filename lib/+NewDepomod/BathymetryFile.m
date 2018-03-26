@@ -88,15 +88,7 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             
             shading flat;
             
-            colormap(bone);
-            map = colormap;
-            
-            if max(max(B.data)) >= 10
-                % colour the land green
-                map(end,:) = [0 0.3 0];
-            end
-            
-            colormap(map);
+            colormap(B.colormap);
             c = colorbar;
             ylabel(c,'depth (m)');
             
@@ -104,6 +96,15 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
         end
         
+        function map = colormap(B)
+            map = colormap(bone(ceil(max(B.data(:)-min(B.data(:))))));
+            
+            if max(B.data(:)) >= 10
+                % colour the land green
+                map(end,:) = [0 0.3 0];
+            end
+        end
+                
         function sizeInBytes = toGridgenFiles(B)
             B.GridgenBathymetryFile.data = B.data;
             B.GridgenBathymetryFile.ngridi = B.Domain.data.numberOfElementsX;
@@ -172,7 +173,7 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                 value = -1;
             end          
             
-            B.adjustDrySeabedDepths;          
+            B.adjustDrySeabedDepths(value);          
             B.adjustShallowSeabedDepths(value);
         end
         
@@ -237,6 +238,45 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             [eastings, northings] = meshgrid(...
                 (str2num(B.Domain.spatial.minX)+cellLengthX/2):cellLengthX:(str2num(B.Domain.spatial.maxX)-cellLengthX/2),...
                 (str2num(B.Domain.spatial.maxY)-cellLengthY/2):-cellLengthY:(str2num(B.Domain.spatial.minY)+cellLengthY/2));
+        end
+        
+        function e = nodesX(B)
+            e = linspace(str2num(B.Domain.spatial.minX), ...
+                    str2num(B.Domain.spatial.maxX), ...
+                    str2num(B.Domain.data.numberOfElementsX)+1 ...
+                );
+        end
+        
+        function n = nodesY(B)
+            n = linspace(str2num(B.Domain.spatial.minY), ...
+                    str2num(B.Domain.spatial.maxY), ...
+                    str2num(B.Domain.data.numberOfElementsY)+1 ...
+                );
+        end
+        
+        function [E,N] = cellNodes(B)
+            idxs = zeros(str2num(B.Domain.data.numberOfElementsX)*str2num(B.Domain.data.numberOfElementsY),4);
+            
+            nodesX = B.nodesX;
+            nodesY = B.nodesY;
+            
+            count = 1;
+            
+            for x = 1:str2num(B.Domain.data.numberOfElementsX)
+                for y = 1:str2num(B.Domain.data.numberOfElementsY)
+                    E(count, 1) = nodesX(x);
+                    E(count, 2) = nodesX(x);
+                    E(count, 3) = nodesX(x+1);
+                    E(count, 4) = nodesX(x+1);
+                    
+                    N(count, 1) = nodesY(y);
+                    N(count, 2) = nodesY(y+1);
+                    N(count, 3) = nodesY(y);
+                    N(count, 4) = nodesY(y+1);
+                    
+                    count = count + 1;
+                end
+            end
         end
     end
 end

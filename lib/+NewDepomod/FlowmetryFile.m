@@ -107,6 +107,7 @@ classdef FlowmetryFile < NewDepomod.DataPropertiesFile
 
             p.Easting = str2num(F.Flowmetry.siteXCoordinate);
             p.Northing = str2num(F.Flowmetry.siteYCoordinate);
+            p.WaterDepth = str2num(F.Flowmetry.siteDepth)*-1.0;
         end
         
     end

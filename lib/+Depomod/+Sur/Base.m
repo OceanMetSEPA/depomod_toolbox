@@ -356,8 +356,8 @@ classdef (Abstract) Base < handle
             else
                 z = S.Z;
             end
-            v=sum(sum(z)*25)*25
-%             v = trapz(S.Y, trapz(S.X, z, 2), 1);
+%             v=sum(sum(z)*25)*25
+            v = trapz(S.Y, trapz(S.X, z, 2), 1);
         end
         
         function [v] = positiveVolume(S, level)
@@ -447,7 +447,7 @@ classdef (Abstract) Base < handle
             end
         end
         
-        function val = valueAt(S,x,y)
+        function val = valueAt(S,x,y, varargin)
             % Returns the value at the passed in x,y position in the model
             % domain. This method uses the interpolatedGrid property to produced 
             % estimates between the grid nodes. If the interpolatedGrid
@@ -456,16 +456,34 @@ classdef (Abstract) Base < handle
             if isempty(S.interpolatedGrid)
                 S.interpolate;
             end
-
-            val = S.interpolatedGrid(x,y);
             
-            % The interpolation algorithm may produce a negative estimate.
-            % This is not valid in our domain, so just set to 0 in that case.
-            %
-            % We also dont want to extrapolate outside the domain, set to 0
-            % again in that case.
-            if val < 0 | x < min(S.X) | x > max(S.X)| y < min(S.Y)| y > max(S.Y)
-                val = 0.0;
+            replicates = 0;
+            replicateOffset = 25;
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+              switch varargin{i}
+                case 'replicates' % Set easting if passed in explicitly
+                  type = varargin{i+1};
+                case 'offset' % Set easting if passed in explicitly
+                  type = varargin{i+1};
+              end
+            end  
+            
+            if ~replicates
+                val = S.interpolatedGrid(x,y);
+
+                % The interpolation algorithm may produce a negative estimate.
+                % This is not valid in our domain, so just set to 0 in that case.
+                %
+                % We also dont want to extrapolate outside the domain, set to 0
+                % again in that case.
+                if val < 0 | x < min(S.X) | x > max(S.X)| y < min(S.Y)| y > max(S.Y)
+                    val = 0.0;
+                end
+            else
+                
+                
+                
             end
         end
         

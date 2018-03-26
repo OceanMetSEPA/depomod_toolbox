@@ -97,16 +97,35 @@ classdef Java
         function command = run(J, varargin)
             command = J.runCommandStringWithOptions(varargin{:});
             commandStringOnly = 0;
+            runInBackground   = 1;
+            verbose           = 1;
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
                 case 'commandStringOnly'
                   commandStringOnly = varargin{i+1};
+                case 'runInBackground'
+                  runInBackground = varargin{i+1};
+                case 'verbose'
+                  verbose = varargin{i+1};
               end
             end
             
-            if ~commandStringOnly                
-                system(['C: & ', command, ' &']);
+            if ~commandStringOnly 
+                if verbose
+                    disp(['Starting simulation...']);
+                    disp(['Command: ', command]);                    
+                    disp(['Time: ', datestr(now)]);
+                end
+                    
+                tic
+                if runInBackground
+                    system(['C: & ', command, ' &']);
+                else
+                    [s,r] = system(command);
+                    disp(r);
+                end
+                toc
             end
         end
         

@@ -48,32 +48,41 @@ classdef EmBZ
             mass = horzcat(linearPeriodMasses(linearPeriod), remainderMasses);
         end
         
-        function mass = multiTreatmentKineticModel(treatments, varargin)
+        function [mass, days] = multiTreatmentKineticModel(treatments, varargin)
             
             % day/mass, day/mass, day/mass, etc.
-            % treatments = [0, 500; 400 300; 550 225; 600 500];
+            % treatments = [1, 500; 400 300; 550 225; 600 500];
+            % first day should be 1
             
             extendDays = 118;
+            plt = 1;
             
             for i = 1:2:length(varargin)
               switch varargin{i}
                 case 'extendDays'
                   extendDays = varargin{i+1};
+                case 'plt'
+                  plt = varargin{i+1};
               end
             end
 
             maxTime = max(treatments(:,1)) + extendDays;
 
-            timeVector = 1:1:maxTime;
             output = zeros(length(treatments), maxTime);
-                        
+
             for i = 1:size(treatments,1)
-                output(i, (treatments(i,1)):maxTime) = Depomod.EmBZ.kineticModel(treatments(i,2),1:1:(maxTime-treatments(i,1)+1),varargin{:});
+                output(i, (treatments(i,1)):maxTime) = ...
+                    Depomod.EmBZ.kineticModel(treatments(i,2),1:1:(maxTime-treatments(i,1)+1),varargin{:});
             end
 
+            days = 1:1:maxTime;
             mass = sum(output,1);
 
-            plot(timeVector,mass); grid on
+            if plt
+                figure;
+                plot(days,mass);
+                grid on
+            end
         end
         
         function mass = excretionModel(treatment, t, varargin)

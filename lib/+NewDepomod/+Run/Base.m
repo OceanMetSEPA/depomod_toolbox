@@ -378,6 +378,53 @@ classdef Base < Depomod.Run.Base
             t = R.tide;
         end
         
+        function useSpecificPhysicalFile(R) 
+            R.escapeRuntimeFilepaths;
+            runtimeFile = R.runtimeFile;
+            runtimeFile.Runtime.modelPhysicalFile = ...
+                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.modelFileRoot, '.depomodphysicalproperties']);
+            runtimeFile.toFile;
+        end
+        
+        function useGenericPhysicalFile(R)
+            R.escapeRuntimeFilepaths;
+            runtimeFile = R.runtimeFile;
+            runtimeFile.Runtime.modelPhysicalFile = ...
+                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.project.name, '.depomodphysicalproperties']);
+            runtimeFile.toFile;
+        end
+        
+        function useSpecificConfigurationFile(R)
+            R.escapeRuntimeFilepaths;
+            runtimeFile = R.runtimeFile;
+            runtimeFile.Runtime.modelConfigurationFile = ...
+                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.modelFileRoot, '.depomodconfigurationproperties']);
+            runtimeFile.toFile;
+        end
+        
+        function useGenericConfigurationFile(R)
+            R.escapeRuntimeFilepaths;
+            runtimeFile = R.runtimeFile;
+            runtimeFile.Runtime.modelConfigurationFile = ...
+                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.project.name, '.depomodconfigurationproperties']);
+            runtimeFile.toFile;
+        end
+        
+        function escapeRuntimeFilepaths(R)
+            runtimeFile = R.runtimeFile;
+            
+            runtimeFile.Runtime.modelConfigurationFile = ...
+                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelConfigurationFile);
+            runtimeFile.Runtime.modelPhysicalFile = ...
+                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelPhysicalFile);
+            runtimeFile.Runtime.modelLocationFile = ...
+                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelLocationFile);
+            runtimeFile.Runtime.modelParametersFile = ...
+                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelParametersFile);
+        
+        end
+            
+        
         function setRunDurationDays(R, days, varargin)
             consolidationDays = 0
             
@@ -427,7 +474,7 @@ classdef Base < Depomod.Run.Base
             R.setOutputTimes('startTime', startTime, 'resolution', resolution);
         end
 
-        function setOutputTimes(R, varargin) %startDay, endDay, resolution)
+        function setOutputTimes(R, varargin) 
             ot = R.outputTimestamps;
             
             startTime  = str2num(R.modelFile.ModelTime.startTime)/1000.0; % ms to s
@@ -445,7 +492,13 @@ classdef Base < Depomod.Run.Base
               end
             end
             
-            startTime = startTime + resolution;
+            if startTime == str2num(R.modelFile.ModelTime.startTime)/1000.0
+                startTime = startTime + resolution;
+            end
+            
+            if endTime == str2num(R.modelFile.ModelTime.endTime)/1000.0
+                endTime = endTime - resolution;
+            end
             
             samplingTimes = floor(startTime:resolution:endTime); % seconds
             % merge with existing, remove duplicates and sort ascending
@@ -454,12 +507,12 @@ classdef Base < Depomod.Run.Base
             samplingString = strjoin(cellfun(@num2str,num2cell(samplingTimes),'UniformOutput',0),',');
 
             % instantiate the config file
-            EmBZConfig = R.configurationFile;
+            config = R.configurationFile;
             % and set these values
-            EmBZConfig.Transports.recordTimes=samplingString;
-            EmBZConfig.Transports.recordSurfaces = 'true';
+            config.Transports.recordTimes=samplingString;
+            config.Transports.recordSurfaces = 'true';
 
-            EmBZConfig.toFile;
+            config.toFile;
         end
         
         function percent = percentComplete(R)
@@ -594,6 +647,7 @@ classdef Base < Depomod.Run.Base
             singleRunOnly = 1;
             showConsoleOutput = 1;
             nosplash = 1;
+            runInBackground = 1;
 
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -605,6 +659,8 @@ classdef Base < Depomod.Run.Base
                   showConsoleOutput = varargin{i+1};
                 case 'nosplash'
                   nosplash = varargin{i+1};
+                case 'runInBackground'
+                  runInBackground = varargin{i+1};
               end
             end
 
@@ -613,7 +669,8 @@ classdef Base < Depomod.Run.Base
                 'commandStringOnly', commandStringOnly, ...
                 'modelRunTimeFile',    R.runtimePath, ...
                 'showConsoleOutput', showConsoleOutput, ...
-                'nosplash', nosplash ...
+                'nosplash', nosplash, ...
+                'runInBackground', runInBackground ...
                 );
  
         end
