@@ -447,29 +447,37 @@ classdef (Abstract) Base < handle
             end
         end
         
-        function val = valueAt(S,x,y, varargin)
+        function [val, sd] = valueAt(S,x,y, varargin)
             % Returns the value at the passed in x,y position in the model
             % domain. This method uses the interpolatedGrid property to produced 
             % estimates between the grid nodes. If the interpolatedGrid
             % property is not already set, it is generated and set.
+            %
+            % I the replicates=true option is used, the returned value
+            % constitutes an average of 5 values located around the
+            % requested point. These values are located at the point itself
+            % plus 4 points at a particular offset distance in the N, E, S
+            % and W directions. By default the offset distance is 10 m.
+            % This can be changed by passing in the *offset* argument with
+            % the required offset distance for the replicates.
             
             if isempty(S.interpolatedGrid)
                 S.interpolate;
             end
             
-            replicates = 0;
-            replicateOffset = 25;
+            samples = 1;
+            offset = 10;
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
-                case 'replicates' % Set easting if passed in explicitly
-                  type = varargin{i+1};
+                case 'samples' % Set easting if passed in explicitly
+                  samples = varargin{i+1};
                 case 'offset' % Set easting if passed in explicitly
-                  type = varargin{i+1};
+                  offset = varargin{i+1};
               end
             end  
-            
-            if ~replicates
+                        
+            if samples < 2
                 val = S.interpolatedGrid(x,y);
 
                 % The interpolation algorithm may produce a negative estimate.
@@ -481,9 +489,21 @@ classdef (Abstract) Base < handle
                     val = 0.0;
                 end
             else
+                sampleBearings = linspace(0,(2*pi),samples+1);
+                sampleBearings = sampleBearings(1:end-1)';
                 
+                [sampleOffsetX, sampleOffsetY] = pol2cart(sampleBearings, repmat(offset, samples, 1));
                 
+                sampleData = zeros(samples,3);
+                sampleData(:,1) = x + sampleOffsetX;
+                sampleData(:,2) = y + sampleOffsetY;
                 
+                for s = 1:samples
+                    sampleData(s,3) = S.valueAt(sampleData(s,1), sampleData(s,2));
+                end
+                sampleData
+                val = mean(sampleData(:,3));
+                sd  = std(sampleData(:,3));                
             end
         end
         
