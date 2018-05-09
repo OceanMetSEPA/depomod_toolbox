@@ -423,8 +423,7 @@ classdef Base < Depomod.Run.Base
                     NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelParametersFile);
         
         end
-            
-        
+                    
         function setRunDurationDays(R, days, varargin)
             consolidationDays = 0
             

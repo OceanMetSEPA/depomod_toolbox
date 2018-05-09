@@ -128,6 +128,7 @@ classdef (Abstract) Base < handle
             visible   = 'on';
             contour   = 1;
             levels    = [];
+            color     = 'red';
             
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -152,6 +153,8 @@ classdef (Abstract) Base < handle
                   visible = varargin{i+1};
                 case 'contour'
                   contour = varargin{i+1};
+                case 'color'
+                  color = varargin{i+1};
               end
             end
                         
@@ -207,7 +210,7 @@ classdef (Abstract) Base < handle
 
                         figure(F)
                         validIndexes = ~isnan(x) & ~isnan(y);
-                        contourhandle = fill(x(validIndexes),y(validIndexes),'red', 'FaceAlpha', val, 'LineStyle', ':');
+                        contourhandle = fill(x(validIndexes),y(validIndexes), color, 'FaceAlpha', val, 'LineStyle', ':');
 
                         i = i + contour(2,i) + 1;
                     end

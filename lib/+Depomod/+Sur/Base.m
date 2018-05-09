@@ -303,6 +303,7 @@ classdef (Abstract) Base < handle
             if level == 0
                 a = S.domainSizeX * S.domainSizeY; % entire km2
             else
+                
                 [c, h] = S.contour(level);
                 allContourHandles = get(h, 'Children');
                 
@@ -314,6 +315,8 @@ classdef (Abstract) Base < handle
                     thisArea = polyarea(get(allContourHandles(i),'XData'), get(allContourHandles(i),'YData'));
                     a = a + thisArea;
                 end
+                
+                clf(h) 
             end
         end
         

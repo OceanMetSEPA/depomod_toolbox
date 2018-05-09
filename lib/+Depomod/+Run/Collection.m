@@ -153,6 +153,11 @@ classdef Collection < dynamicprops
             end
             
             C.generateRunNunmbers;
+            
+            [~,i] = sort(C.runNumbers);
+            C.runNumbers = C.runNumbers(i);
+            C.runFilenames = C.runFilenames(i);
+            C.list = C.list(i);
         end
         
         function s = size(C)
