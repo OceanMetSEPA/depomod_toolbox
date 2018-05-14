@@ -1,5 +1,20 @@
 classdef PropertiesFile < dynamicprops
         
+    methods (Static = true)
+        
+        function outputString = escapeFilePath(inputString)
+            outputString = strrep(strrep(inputString, '\', '/'), ':', '\\:');
+        end
+        
+        function outputString = cleanFilePath(inputString)
+            outputString = strrep(inputString, '\:', ':');
+            outputString = strrep(outputString, '\\', '\');
+            outputString = strrep(outputString, '\', '/');
+            outputString = strrep(outputString, '//', '/');
+        end
+        
+    end
+    
     properties
         path = '';
     end
@@ -54,7 +69,7 @@ classdef PropertiesFile < dynamicprops
                if  regexp(file{i}, '.*=.*')
                    [strs, ~] = strsplit(file{i}, '=');
                                       
-                   PF.addProperty(strs{1}, strs{2});
+                   PF.addProperty(strs{1}, NewDepomod.PropertiesFile.cleanFilePath(strs{2}));
                end                
             end
 
@@ -81,7 +96,7 @@ classdef PropertiesFile < dynamicprops
                        propertyVector(end) = [];
                     end
                 else
-                    lineString = [strjoin(propertyVector, '.'), '=', strtrim(value)];
+                    lineString = [strjoin(propertyVector, '.'), '=', NewDepomod.PropertiesFile.escapeFilePath(strtrim(value))];
                     fprintf(fid, [lineString, '\n']);
                 end
             end

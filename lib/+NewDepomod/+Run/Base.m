@@ -50,22 +50,20 @@ classdef Base < Depomod.Run.Base
     
     methods (Static = true)
         
-        function runNo = parseRunNumber(filename)
+        function label = parseRunLabel(filename)
             
-            [bool, ~, number, ~, ~, ~, ~, ~, ~] = NewDepomod.Run.Base.isValidConfigFileName(filename);
+            [bool, ~, label, ~, ~, ~, ~, ~, ~] = NewDepomod.Run.Base.isValidConfigFileName(filename);
             
-            if bool
-                runNo = str2num(number);
-            else
-                runNo = [];
+            if ~bool
+                label = [];
             end
         end
         
-        function [bool, sitename, number, type, tide, output, gmodel, timestamp, ext] = isValidConfigFileName(filename)
-            [sitename, number, type, tide, output, gmodel, timestamp, ext] = NewDepomod.Run.Base.cfgFileParts(filename);
+        function [bool, sitename, label, type, tide, output, gmodel, timestamp, ext] = isValidConfigFileName(filename)
+            [sitename, label, type, tide, output, gmodel, timestamp, ext] = NewDepomod.Run.Base.cfgFileParts(filename);
             
             bool = ~isempty(sitename) && ...
-                   ~isempty(number) && ...
+                   ~isempty(label) && ...
                    ~isempty(type) && ...
                    isequal(ext, 'depomodmodelproperties');
                    
@@ -73,7 +71,7 @@ classdef Base < Depomod.Run.Base
             
             if bool
                 varargout{1} = sitename;
-                varargout{2} = number;
+                varargout{2} = label;
                 varargout{3} = type;
                 varargout{4} = tide;
                 varargout{5} = output;
@@ -83,12 +81,12 @@ classdef Base < Depomod.Run.Base
             end
         end
         
-        function [sitename, number, type, tide, output, gmodel, timestamp, ext] = cfgFileParts(filename)
+        function [sitename, label, type, tide, output, gmodel, timestamp, ext] = cfgFileParts(filename)
             [~,t]=regexp(filename, NewDepomod.Run.Base.FilenameRegex, 'match', 'tokens');
             
             if isempty(t)
                 sitename  = [];
-                number    = [];
+                label    = [];
                 type      = [];
                 tide      = [];
                 output    = [];
@@ -97,7 +95,7 @@ classdef Base < Depomod.Run.Base
                 ext       = [];
             else
                 sitename  = t{1}{1};
-                number    = t{1}{2};
+                label    = t{1}{2};
                 type      = t{1}{3};
                 tide      = t{1}{4};
                 output    = t{1}{5};
@@ -115,7 +113,7 @@ classdef Base < Depomod.Run.Base
 
         FilenameRegex = [...
             '^(\w+)', ...
-            '\-?(\d+)?', ...
+            '\-?(\w+)?', ...
             '\-?(NONE|EMBZ|TFBZ)?', ...
             '\-?(S|N)?', ...
             '\-?(carbon|chemical|solids)?', ...
@@ -137,6 +135,7 @@ classdef Base < Depomod.Run.Base
         consolidatedTimeSeriesFile@NewDepomod.TimeSeriesFile;
         solidsSur@Depomod.Sur.Solids;
         carbonSur@Depomod.Sur.Solids;
+        label; % generalisation of run number
         iterationRunNumber = [];
         modelFileName = '';
         tide;
@@ -151,24 +150,24 @@ classdef Base < Depomod.Run.Base
             R.project       = project;
             R.modelFileName = modelFileName; % this property is the -Model.properties file in V2
                                               
-            R.runNumber = NewDepomod.Run.Base.parseRunNumber(R.modelFileName);
+            R.label = NewDepomod.Run.Base.parseRunLabel(R.modelFileName);
             
-            if isempty(R.runNumber)
-                errName = 'Depomod:Run:MissingRunNumber';
-                errDesc = 'Cannot instantiate Run object. modelFileName has unexpected format, cannot locate run number.';
+            if isempty(R.label)
+                errName = 'Depomod:Run:MissingRunLabel';
+                errDesc = 'Cannot instantiate Run object. modelFileName has unexpected format, cannot locate run label.';
                 err = MException(errName, errDesc);
                 
                 throw(err)
             end
             
-            R.iterationRunNumber = R.runNumber;
-            
-            for i = 1:2:length(varargin)
-              switch varargin{i}
-                case 'iterationRunNumber'
-                  R.iterationRunNumber = varargin{i+1};
-              end
-            end
+%             R.iterationRunNumber = R.runNumber;
+%             
+%             for i = 1:2:length(varargin)
+%               switch varargin{i}
+%                 case 'iterationRunNumber'
+%                   R.iterationRunNumber = varargin{i+1};
+%               end
+%             end
         end
         
         function name = modelFileRoot(R)
@@ -177,7 +176,7 @@ classdef Base < Depomod.Run.Base
         end
         
         function name = iterationRunFileRoot(R)
-            name = strrep(R.modelFileRoot, ['-', num2str(R.runNumber)], ['-', num2str(R.iterationRunNumber)]);
+            name = strrep(R.modelFileRoot, ['-', num2str(R.label)], ['-', num2str(R.iterationRunNumber)]);
         end
         
         function p = modelPath(R)
@@ -209,6 +208,7 @@ classdef Base < Depomod.Run.Base
             
             gIndex      = 0; % Default is the 0 indexed sur file
             timestamp   = [];
+            resultsPath = R.project.resultsPath;
             
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -216,13 +216,15 @@ classdef Base < Depomod.Run.Base
                   gIndex = varargin{i+1};
                 case 't'
                   timestamp = varargin{i+1};
+                case 'resultsPath'
+                  resultsPath = varargin{i+1};
               end
             end
             
-            oldStylePath = strcat(R.project.resultsPath, '\', R.iterationRunFileRoot, ['-g', num2str(gIndex), '.sur']);
+            oldStylePath = strcat(resultsPath, '\', R.modelFileRoot, ['-g', num2str(gIndex), '.sur']);
 
             if isempty(timestamp)            
-                newStylePath = strcat(R.project.resultsPath, '\', R.iterationRunFileRoot, ['-', R.modelFile.Model.run.tide, '-', type, '-g', num2str(gIndex), '.depomodresultssur']);
+                newStylePath = strcat(resultsPath, '\', R.modelFileRoot, ['-', R.modelFile.Model.run.tide, '-', type, '-g', num2str(gIndex), '.depomodresultssur']);
             else
                 if timestamp < 1000
                     % can't be millsecond output measure
@@ -231,7 +233,7 @@ classdef Base < Depomod.Run.Base
                 else
                     timestamp = num2str(timestamp);
                 end  
-                newStylePath = strcat(R.project.resultsPath, '\', R.iterationRunFileRoot, ['-', R.modelFile.Model.run.tide, '-', type, '-g', num2str(gIndex), '-', timestamp, '.depomodresultssur']);
+                newStylePath = strcat(resultsPath, '\', R.modelFileRoot, ['-', R.modelFile.Model.run.tide, '-', type, '-g', num2str(gIndex), '-', timestamp, '.depomodresultssur']);
             end
             
             if exist(oldStylePath, 'file')
@@ -250,7 +252,7 @@ classdef Base < Depomod.Run.Base
         end
          
         function cpn = cagesPath(R)
-            cpn = [R.project.cagesPath, '\', R.project.name, '-' num2str(R.runNumber), '.depomodcagesxml'];
+            cpn = [R.project.cagesPath, '\', R.project.name, '-' num2str(R.label), '.depomodcagesxml'];
         end
          
         function i = inputsFilePath(R)
@@ -379,51 +381,30 @@ classdef Base < Depomod.Run.Base
         end
         
         function useSpecificPhysicalFile(R) 
-            R.escapeRuntimeFilepaths;
             runtimeFile = R.runtimeFile;
-            runtimeFile.Runtime.modelPhysicalFile = ...
-                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.modelFileRoot, '.depomodphysicalproperties']);
+            runtimeFile.Runtime.modelPhysicalFile = [R.project.modelsPath, '\', R.modelFileRoot, '.depomodphysicalproperties'];
             runtimeFile.toFile;
         end
         
         function useGenericPhysicalFile(R)
-            R.escapeRuntimeFilepaths;
             runtimeFile = R.runtimeFile;
-            runtimeFile.Runtime.modelPhysicalFile = ...
-                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.project.name, '.depomodphysicalproperties']);
+            runtimeFile.Runtime.modelPhysicalFile = [R.project.modelsPath, '\', R.project.name, '.depomodphysicalproperties'];
             runtimeFile.toFile;
         end
         
         function useSpecificConfigurationFile(R)
-            R.escapeRuntimeFilepaths;
             runtimeFile = R.runtimeFile;
             runtimeFile.Runtime.modelConfigurationFile = ...
-                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.modelFileRoot, '.depomodconfigurationproperties']);
+                    [R.project.modelsPath, '\', R.modelFileRoot, '.depomodconfigurationproperties'];
             runtimeFile.toFile;
         end
         
         function useGenericConfigurationFile(R)
-            R.escapeRuntimeFilepaths;
             runtimeFile = R.runtimeFile;
-            runtimeFile.Runtime.modelConfigurationFile = ...
-                    NewDepomod.Project.escapeFilePath([R.project.modelsPath, '\', R.project.name, '.depomodconfigurationproperties']);
+            runtimeFile.Runtime.modelConfigurationFile = [R.project.modelsPath, '\', R.project.name, '.depomodconfigurationproperties'];
             runtimeFile.toFile;
         end
-        
-        function escapeRuntimeFilepaths(R)
-            runtimeFile = R.runtimeFile;
-            
-            runtimeFile.Runtime.modelConfigurationFile = ...
-                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelConfigurationFile);
-            runtimeFile.Runtime.modelPhysicalFile = ...
-                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelPhysicalFile);
-            runtimeFile.Runtime.modelLocationFile = ...
-                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelLocationFile);
-            runtimeFile.Runtime.modelParametersFile = ...
-                    NewDepomod.Project.escapeFilePath(runtimeFile.Runtime.modelParametersFile);
-        
-        end
-                    
+                            
         function setRunDurationDays(R, days, varargin)
             consolidationDays = 0
             
@@ -538,6 +519,7 @@ classdef Base < Depomod.Run.Base
             
             gIndex    = 0;
             timestamp = [];
+            resultsPath = R.project.resultsPath;
             
             for i = 1:2:length(varargin)
                 
@@ -548,17 +530,19 @@ classdef Base < Depomod.Run.Base
                   gIndex = varargin{i+1};
                 case 't'
                   timestamp = varargin{i+1};
+                case 'resultsPath'
+                  resultsPath = varargin{i+1};
               end
             end
             
-            if length(timestamp > 1)
+            if length(timestamp) > 1
                 s = {};
                 
                 for t = 1:length(timestamp)
-                    s{t} = R.initializeSur(R.surPath(type, 'g', gIndex, 't', timestamp(t)));
+                    s{t} = R.initializeSur(R.surPath(type, 'g', gIndex, 't', timestamp(t), 'resultsPath', resultsPath));
                 end
             else
-                s = R.initializeSur(R.surPath(type, 'g', gIndex, 't', timestamp));
+                s = R.initializeSur(R.surPath(type, 'g', gIndex, 't', timestamp, 'resultsPath', resultsPath));
             end
         end
                 
@@ -645,7 +629,7 @@ classdef Base < Depomod.Run.Base
             commandStringOnly = 0;
             singleRunOnly = 1;
             showConsoleOutput = 1;
-            nosplash = 1;
+            noSplash = 1;
             runInBackground = 1;
 
             for i = 1:2:length(varargin)
@@ -656,8 +640,8 @@ classdef Base < Depomod.Run.Base
                   singleRunOnly = varargin{i+1};
                 case 'showConsoleOutput'
                   showConsoleOutput = varargin{i+1};
-                case 'nosplash'
-                  nosplash = varargin{i+1};
+                case 'noSplash'
+                  noSplash = varargin{i+1};
                 case 'runInBackground'
                   runInBackground = varargin{i+1};
               end
@@ -668,7 +652,7 @@ classdef Base < Depomod.Run.Base
                 'commandStringOnly', commandStringOnly, ...
                 'modelRunTimeFile',    R.runtimePath, ...
                 'showConsoleOutput', showConsoleOutput, ...
-                'nosplash', nosplash, ...
+                'nosplash', noSplash, ...
                 'runInBackground', runInBackground ...
                 );
  

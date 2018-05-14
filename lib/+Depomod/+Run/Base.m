@@ -60,7 +60,7 @@ classdef (Abstract) Base < handle
     properties
         project;     % owning modelling project
         cfgFileName; % filename of cfg file, indicates run number
-        runNumber;   % model run number
+        number;      % model run number
         log;         % property for memoizing log information for this run, saves multiple calls
         cages;
     end
@@ -169,7 +169,7 @@ classdef (Abstract) Base < handle
             xlabel('Easting');
             ylabel('Northing');
             
-            t=title([R.project.name, ': run - ', num2str(R.runNumber)]);
+            t=title([R.project.name, ': run - ', num2str(R.label)]);
             set(t,'Interpreter','none'); % escape underscores in title            
             
             if isempty(sur)
@@ -300,7 +300,7 @@ classdef (Abstract) Base < handle
             xlabel('Northing');
             ylabel('Easting');
             
-            t=title([R.project.name, ': run - ', num2str(R.runNumber)]);
+            t=title([R.project.name, ': run - ', num2str(R.label)]);
             set(t,'Interpreter','none'); % escape underscores in title            
             
             if isempty(sur)

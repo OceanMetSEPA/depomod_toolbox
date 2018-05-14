@@ -4,12 +4,6 @@ classdef Project < Depomod.Project
         version = 2;
     end
     
-    properties
-        location@NewDepomod.PropertiesFile;
-        bathymetry@NewDepomod.BathymetryFile
-        flowmetry@NewDepomod.FlowmetryFile
-    end
-    
     methods (Static = true)
         
         function P = create(path)
@@ -56,15 +50,11 @@ classdef Project < Depomod.Project
                 run = P.allRuns.item(r);
                 runtimeFile = run.runtimeFile;
 
-                runtimeFile.Runtime.modelConfigurationFile = ...
-                    NewDepomod.Project.escapeFilePath([run.project.modelsPath, '\', run.modelFileRoot, '.depomodconfigurationproperties']);
-                runtimeFile.Runtime.modelPhysicalFile = ...
-                    NewDepomod.Project.escapeFilePath([run.project.modelsPath, '\', run.modelFileRoot, '.depomodphysicalproperties']);
-                runtimeFile.Runtime.modelParametersFile = ...
-                    NewDepomod.Project.escapeFilePath(run.modelPath);
-                runtimeFile.Runtime.modelLocationFile = ...
-                    NewDepomod.Project.escapeFilePath(run.project.locationPropertiesPath);
-                
+                runtimeFile.Runtime.modelConfigurationFile = [run.project.modelsPath, '\', run.modelFileRoot, '.depomodconfigurationproperties'];
+                runtimeFile.Runtime.modelPhysicalFile      = [run.project.modelsPath, '\', run.modelFileRoot, '.depomodphysicalproperties'];
+                runtimeFile.Runtime.modelParametersFile    = run.modelPath;
+                runtimeFile.Runtime.modelLocationFile      = run.project.locationPropertiesPath;
+               
                 runtimeFile.toFile;
             end
         end
@@ -79,11 +69,13 @@ classdef Project < Depomod.Project
         function P = templateProject()
             P = NewDepomod.Project.create([NewDepomod.Project.templatePath, '\template']);
         end
-        
-        function outputString = escapeFilePath(inputString)
-            outputString = strrep(strrep(inputString, '\', '/'), ':', '\\:');
-        end
-        
+                
+    end
+    
+    properties
+        location@NewDepomod.PropertiesFile;
+        bathymetry@NewDepomod.BathymetryFile
+        flowmetry@NewDepomod.FlowmetryFile
     end
     
     methods
@@ -211,10 +203,26 @@ classdef Project < Depomod.Project
             end
         end
         
-        function clonedProject = clone(P, clonePath)
+        function clonedProject = clone(P, clonePath, varargin)
             % Function uses new parent directory as argument but appends
             % name as final residing directory for project. This makes it
             % similar to .exportFiles() function
+            
+            % strip trailing slashes
+            if isequal(clonePath(end), '/') | isequal(clonePath(end), '\')
+                clonePath(end) = [];
+            end
+            
+            originalPath = P.path;
+
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'originalPath'
+                  originalPath = varargin{i+1};
+              end
+            end
+            
+            originalPath = NewDepomod.PropertiesFile.cleanFilePath(originalPath);
             
             clonePath = [clonePath, '\', P.name];
             
@@ -233,38 +241,95 @@ classdef Project < Depomod.Project
 
             copyfile(P.path, clonePath, 'f');
 
+%             % write new directory path to location file   
+%             locationFilePath = Depomod.FileUtils.fileFinder(clonePath, {'.depomodlocationproperties'}, 'subDirectory', 1, 'type', 'or')
+% 
+%             Depomod.FileUtils.replaceInFile(locationFilePath, ...
+%                 '^project\.directory=([\w\\\/\:\.]+)?$', ...
+%                 ['project.directory=', NewDepomod.PropertiesFile.escapeFilePath(clonePath)], ...
+%                 'regexp',1 ...
+%             );
+% 
+%             % write new directory paths to depomod.prj file 
+%             filesToSub = [clonePath, '\depomod\private\depomod.prj']
+%             % location file path
+%             Depomod.FileUtils.replaceInFile(filesToSub, ...
+%                 '^project\.locations\.path=([\w\\\/\:\.]+)?$', ...
+%                 ['project.locations.path=', NewDepomod.PropertiesFile.escapeFilePath(locationFilePath)], ...
+%                 'regexp',1 ...
+%             );
+%             % project directory
+%             Depomod.FileUtils.replaceInFile(filesToSub, ...
+%                 '^project\.directory=([\w\\\/\:\.]+)?$', ...
+%                 ['project.directory=', NewDepomod.PropertiesFile.escapeFilePath(clonePath)], ...
+%                 'regexp',1 ...
+%             );
+
+            clonedProject = Depomod.Project.create(clonePath);
+            clonedProject.syncFilePaths(varargin{:})
+            
+%             for r = 1:clonedProject.allRuns.size
+%                 run = clonedProject.allRuns.item(r);
+%                 
+%                 % this clean file paths and writes them back to file in
+%                 % standard format
+%                 run.runtimeFile.toFile;
+%                 
+%                 Depomod.FileUtils.replaceInFile(run.runtimePath, ...
+%                     strrep(NewDepomod.PropertiesFile.escapeFilePath(originalPath), '\\','\'), ...
+%                     strrep(NewDepomod.PropertiesFile.escapeFilePath(clonePath), '\\','\') ...
+%                 );
+%             end
+        end
+        
+        function syncFilePaths(P, varargin)
+            
+            originalPath = P.location.project.directory
+            
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'originalPath'
+                  originalPath = varargin{i+1};
+              end
+            end
+            
+            originalPath = NewDepomod.PropertiesFile.cleanFilePath(originalPath);
+            
             % write new directory path to location file   
-            locationFilePath = Depomod.FileUtils.fileFinder(clonePath, {'.depomodlocationproperties'}, 'subDirectory', 1, 'type', 'or')
+            locationFilePath = Depomod.FileUtils.fileFinder(P.path, {'.depomodlocationproperties'}, 'subDirectory', 1, 'type', 'or')
 
             Depomod.FileUtils.replaceInFile(locationFilePath, ...
                 '^project\.directory=([\w\\\/\:\.]+)?$', ...
-                ['project.directory=', NewDepomod.Project.escapeFilePath(clonePath)], ...
+                ['project.directory=', NewDepomod.PropertiesFile.escapeFilePath(P.path)], ...
                 'regexp',1 ...
             );
 
             % write new directory paths to depomod.prj file 
-            filesToSub = [clonePath, '\depomod\private\depomod.prj']
+            filesToSub = [P.path, '\depomod\private\depomod.prj']
             % location file path
             Depomod.FileUtils.replaceInFile(filesToSub, ...
                 '^project\.locations\.path=([\w\\\/\:\.]+)?$', ...
-                ['project.locations.path=', NewDepomod.Project.escapeFilePath(locationFilePath)], ...
+                ['project.locations.path=', NewDepomod.PropertiesFile.escapeFilePath(locationFilePath)], ...
                 'regexp',1 ...
             );
             % project directory
             Depomod.FileUtils.replaceInFile(filesToSub, ...
                 '^project\.directory=([\w\\\/\:\.]+)?$', ...
-                ['project.directory=', NewDepomod.Project.escapeFilePath(clonePath)], ...
+                ['project.directory=', NewDepomod.PropertiesFile.escapeFilePath(P.path)], ...
                 'regexp',1 ...
             );
-
-            clonedProject = Depomod.Project.create(clonePath);
             
-            for r = 1:clonedProject.allRuns.size
-                run = clonedProject.allRuns.item(r);
+            for r = 1:P.allRuns.size
+                run = P.allRuns.item(r);
                 
+                % this cleans file paths and writes them back to file in
+                % standard format
+                run.runtimeFile.toFile;
+                
+                % Don't understand requirement for strrep but it works!
                 Depomod.FileUtils.replaceInFile(run.runtimePath, ...
-                    strrep(NewDepomod.Project.escapeFilePath(P.path), '\\','\'), ...
-                    strrep(NewDepomod.Project.escapeFilePath(clonePath), '\\','\') ...
+                    strrep(NewDepomod.PropertiesFile.escapeFilePath(originalPath), '\\','\'), ...
+                    strrep(NewDepomod.PropertiesFile.escapeFilePath(P.path), '\\','\') ...
                 );
             end
         end
@@ -284,7 +349,7 @@ classdef Project < Depomod.Project
             % change project root directory name in locations file
             Depomod.FileUtils.replaceInFile(P.locationPropertiesPath, ...
                 '^project\.directory=([\w\\\/\:\.]+)?$', ...
-                ['project.directory=' NewDepomod.Project.escapeFilePath(strrep(P.path, oldName, newName))], ...
+                ['project.directory=' NewDepomod.PropertiesFile.escapeFilePath(strrep(P.path, oldName, newName))], ...
                 'regexp',1 ...
             );
 
@@ -297,13 +362,13 @@ classdef Project < Depomod.Project
             % change root directory name in location file path in project file 
             Depomod.FileUtils.replaceInFile(P.projectFilePath, ...
                 '^project\.locations\.path=([\w\\\/\:\.]+)?$', ...
-                ['project.locations.path=', NewDepomod.Project.escapeFilePath(strrep(P.locationPropertiesPath, oldName, newName))], ...
+                ['project.locations.path=', NewDepomod.PropertiesFile.escapeFilePath(strrep(P.locationPropertiesPath, oldName, newName))], ...
                 'regexp',1 ...
             );
             % change project root directory name in project file 
             Depomod.FileUtils.replaceInFile(P.projectFilePath, ...
                 '^project\.directory=([\w\\\/\:\.]+)?$', ...
-                ['project.directory=' NewDepomod.Project.escapeFilePath(strrep(P.path, oldName, newName))], ...
+                ['project.directory=' NewDepomod.PropertiesFile.escapeFilePath(strrep(P.path, oldName, newName))], ...
                 'regexp',1 ...
             );
         
@@ -331,18 +396,54 @@ classdef Project < Depomod.Project
             
             for r = 1:renamedProject.allRuns.size
                 run = renamedProject.allRuns.item(r);
+                
+                % this clean file paths and writes them back to file in
+                % standard format
+                run.runtimeFile.toFile;
+                
                 % try this format
                 Depomod.FileUtils.replaceInFile(run.runtimePath, ...
-                    strrep(NewDepomod.Project.escapeFilePath(P.path), '\\','\'), ...
-                    strrep(NewDepomod.Project.escapeFilePath(renamedProject.path), '\\','\') ...
+                    strrep(NewDepomod.PropertiesFile.escapeFilePath(P.path), '\\','\'), ...
+                    strrep(NewDepomod.PropertiesFile.escapeFilePath(renamedProject.path), '\\','\') ...
                 );
             
                 Depomod.FileUtils.replaceInFile(run.runtimePath, oldName, newName);
             end
             
-            
         end
-     
+        
+        function useSubdirectory(P,  directory, subdirectory)
+            if ~isempty(subdirectory)
+                subdirectory = ['/', subdirectory];
+            end
+            P.location.(directory).data.directory = ['./depomod/', directory, subdirectory];
+            P.location.toFile;
+        end
+        
+        function useResultsSubdirectory(P,  subdirectory)
+            P.useSubdirectory('results', subdirectory);
+        end
+        
+        function useResultsRootDirectory(P)
+            P.useSubdirectory('results', []);
+        end
+        
+        function useFlowmetrySubdirectory(P,  subdirectory)
+            P.useSubdirectory('flowmetry', subdirectory);
+        end
+        
+        function useFlowmetryRootDirectory(P)
+            P.useSubdirectory('flowmetry', []);
+        end
+        
+        function useBathymetrySubdirectory(P,  subdirectory)
+            P.useSubdirectory('bathymetry', subdirectory);
+        end
+        
+        function useBathymetryRootDirectory(P)
+            P.useSubdirectory('bathymetry', []);
+        end
+             
     end
     
 end

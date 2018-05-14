@@ -54,8 +54,9 @@ classdef Collection < dynamicprops
     properties
         project;
         type;
-        runFilenames = {}
-        runNumbers = []
+        filenames = {}
+        labels    = {}
+        numbers   = []
         list = {};
     end
     
@@ -89,9 +90,10 @@ classdef Collection < dynamicprops
         end
         
         function refresh(C)
-            C.runFilenames = {};
+            C.filenames = {};
+            C.numbers = [];
+            C.labels  = {};
             C.list = {};
-            C.runNumbers = [];
                 
             typeString = C.type; % filename indicator of model run type 
 
@@ -144,55 +146,88 @@ classdef Collection < dynamicprops
             % file.
             %
             if iscell(configFiles)
-                C.runFilenames = configFiles;
+                C.filenames = configFiles;
                 C.list = cell(length(configFiles),1);
             elseif ischar(configFiles)
                 
-                C.runFilenames{1} = configFiles;
+                C.filenames{1} = configFiles;
                 C.list{1} = Depomod.Run.initializeAsSubclass(C.project, configFiles);
             end
             
-            C.generateRunNunmbers;
+            C.generateRunLabels;
             
-            [~,i] = sort(C.runNumbers);
-            C.runNumbers = C.runNumbers(i);
-            C.runFilenames = C.runFilenames(i);
-            C.list = C.list(i);
+            % make alphbetical ascending
+            [~,i] = sort(C.labels);
+            C.labels    = C.labels(i);
+            C.filenames = C.filenames(i);
+            C.list      = C.list(i);
+            
+            C.generateRunNumbers;
         end
         
         function s = size(C)
             % Returns the size of the model run collection
-            s = size(C.runFilenames,1);
+            s = size(C.filenames,1);
         end
         
         function run = item(C, index)            
             if isempty(C.list{index})
-                C.list{index} = Depomod.Run.initializeAsSubclass(C.project, C.runFilenames{index});
+                C.list{index} = Depomod.Run.initializeAsSubclass(C.project, C.filenames{index});
             end
             
+            C.list{index}.number = C.numbers(index);
             run = C.list{index};     
         end
         
         function run = number(C, runNumber)
-            run = C.item(find(C.runNumbers == runNumber));
+            run = C.item(find(C.numbers == runNumber));
         end
         
-        function generateRunNunmbers(C)
+        function run = label(C, runLabel)
+            run = C.item(find(cellfun(@(x) isequal(x, runLabel), C.labels)));
+        end
+        
+        function generateRunLabels(C)
             v = C.project.version;
             
             if v == 1
-                for rfn = 1:length(C.runFilenames)
-                    C.runNumbers(rfn,1) = AutoDepomod.Run.Base.parseRunNumber(C.runFilenames{rfn});
+                for rfn = 1:length(C.filenames)
+                    C.labels{rfn,1} = AutoDepomod.Run.Base.parseRunNumber(C.filenames{rfn});
                 end
             elseif v == 2
-                for rfn = 1:length(C.runFilenames)
-                    C.runNumbers(rfn,1) = NewDepomod.Run.Base.parseRunNumber(C.runFilenames{rfn});
+                for rfn = 1:length(C.filenames)
+                    C.labels{rfn,1} = NewDepomod.Run.Base.parseRunLabel(C.filenames{rfn});
                 end
             end
         end
         
+        function generateRunNumbers(C)
+            v = C.project.version;
+            
+            if v == 1
+                for rfn = 1:length(C.filenames)
+                    C.numbers(rfn,1) = C.labels{rfn,1}; % already numeric
+                end
+            elseif v == 2
+                if C.isNumericallyLabelled
+                    for rfn = 1:length(C.labels)
+                        C.numbers(rfn,1) = str2num(C.labels{rfn});
+                    end
+                else
+                    for rfn = 1:length(C.labels)
+                        C.numbers(rfn,1) = rfn;
+                    end
+                end
+            end
+        end
+        
+        function bool = isNumericallyLabelled(C)
+            [~,i]=cellfun(@str2num, C.labels, 'UniformOutput',0);
+            bool = all(cell2mat(i));
+        end
+        
         function hrn = highestRunNumber(C)
-            rns = sort(C.runNumbers);
+            rns = sort(C.numbers);
             hrn = rns(end);
         end
         
@@ -213,6 +248,7 @@ classdef Collection < dynamicprops
             
             highestRunNumber = C.highestRunNumber;
             newRunNumber     = highestRunNumber + 1;
+            newRunLabel      = [];
             
             template = highestRunNumber;
             
@@ -220,61 +256,74 @@ classdef Collection < dynamicprops
               switch varargin{i}
                 case 'template'
                   template = varargin{i + 1};
+                case 'label'
+                  newRunLabel = varargin{i + 1};
               end
             end
             
-            templateRun = C.number(template);
+            if isnumeric(template)
+                templateRun = C.number(template);
+            else
+                templateRun = C.label(template);
+            end
             
-            newModelPath  = regexprep(templateRun.modelPath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']);
+            if isempty(newRunLabel)
+                newRunLabel = num2str(newRunNumber)
+            end
+            
+            if ismember(newRunLabel, C.labels)
+                error('Cannot create new run. Supplied label already exists');
+            end
+            
+            newModelPath  = regexprep(templateRun.modelPath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']);
+
             copyfile(templateRun.modelPath, newModelPath);
 
-            copyfile(templateRun.cagesPath, regexprep(templateRun.cagesPath, '\-(\d+)', ['-', num2str(newRunNumber)]));
-            copyfile(templateRun.inputsFilePath, regexprep(templateRun.inputsFilePath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
-            copyfile(templateRun.runtimePath, regexprep(templateRun.runtimePath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
+            copyfile(templateRun.cagesPath, regexprep(templateRun.cagesPath, '\-(\w+)', ['-', newRunLabel]));
+            copyfile(templateRun.inputsFilePath, regexprep(templateRun.inputsFilePath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']));
+            copyfile(templateRun.runtimePath, regexprep(templateRun.runtimePath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']));
 
             if exist(templateRun.configPath, 'file')
-                copyfile(templateRun.configPath, regexprep(templateRun.configPath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
+                copyfile(templateRun.configPath, regexprep(templateRun.configPath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']));
             end
             
             if exist(templateRun.physicalPropertiesPath, 'file')
-                copyfile(templateRun.physicalPropertiesPath, regexprep(templateRun.physicalPropertiesPath, '(\d+)\-(NONE|EMBZ|TFBZ)', [num2str(newRunNumber), '-$2']));
+                copyfile(templateRun.physicalPropertiesPath, regexprep(templateRun.physicalPropertiesPath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']));
             end
 
             newModelPaths = strsplit(newModelPath, '\');
             newModelFilename = newModelPaths{end};
 
             newRun = Depomod.Run.initializeAsSubclass(C.project, newModelFilename);
+            newRun.number = newRunNumber;
             
             previousSize = C.size;
             
             % add to collection
-            C.list{previousSize+1,1}         = newRun;
-            C.runFilenames{previousSize+1,1} = newModelFilename;
-            C.runNumbers(previousSize+1,1)   = newRunNumber;
+            C.list{previousSize+1,1}      = newRun;
+            C.filenames{previousSize+1,1} = newModelFilename;
+            C.numbers(previousSize+1,1)   = newRunNumber;
+            C.labels{previousSize+1,1}    = newRunLabel;
             
             % Update model file with number
             modelFile = newRun.modelFile;
             modelFile.Model.run.number = num2str(newRunNumber); % need to establish what tag and number are?
-            modelFile.Model.run.tag    = num2str(newRunNumber);
+            modelFile.Model.run.tag    = newRunLabel;
             modelFile.toFile;
             
             % Update runtime file with paths
             runtimeFile = newRun.runtimeFile;
+
+            runtimeFile.Runtime.modelParametersFile = newRun.modelPath;
             
-            runtimeFile.Runtime.modelParametersFile = ...
-                strrep(strrep(newRun.modelPath, '\', '/'), ':', '\\:');
-            
-            runtimeFile.Runtime.modelLocationFile = ...
-                strrep(strrep(newRun.project.locationPropertiesPath, '\', '/'), ':', '\\:');
+            runtimeFile.Runtime.modelLocationFile = newRun.project.locationPropertiesPath;
             
             if exist(templateRun.configPath, 'file')
-                runtimeFile.Runtime.modelConfigurationFile = ...
-                    strrep(strrep(newRun.configPath, '\', '/'), ':', '\\:');                
+                runtimeFile.Runtime.modelConfigurationFile = newRun.configPath;                
             end
             
             if exist(templateRun.physicalPropertiesPath, 'file')
-                runtimeFile.Runtime.modelPhysicalFile = ...
-                    strrep(strrep(newRun.physicalPropertiesPath, '\', '/'), ':', '\\:');                
+                runtimeFile.Runtime.modelPhysicalFile = newRun.physicalPropertiesPath;                
             end
 
             runtimeFile.toFile;

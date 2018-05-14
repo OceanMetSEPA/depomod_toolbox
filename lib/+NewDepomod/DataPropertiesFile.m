@@ -39,24 +39,43 @@ classdef DataPropertiesFile < NewDepomod.PropertiesFile
                 rowCount = rowCount+1;
             end
 
-            dataStartIdx = rowCount+1; % add 1 for next row AFTER start marker
-
-            % Determine where data ends using end marker
+            lines = {};
+            
+            % get each data line
             while ~isequal(tline(1:length(DPF.endOfDataMarker)+1), ['#',DPF.endOfDataMarker])
                 tline = fgets(fid);
-                rowCount = rowCount+1;
                 
                 if regexp(tline, '#\r\n') % fudge to address corrupt endOfDataMarker
                     break
                 end
+                
+                lines{end+1} = tline;
             end
 
-            dataEndIdx = rowCount-1; % subtract 1 for last row BEFORE end marker
-
             fclose(fid);
-
-            % Now read just the tabular data
-            DPF.data = csvread(DPF.path, dataStartIdx, 0, [dataStartIdx, 0, dataEndIdx, DPF.dataColumnCount-1]);
+            
+            % Originally used csvread to parse the data, but this doesn't 
+            % accommodate arbitrary delimiters (",", "  ", "\t", etc.)
+            lines(end) = [];  % scrub end of data marker
+            lines = lines'; % re-orient
+            lines = cellfun(@strtrim, lines, 'UniformOutput', 0); % strip leading whitespace
+            lines = cellfun(@(x) strrep(x, '  ', ' '), lines, 'UniformOutput', 0); % strip double whitespace
+            
+            % identify delimiter
+            [tokens,matches] = regexp(lines{1}, '^[\d\.\-]+([\s\t,\.]+)[\d\.\-]+','tokens','match');
+            delimiter = tokens{1};
+            
+            % split on delimiter
+            lines = cellfun(@(x) strsplit(x, delimiter),lines, 'UniformOutput', 0);
+            
+            % convert to numbers
+            data = zeros(numel(lines), numel(lines{1}));
+            
+            for l = 1:numel(lines)
+               data(l, 1:numel(lines{l})) = cell2mat(cellfun(@str2num, lines{l}, 'UniformOutput', 0));
+            end
+            
+            DPF.data = data;
         end
         
         function sizeInBytes = toFile(DPF, filePath)
