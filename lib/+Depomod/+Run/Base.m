@@ -49,10 +49,7 @@ classdef (Abstract) Base < handle
     % Class
     
     methods (Static = true)
-                
-   
-            
-       
+           
     end
     
     % Instance

@@ -51,7 +51,6 @@ classdef Base < Depomod.Run.Base
     methods (Static = true)
         
         function label = parseRunLabel(filename)
-            
             [bool, ~, label, ~, ~, ~, ~, ~, ~] = NewDepomod.Run.Base.isValidConfigFileName(filename);
             
             if ~bool

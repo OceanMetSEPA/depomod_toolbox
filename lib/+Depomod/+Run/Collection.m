@@ -135,7 +135,7 @@ classdef Collection < dynamicprops
 
               
             end
-
+            
             % Find files
             configFiles = Depomod.FileUtils.fileFinder(path, searchTerms , 'type', 'and', 'fullPath', 0);
 
@@ -155,7 +155,6 @@ classdef Collection < dynamicprops
             end
             
             C.generateRunLabels;
-            
             % make alphbetical ascending
             [~,i] = sort(C.labels);
             C.labels    = C.labels(i);

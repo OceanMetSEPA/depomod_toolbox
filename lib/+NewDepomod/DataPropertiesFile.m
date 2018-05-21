@@ -56,25 +56,35 @@ classdef DataPropertiesFile < NewDepomod.PropertiesFile
             
             % Originally used csvread to parse the data, but this doesn't 
             % accommodate arbitrary delimiters (",", "  ", "\t", etc.)
-            lines(end) = [];  % scrub end of data marker
-            lines = lines'; % re-orient
+            lines(end) = [];     % scrub end of data marker
+            lines      = lines'; % re-orient
+           
             lines = cellfun(@strtrim, lines, 'UniformOutput', 0); % strip leading whitespace
             lines = cellfun(@(x) strrep(x, '  ', ' '), lines, 'UniformOutput', 0); % strip double whitespace
-            
+
             % identify delimiter
             [tokens,matches] = regexp(lines{1}, '^[\d\.\-]+([\s\t,\.]+)[\d\.\-]+','tokens','match');
-            delimiter = tokens{1};
+            delimiter = tokens{1}{1};
+
+            fmt = repmat([delimiter,'%f'],1,DPF.dataColumnCount);
+            fmt = fmt((length(delimiter)+1):end);
             
-            % split on delimiter
-            lines = cellfun(@(x) strsplit(x, delimiter),lines, 'UniformOutput', 0);
-            
-            % convert to numbers
-            data = zeros(numel(lines), numel(lines{1}));
+            data = zeros(numel(lines), DPF.dataColumnCount);
             
             for l = 1:numel(lines)
-               data(l, 1:numel(lines{l})) = cell2mat(cellfun(@str2num, lines{l}, 'UniformOutput', 0));
+                data(l, 1:DPF.dataColumnCount) = sscanf(lines{l},fmt);
             end
             
+%             % split on delimiter
+%             lines = cellfun(@(x) strsplit(x, delimiter),lines, 'UniformOutput', 0);
+%            
+%             % convert to numbers
+%             data = zeros(numel(lines), numel(lines{1}));
+%            
+%             for l = 1:numel(lines)
+%                data(l, 1:numel(lines{l})) = cell2mat(cellfun(@str2double, lines{l}, 'UniformOutput', 0));
+%             end
+
             DPF.data = data;
         end
         

@@ -62,6 +62,7 @@ classdef Java
             showConsoleOutput = 1;
             modelRunTimeFile  = '';
             nosplash          = 1;
+            showConsoleProgress = 1;
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
@@ -91,7 +92,12 @@ classdef Java
             if showConsoleOutput
                 options = [options, ' --showConsoleOutput'];
             end
-
+            
+            if showConsoleProgress
+                options = [options, ' --showConsoleProgress'];
+            end
+            
+%             options = [options, ' --verbose'] 
         end
                 
         function command = run(J, varargin)
