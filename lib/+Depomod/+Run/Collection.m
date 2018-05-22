@@ -156,6 +156,7 @@ classdef Collection < dynamicprops
             
             C.generateRunLabels;
             % make alphbetical ascending
+            class(C.labels)
             [~,i] = sort(C.labels);
             C.labels    = C.labels(i);
             C.filenames = C.filenames(i);
@@ -191,7 +192,8 @@ classdef Collection < dynamicprops
             
             if v == 1
                 for rfn = 1:length(C.filenames)
-                    C.labels{rfn,1} = AutoDepomod.Run.Base.parseRunNumber(C.filenames{rfn});
+                    AutoDepomod.Run.Base.parseRunNumber(C.filenames{rfn})
+                    C.labels{rfn,1} = num2str(AutoDepomod.Run.Base.parseRunNumber(C.filenames{rfn}));
                 end
             elseif v == 2
                 for rfn = 1:length(C.filenames)
@@ -205,7 +207,7 @@ classdef Collection < dynamicprops
             
             if v == 1
                 for rfn = 1:length(C.filenames)
-                    C.numbers(rfn,1) = C.labels{rfn,1}; % already numeric
+                    C.numbers(rfn,1) = str2num(C.labels{rfn,1}); 
                 end
             elseif v == 2
                 if C.isNumericallyLabelled
