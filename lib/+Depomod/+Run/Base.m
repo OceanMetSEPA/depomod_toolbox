@@ -214,7 +214,7 @@ classdef (Abstract) Base < handle
 
                     if ~isempty(contour)
                         legendContours(end+1) = contourhandle;
-                        legendlabels{end+1}   = [num2str(level), ' ', sur.defaultUnit];
+                        legendlabels{end+1}   = [ num2str(level), ' ', sur.defaultUnit];
                     end
                 end
 
@@ -225,7 +225,7 @@ classdef (Abstract) Base < handle
                 % to find the patch objects in your legend. You can then set their transparency using 
                 for l = 1:size(PatchInLegend,1)
                     % start with alpha 0.5 and split the rest between 0.5-1.0
-                    val = 0.5 + (0.5-(0.5/noLevels) * (l - 1));
+                    val = 0.25 + (0.5-(0.5/noLevels) * (l - 1));
                     set(PatchInLegend(l), 'facea', val);               
                 end
             end

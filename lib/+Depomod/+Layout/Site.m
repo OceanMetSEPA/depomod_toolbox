@@ -114,7 +114,7 @@ classdef Site
             % get an XML cage template
             templateCages = xmlread(NewDepomod.Project.templateProject.solidsRuns.item(1).cagesPath);
 
-            DOM = templateCages.getDocumentElement
+            DOM = templateCages.getDocumentElement;
 
             % retrieve existing cage groups
             groups = DOM.getElementsByTagName('ns2:group');

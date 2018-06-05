@@ -118,9 +118,9 @@ classdef Base < Depomod.Run.Base
             R.project     = project;
             R.cfgFileName = cfgFileName;
                                               
-            R.runNumber = AutoDepomod.Run.Base.parseRunNumber(R.cfgFileName);
+            R.number = AutoDepomod.Run.Base.parseRunNumber(R.cfgFileName);
             
-            if isempty(R.runNumber)
+            if isempty(R.number)
                 errName = 'Depomod:Run:MissingRunNumber';
                 errDesc = 'Cannot instantiate Run object. cfgFileName has unexpected format, cannot locate run number.';
                 err = MException(errName, errDesc);
@@ -249,7 +249,7 @@ classdef Base < Depomod.Run.Base
         
         function initializeLog(R)
             logfile = R.project.log(R.typeCode); % typeCode defined in subclasses
-            R.log = logfile.run(R.runNumber);
+            R.log = logfile.run(R.number);
         end
        
     end

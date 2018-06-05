@@ -156,7 +156,6 @@ classdef Collection < dynamicprops
             
             C.generateRunLabels;
             % make alphbetical ascending
-            class(C.labels)
             [~,i] = sort(C.labels);
             C.labels    = C.labels(i);
             C.filenames = C.filenames(i);
