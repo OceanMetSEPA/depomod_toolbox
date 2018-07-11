@@ -138,6 +138,8 @@ classdef Base < Depomod.Run.Base
         iterationRunNumber = [];
         modelFileName = '';
         tide;
+        log; 
+        resultsPath;
     end
     
     properties (Hidden = true)
@@ -198,16 +200,26 @@ classdef Base < Depomod.Run.Base
             p = strcat(R.project.modelsPath, '\', R.modelFileRoot, '.depomodphysicalproperties');
         end
         
-        function p = logFilePath(R)
+        function p = logFilePath(R, varargin)
             % Returns full path for the model log file
-            p = strcat(R.project.resultsPath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '.depomodresultslog');
+            
+            resultsPath = R.resultsPath;
+            
+            for i = 1:2:length(varargin)
+              switch varargin{i}
+                case 'resultsPath'
+                  resultsPath = varargin{i+1};
+              end
+            end
+            
+            p = strcat(resultsPath, '\', R.modelFileRoot, '-', R.modelFile.Model.run.tide, '.depomodresultslog');
         end
         
         function p = surPath(R, type, varargin)
             
             gIndex      = 0; % Default is the 0 indexed sur file
             timestamp   = [];
-            resultsPath = R.project.resultsPath;
+            resultsPath = R.resultsPath;
             
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -287,7 +299,24 @@ classdef Base < Depomod.Run.Base
             
             R.clearRunFileProperties = 0;
         end
+        
+        function rp = get.resultsPath(R)
+            if isempty(R.resultsPath)
+                R.resultsPath = R.project.resultsPath;
+            end
             
+            rp = R.resultsPath;
+        end
+            
+        function rp = setResultsPath(R, resultsPath)
+            R.resultsPath = resultsPath;
+            rp = R.resultsPath;
+        end
+            
+        function clearResultsPath(R)
+            R.resultsPath = [];
+        end
+        
         function m = get.modelFile(R)
             if isempty(R.modelFile)
                 R.modelFile = NewDepomod.PropertiesFile(R.modelPath);
@@ -369,7 +398,17 @@ classdef Base < Depomod.Run.Base
             end
             
             c = R.consolidatedTimeSeriesFile;
-        end
+        end 
+              
+        function l = get.log(R)
+            % Returns a struct representing the model run log data
+            
+            if isempty(R.log)
+                R.log = NewDepomod.PropertiesFile(R.logFilePath);
+            end
+            
+            l = R.log;
+        end  
         
         function t = get.tide(R)
             if isempty(R.tide) | R.clearRunFileProperties
@@ -518,7 +557,7 @@ classdef Base < Depomod.Run.Base
             
             gIndex    = 0;
             timestamp = [];
-            resultsPath = R.project.resultsPath;
+            resultsPath = R.resultsPath;
             
             for i = 1:2:length(varargin)
                 
@@ -694,12 +733,7 @@ classdef Base < Depomod.Run.Base
                  
         function initializeCages(R)
             R.cages = Depomod.Layout.Site.fromXMLFile(R.cagesPath); 
-        end
-        
-        function initializeLog(R)
-            R.log = NewDepomod.PropertiesFile(R.logFilePath); % R.iterationRunNumber presumably added at some point
-        end     
-                
+        end 
     end
 
 end

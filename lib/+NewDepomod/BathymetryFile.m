@@ -119,6 +119,34 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             B.GridgenDomainFile.toFile;
         end
         
+        function [a, b, c, d] = domainBounds(P)
+            % Returns the model domain bounds described on the basis of the
+            % minimum and maximum easting and northings. The order of the
+            % outputs is min east, max east, min north, max north.
+            
+            minE = str2num(P.Domain.spatial.minX);
+            maxE = str2num(P.Domain.spatial.maxX);
+            minN = str2num(P.Domain.spatial.minY);
+            maxN = str2num(P.Domain.spatial.maxY);
+
+            if nargout == 1
+                a = [minE, maxE, minN, maxN];
+            else
+                a = minE;
+                b = maxE;
+                c = minN;
+                d = maxN;
+            end
+        end
+        
+        function md = maxDepth(B)
+            md = min(min(B.data));
+        end
+        
+        function md = minDepth(B)
+            md = max(max(B.data));            
+        end
+        
         function boolMatrix = landIndexes(B)
             boolMatrix = B.data == 10;
         end

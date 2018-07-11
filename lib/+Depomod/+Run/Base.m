@@ -58,7 +58,6 @@ classdef (Abstract) Base < handle
         project;     % owning modelling project
         cfgFileName; % filename of cfg file, indicates run number
         number;      % model run number
-        log;         % property for memoizing log information for this run, saves multiple calls
         cages;
     end
     
@@ -78,15 +77,6 @@ classdef (Abstract) Base < handle
             % Returns true if the model run is a TFBZ run
             bool = ~isempty(regexp(class(R), 'TFBZ', 'ONCE'));
         end
-
-        function l = get.log(R)
-            % Returns a struct representing the model run log data
-            if isempty(R.log)
-                R.initializeLog;
-            end
-            
-            l = R.log;
-        end
         
         function c = get.cages(R)
             if isempty(R.cages)
@@ -102,13 +92,18 @@ classdef (Abstract) Base < handle
             % index relates to the G-model status of the sur file, as
             % indicated by the 'g-' sequence in the filename.
 
-            [e, n] = R.project.southWest;
             version = R.project.version;
-                        
-            if ~isempty(e) && ~isempty(n) && ~isnan(e) && ~isnan(n)
-                s = Depomod.Sur.Base.fromFile(surPath, 'version', version, 'Easting', num2str(e), 'Northing', num2str(n));
-            else
+            
+            if version == 2
                 s = Depomod.Sur.Base.fromFile(surPath, 'version', version);
+            else
+                [e, n] = R.project.southWest;
+
+                if ~isempty(e) && ~isempty(n) && ~isnan(e) && ~isnan(n)
+                    s = Depomod.Sur.Base.fromFile(surPath, 'version', version, 'Easting', num2str(e), 'Northing', num2str(n));
+                else
+                    s = Depomod.Sur.Base.fromFile(surPath, 'version', version);
+                end
             end
         end
         
@@ -211,8 +206,8 @@ classdef (Abstract) Base < handle
 
                         i = i + contour(2,i) + 1;
                     end
-
-                    if ~isempty(contour)
+                    
+                    if exist('contourhandle', 'var') & ~isempty(contourhandle)
                         legendContours(end+1) = contourhandle;
                         legendlabels{end+1}   = [ num2str(level), ' ', sur.defaultUnit];
                     end
@@ -237,7 +232,7 @@ classdef (Abstract) Base < handle
                 cages = R.cages.consolidatedCages.cages;
 
                 figure(F)
-                scatter3(cellfun(@(c) c.x, cages), cellfun(@(c) c.y, cages),repmat(max(max(R.project.bathymetry.data))+1,length(cages),1), 'ko', 'MarkerFaceColor', 'k', 'LineWidth', 2.0, 'Visible', 'on', 'Clipping', 'on');
+                scatter3(cellfun(@(c) c.x, cages), cellfun(@(c) c.y, cages),repmat(11,length(cages),1), 'ko', 'MarkerFaceColor', 'k', 'LineWidth', 2.0, 'Visible', 'on', 'Clipping', 'on');
                 set(gca,'layer','top')
             end
             

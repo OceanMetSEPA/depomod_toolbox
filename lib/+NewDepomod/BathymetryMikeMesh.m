@@ -124,6 +124,34 @@ classdef BathymetryMikeMesh < handle
             c = size(BMM.Elements,1)
         end
         
+        function md = maxDepth(B)
+            md = min(B.NodeZ);
+        end
+        
+        function md = minDepth(B)
+            md = max(B.NodeZ);            
+        end
+        
+        function [a, b, c, d] = domainBounds(P)
+            % Returns the model domain bounds described on the basis of the
+            % minimum and maximum easting and northings. The order of the
+            % outputs is min east, max east, min north, max north.
+            
+            minE = min(P.NodeX);
+            maxE = max(P.NodeX);
+            minN = min(P.NodeY);
+            maxN = max(P.NodeY);
+
+            if nargout == 1
+                a = [minE, maxE, minN, maxN];
+            else
+                a = minE;
+                b = maxE;
+                c = minN;
+                d = maxN;
+            end
+        end
+        
         function h = plot(BMM, varargin)
             mesh = 0;
             
@@ -181,6 +209,57 @@ classdef BathymetryMikeMesh < handle
             
             set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
             set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+        end
+        
+        function boolMatrix = shallowSeabedIndexes(B, depth)
+            boolMatrix = B.NodeZ < 0 & B.NodeZ > depth;
+        end
+        
+        function boolMatrix = deepSeabedIndexes(B, depth)
+            boolMatrix = B.NodeZ < depth;
+        end
+        
+        function adjustSeabedDepths(B, value, varargin)
+            
+            indexes = 1:numel(B.NodeZ);
+            
+            if ~isempty(varargin)
+                for i = 1:2:size(varargin,2) % only bother with odd arguments, i.e. the labels
+                    switch varargin{i}
+                      case 'indexes'
+                        indexes = varargin{i + 1};
+                    end
+                end   
+            end
+            
+            B.NodeZ(indexes) = B.NodeZ(indexes) - value;
+            B.NodeZ(B.NodeZ >= 10) = 10; % is the land flag relevant for triangular meshes?
+        end
+                    
+        function adjustShallowSeabedDepths(B, value)            
+            B.NodeZ(B.shallowSeabedIndexes(value)) = value;
+        end
+        
+        function [eastings, northings] = elementCentres(B)
+            [eastings, northings] = B.cellNodes;
+            
+            eastings  = mean(eastings, 2);
+            northings = mean(northings,2);
+        end
+        
+        % consistency with NewDepomod.BathymetryFile class
+        function [eastings, northings] = cellCentres(B) 
+            [eastings, northings] = B.elementCentres;
+        end
+                
+        function [eastings, northings] = elementNodes(B)            
+            eastings  = B.NodeX(B.Elements);
+            northings = B.NodeY(B.Elements);           
+        end
+        
+        % consistency with NewDepomod.BathymetryFile class
+        function [eastings, northings] = cellNodes(B) 
+            [eastings, northings] = B.elementNodes;
         end
     end
     

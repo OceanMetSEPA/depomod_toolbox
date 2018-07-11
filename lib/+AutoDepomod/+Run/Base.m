@@ -110,6 +110,7 @@ classdef Base < Depomod.Run.Base
     properties
         sur@Depomod.Sur.Base;
         tide;
+        log; 
     end
     
     methods
@@ -172,7 +173,17 @@ classdef Base < Depomod.Run.Base
         function t = get.tide(R)
             [~, ~, t, ~, ~, ~] = AutoDepomod.Run.Base.cfgFileParts(R.cfgFileName);
         end
-         
+        
+        function l = get.log(R)
+            % Returns a struct representing the model run log data
+            if isempty(R.log)
+                logfile = R.project.log(R.typeCode); % typeCode defined in subclasses
+                R.log = logfile.run(R.number);
+            end
+            
+            l = R.log;
+        end
+        
         function b = biomass(R)
             % Returns the modelled biomass in t
             b = R.log.EqvBiomass;
@@ -245,11 +256,6 @@ classdef Base < Depomod.Run.Base
         
         function initializeCages(R)
             R.cages = Depomod.Layout.Site.fromCSV(R.cagesPath);
-        end
-        
-        function initializeLog(R)
-            logfile = R.project.log(R.typeCode); % typeCode defined in subclasses
-            R.log = logfile.run(R.number);
         end
        
     end

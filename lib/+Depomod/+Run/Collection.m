@@ -137,7 +137,7 @@ classdef Collection < dynamicprops
             end
             
             % Find files
-            configFiles = Depomod.FileUtils.fileFinder(path, searchTerms , 'type', 'and', 'fullPath', 0);
+            configFiles = Depomod.FileUtils.fileFinder(path, searchTerms , 'type', 'and', 'fullPath', 0, 'nand',{'COPY', 'OLD'});
 
             % fileFinder returns a cell array (of file paths) if there are multiple results
             % and a char object if there is only one. We need to handle this difference.

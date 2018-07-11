@@ -64,7 +64,7 @@ classdef (Abstract) Base < handle
             version    = 1;
             easting    = [];
             northing   = [];
-            
+
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
                 case 'Easting'

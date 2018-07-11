@@ -74,7 +74,7 @@ classdef Project < Depomod.Project
     
     properties
         location@NewDepomod.PropertiesFile;
-        bathymetry@NewDepomod.BathymetryFile
+        bathymetry% @NewDepomod.BathymetryFile
         flowmetry@NewDepomod.FlowmetryFile
     end
     
@@ -153,6 +153,10 @@ classdef Project < Depomod.Project
         
         function p = bathymetryDataPath(P)
             p =  [P.bathymetryPath, '\', P.name, '.depomodbathymetryproperties'];
+        end  
+        
+        function p = bathymetryMikeMeshPath(P)
+            p =  [P.bathymetryPath, '\', P.name, '.depomodbathymetrymikemesh'];
         end
          
         function b = get.bathymetry(P)
@@ -160,6 +164,8 @@ classdef Project < Depomod.Project
             if isempty(P.bathymetry)
                 if exist(P.bathymetryDataPath, 'file')
                     P.bathymetry = NewDepomod.BathymetryFile(P.bathymetryDataPath);
+                elseif exist(P.bathymetryMikeMeshPath, 'file')
+                    P.bathymetry = NewDepomod.BathymetryMikeMesh(P.bathymetryMikeMeshPath);
                 elseif exist(P.gridgenDataPath) & exist(P.gridgenIniPath)
                     P.bathymetry = NewDepomod.BathymetryFile.createFromGridgenFiles(P.gridgenIniPath,P.gridgenDataPath);
                     P.bathymetry.toFile(project.bathymetryDataPath);
@@ -188,19 +194,7 @@ classdef Project < Depomod.Project
             % minimum and maximum easting and northings. The order of the
             % outputs is min east, max east, min north, max north.
             
-            minE = str2num(P.bathymetry.Domain.spatial.minX);
-            maxE = str2num(P.bathymetry.Domain.spatial.maxX);
-            minN = str2num(P.bathymetry.Domain.spatial.minY);
-            maxN = str2num(P.bathymetry.Domain.spatial.maxY);
-
-            if nargout == 1
-                a = [minE, maxE, minN, maxN];
-            else
-                a = minE;
-                b = maxE;
-                c = minN;
-                d = maxN;
-            end
+            [a, b, c, d] = P.bathymetry.domainBounds;
         end
         
         function clonedProject = clone(P, clonePath, varargin)
