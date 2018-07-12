@@ -161,7 +161,7 @@ classdef (Abstract) Base < handle
             xlabel('Easting');
             ylabel('Northing');
             
-            t=title([R.project.name, ': run - ', num2str(R.label)]);
+            t=title([R.project.name, ': run - ', R.label]);
             set(t,'Interpreter','none'); % escape underscores in title            
             
             if isempty(sur)

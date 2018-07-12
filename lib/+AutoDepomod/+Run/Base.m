@@ -188,6 +188,11 @@ classdef Base < Depomod.Run.Base
             % Returns the modelled biomass in t
             b = R.log.EqvBiomass;
         end
+        
+        % Provides compatability with some NewDepomod functionality
+        function l = label(R)
+           l = num2str(R.number);
+        end
          
         function coeffs = dispersionCoefficients(R)
             cfgData = Depomod.Inputs.Readers.readCfg(R.configPath);
