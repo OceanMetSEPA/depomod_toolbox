@@ -29,7 +29,7 @@ function [ txt ] = readTxtFile(f,varargin)
     %
 
     if nargin==0
-        help readTxtFile
+        help Depomod.FileUtils.readTxtFile
         return
     end
     % Allow user to pass cellstr

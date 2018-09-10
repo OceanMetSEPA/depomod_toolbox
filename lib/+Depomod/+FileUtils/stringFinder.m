@@ -56,7 +56,7 @@ function [op] = stringFinder(strings2CompareAgainst,string2Test,varargin)
     % stringFinder(strOptions,{'water','stress'},'sequential',1) % return 2x1 cell
    
     if(nargin==0)
-        help stringFinder
+        help Depomod.FileUtils.stringFinder
         return
     end
 
@@ -175,7 +175,7 @@ function [op] = stringFinder(strings2CompareAgainst,string2Test,varargin)
             args{f+1}=0;
         end
         for i=1:Nop
-            op{i}=stringFinder(strings2CompareAgainst,string2Test{i},args);
+            op{i}=Depomod.FileUtils.stringFinder(strings2CompareAgainst,string2Test{i},args);
         end
         return
     end
@@ -288,7 +288,7 @@ function [op] = stringFinder(strings2CompareAgainst,string2Test,varargin)
         if length(options.not)>1
             warning('OH:DEAR','More than one exclusion selected - please use option ''nor'' or ''nand''')
         end
-        ig=stringFinder(strings2CompareAgainstOriginal,options.not,'type','or','output','bool');
+        ig=Depomod.FileUtils.stringFinder(strings2CompareAgainstOriginal,options.not,'type','or','output','bool');
         index=index&~ig;
     end
 
@@ -300,7 +300,7 @@ function [op] = stringFinder(strings2CompareAgainst,string2Test,varargin)
     % Output true if ANY inputs are NOT true.
     % Hence, we use the 'or' type to find ANY matches, and exclude those.
     if ~isempty(options.nand) % Logical NAND
-        ig=stringFinder(strings2CompareAgainstOriginal,options.nand,'type','or','output','bool');
+        ig=Depomod.FileUtils.stringFinder(strings2CompareAgainstOriginal,options.nand,'type','or','output','bool');
         index=index&~ig;
     end
 
@@ -309,7 +309,7 @@ function [op] = stringFinder(strings2CompareAgainst,string2Test,varargin)
     % Output true if ALL inputs are NOT true.
     % Hence, we use the 'and' type to find ALL matches, and exclude those.
     if ~isempty(options.nor) % Logical OR
-        ig=stringFinder(strings2CompareAgainstOriginal,options.nor,'type','and','output','bool');
+        ig=Depomod.FileUtils.stringFinder(strings2CompareAgainstOriginal,options.nor,'type','and','output','bool');
         index=index&~ig;
     end
 

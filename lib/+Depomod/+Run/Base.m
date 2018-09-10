@@ -185,7 +185,7 @@ classdef (Abstract) Base < handle
                 for l = 1:noLevels
                     level = levels(l);
 
-                    contour = sur.contour(level, 'plot', 0);
+                    contour = sur.contour(level);
 
                     val = 0.1 + ((0.5/noLevels) * (l));
 

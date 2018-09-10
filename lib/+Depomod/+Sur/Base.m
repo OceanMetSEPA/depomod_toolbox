@@ -304,19 +304,30 @@ classdef (Abstract) Base < handle
                 a = S.domainSizeX * S.domainSizeY; % entire km2
             else
                 
-                [c, h] = S.contour(level);
-                allContourHandles = get(h, 'Children');
+                c = S.contour(level);
                 
-                numberOfPolygons  = length(allContourHandles);
-                 
+                polygons = struct('XData', [], 'YData', []);
+                
+                i = 1;
+                n = 0;
+                
+                while i <= size(c,2)
+                    n = n + 1;
+                    l = c(2,i);
+                
+                    polygons(n).XData = c(1,i+1:i+l);
+                    polygons(n).YData = c(2,i+1:i+l);
+                
+                    i = i + l + 1;
+                end
+                
                 a = 0;
-     
-                for i = 1:numberOfPolygons                  
-                    thisArea = polyarea(get(allContourHandles(i),'XData'), get(allContourHandles(i),'YData'));
+                
+                for i = 1:n                 
+                    thisArea = polyarea(polygons(i).XData, polygons(i).YData);
                     a = a + thisArea;
                 end
                 
-                clf(h) 
             end
         end
         
@@ -619,26 +630,11 @@ classdef (Abstract) Base < handle
             title(S.path);
         end
         
-        function [c,h] = contour(S, level, varargin)
+        function c = contour(S, level)
             % Returns a contour object associated with the passed in contour
             % level.
             
-            plot = 0;
-            
-            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
-              switch varargin{i}
-                case 'plot' % Set easting if passed in explicitly
-                  plot = varargin{i+1};
-              end
-            end  
-            
-            if plot
-                figure('visible', 'on');
-            else
-                figure('visible', 'off');
-            end
-            
-            [c,h] = contourf(S.X, S.Y, S.Z,[level level]);
+            c = contourc(S.X, S.Y, S.Z,[level level]);
         end
         
         function [c,h] = contourPlot(S, level)

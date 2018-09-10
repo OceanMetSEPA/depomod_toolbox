@@ -168,7 +168,7 @@ classdef Site
                 if isequal(class(cage), 'Depomod.Layout.Cage.Circle')
                     type_node.setTextContent('CIRCULAR');
                 elseif isequal(class(cage), 'Depomod.Layout.Cage.Square')
-                    type_node.setTextContent('SQUARE');
+                    type_node.setTextContent('RECTANGULAR');
                 end
 
                 x_node.setTextContent(num2str(cage.x));

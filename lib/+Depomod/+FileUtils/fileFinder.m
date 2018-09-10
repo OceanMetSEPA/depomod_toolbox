@@ -38,7 +38,7 @@ function [filesFound] = fileFinder(varargin)
     % fileFinder('plot','path',0) %
     
     if(nargin==0)
-        help fileFinder
+        help Depomod.FileUtils.fileFinder
         return
     end
 

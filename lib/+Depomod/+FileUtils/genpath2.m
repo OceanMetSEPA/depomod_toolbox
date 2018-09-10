@@ -27,7 +27,7 @@ function p = genpath2(d,varargin)
     
 
     if nargin==0,
-        help genpathSEPA
+        help genpath2
       return
     end
 
