@@ -8,7 +8,7 @@ classdef TimeSeries < Depomod.Currents.TimeSeries
     methods (Static = true)
         
         function [sns, nsn] = fromFile(datFile)
-            
+            datFile
             % Read file
             fd = fopen(datFile,'rt');
             header1 = fgetl(fd);
@@ -18,16 +18,17 @@ classdef TimeSeries < Depomod.Currents.TimeSeries
             fclose(fd);
             
             % Parse out metadata            
-            regexString = '^dT=(\d+)s\s*nT=(\d+)\s*depth=([\d\.]+)m\s*([\w\-]+)@([\d\.]+)m?\s*Tide=([\d\.]+)[mW]?\s*Var=([\w\d\.]+)';
+            regexString = '^dT=(\d+)s\s*nT=(\d+)\s*depth=([\d\.]+)m\s*([\w\-]+)@([\d\.]+)m?\s*Tide=([\d\.]+)[mW]?\s*Var=([\w\d\.\-]+)';
             
             [~,t]=regexp(header2, regexString, 'match', 'tokens');
-            deltaT            = str2num(t{1}{1});
-            numberOfTimeSteps = str2num(t{1}{2});
-            siteDepth         = str2num(t{1}{3})*-1; % Depths negative
-            name              = (t{1}{4}); 
-            height            = str2num(t{1}{5});    % Heights positive
-            siteTide          = str2num(t{1}{6});
-            var_              = t{1}{7};             % var is reserved word
+            
+            deltaT            = str2num(t{1}{1})
+            numberOfTimeSteps = str2num(t{1}{2})
+            siteDepth         = str2num(t{1}{3})*-1 % Depths negative
+            name              = (t{1}{4})
+            height            = str2num(t{1}{5})    % Heights positive
+            siteTide          = str2num(t{1}{6})
+            var_              = t{1}{7}             % var is reserved word
             
             % Are units ever NOT m and s? Let's assume they are for now and
             % not handle alternatives...

@@ -420,7 +420,7 @@ classdef Project < Depomod.Project
             P.location.toFile;
         end
         
-        function useBathymetryBinaryFile(P)
+        function useBathymetryMikeMeshFile(P)
             P.location.bathymetry.data.extension = 'depomodbathymetrymikemesh';
             P.location.toFile;
         end

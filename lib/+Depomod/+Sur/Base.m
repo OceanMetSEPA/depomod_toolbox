@@ -461,7 +461,7 @@ classdef (Abstract) Base < handle
             end
         end
         
-        function [val, sd] = valueAt(S,x,y, varargin)
+        function [val, sd, reps] = valueAt(S,x,y, varargin)
             % Returns the value at the passed in x,y position in the model
             % domain. This method uses the interpolatedGrid property to produced 
             % estimates between the grid nodes. If the interpolatedGrid
@@ -515,9 +515,10 @@ classdef (Abstract) Base < handle
                 for s = 1:samples
                     sampleData(s,3) = S.valueAt(sampleData(s,1), sampleData(s,2));
                 end
-                sampleData
+                
                 val = mean(sampleData(:,3));
-                sd  = std(sampleData(:,3));                
+                sd  = std(sampleData(:,3));  
+                reps = sampleData;
             end
         end
         

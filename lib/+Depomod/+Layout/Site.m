@@ -78,6 +78,106 @@ classdef Site
             end            
         end
         
+        function [x,y] = cagePerimeter(S, varargin)
+            % by default is from cage edge
+            
+            radialDistance = 100; % m
+            plotPerimeter  = 0;
+
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+              switch varargin{i}
+                case 'radialDistance'
+                  radialDistance = varargin{i+1};
+                case 'plot'
+                  plotPerimeter = logical(varargin{i+1});
+              end
+            end
+                        
+            cages      = S.consolidatedCages.cages
+            cageLength = cages{1}.length;
+
+            if cageLength == 0 % deal with rectangular cages
+                cageLength = cages{1}.width;
+            end
+
+            cageLength = cageLength/2.0; % half length
+
+            radialDistance = radialDistance + cageLength;
+
+            if radialDistance <=0
+                error('Radial distance selected is too small for cage size')
+            end
+            
+            cageStruct = struct;
+
+            for ss = 1:length(cages)
+                th = 0:pi/50:2*pi;
+
+                cageStruct(ss).x = radialDistance * cos(th) + cages{ss}.x;
+                cageStruct(ss).y = radialDistance * sin(th) + cages{ss}.y;
+            end
+            
+            [x, y] = polybool('union', cageStruct(1).x, cageStruct(1).y, cageStruct(1).x, cageStruct(1).y);
+
+            for ss = 2:length(cages)
+
+                x1 = x;
+                y1 = y;
+                x2 = cageStruct(ss).x;
+                y2 = cageStruct(ss).y;
+
+                [x, y] = polybool('union', x1, y1, x2, y2);
+            end
+            
+            if plotPerimeter
+                figure
+                plot(x,y)
+                daspect([1 1 1])
+            end
+        end
+        
+        function a = compositeArea(S, varargin)
+            radialDistance  = 100; % m
+            cageEdge        = 1;
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+              switch varargin{i}
+                case 'radialDistance'
+                  radialDistance = varargin{i+1};
+                case 'cageEdge'
+                  cageEdge = varargin{i+1};
+              end
+            end
+            
+            if ~cageEdge            
+                cageLength = S.consolidatedCages.cages{1}.length;
+
+                if cageLength == 0
+                    cageLength = S.consolidatedCages.cages{1}.width;
+                end
+
+                cageLength     = cageLength/2.0;
+                radialDistance = radialDistance - cageLength;
+            end
+            
+            [x,y] = S.cagePerimeter('radialDistance', radialDistance);
+            
+            if sum(isnan(x)) > 0
+                idx = find(isnan(x));
+
+                a = polyarea(x(1:(idx(1)-1)), y(1:(idx(1)-1)));
+                for pidx = 1:numel(idx)
+                    if pidx == numel(idx)
+                        a = a + polyarea(x((idx(pidx)+1):end), y((idx(pidx)+1):end));
+                    else
+                        a = a + polyarea(x((idx(pidx)+1):(idx(pidx+1)-1)), y((idx(pidx)+1):(idx(pidx+1)-1)));
+                    end                
+                end
+            else
+                a = polyarea(x, y);
+            end
+        end
+        
         function cc = consolidatedCages(S)
             cc = Depomod.Layout.Cage.Group;
             

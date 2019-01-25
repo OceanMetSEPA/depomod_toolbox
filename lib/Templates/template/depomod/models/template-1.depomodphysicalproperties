@@ -225,6 +225,7 @@ Transports.bottomRoughnessLength.smooth=0.00003
 Transports.consolidation.instanceName=DEFAULTCONSOLIDATION
 Transports.degrader.instanceName=DEFAULTPPARTICLEDEGRADER
 Transports.g=9.80665
+Transports.regime.frictionvelocity.type=CLAUSERCHART
 Transports.regime.rough.constant=4.9
 Transports.regime.rough.factor=5.6
 Transports.regime.smooth.constant=0.0

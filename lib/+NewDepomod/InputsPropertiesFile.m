@@ -71,16 +71,16 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
             feedInputWastedCarbonProportion   = feedInputWastedSolidsProportion*feedCarbonPercentage/100.0;
             feedInputExcretedSolidsProportion = (1-feedWaterPercentage/100.0)*(1-feedWastePercentage/100.0)*(1-feedAbsorbedPercentage/100.0);
             feedInputExcretedCarbonProportion = feedInputExcretedSolidsProportion*faecesCarbonPercentage/100.0;
-            biomass
-            hourlyFeed = biomass * feedRatio / 24.0
+
+            hourlyFeed = biomass * feedRatio / 24.0;
             
             wastedSolids   = hourlyFeed * feedInputWastedSolidsProportion;
             wastedCarbon   = hourlyFeed * feedInputWastedCarbonProportion;
             excretedSolids = hourlyFeed * feedInputExcretedSolidsProportion;
             excretedCarbon = hourlyFeed * feedInputExcretedCarbonProportion;
 
-            IPF.data(:, 1) = wastedSolids
-            IPF.data(:, 2) = wastedCarbon
+            IPF.data(:, 1) = wastedSolids;
+            IPF.data(:, 2) = wastedCarbon;
 
             IPF.data(:, 4) = excretedSolids;
             IPF.data(:, 5) = excretedCarbon;

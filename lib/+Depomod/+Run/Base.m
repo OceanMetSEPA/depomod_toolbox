@@ -199,7 +199,7 @@ classdef (Abstract) Base < handle
                             x(1,end+1) = contour(1,j);
                             y(1,end+1) = contour(2,j);
                         end
-
+                                                
                         figure(F)
                         validIndexes = ~isnan(x) & ~isnan(y);
                         contourhandle = fill(x(validIndexes),y(validIndexes), color, 'FaceAlpha', val, 'LineStyle', ':');
@@ -212,16 +212,19 @@ classdef (Abstract) Base < handle
                         legendlabels{end+1}   = [ num2str(level), ' ', sur.defaultUnit];
                     end
                 end
+                
+                if ~isempty(legendContours)
+                    leg = legend(legendContours,legendlabels);
 
-                leg = legend(legendContours,legendlabels);
+                    PatchInLegend = findobj(leg, 'type', 'patch'); 
 
-                PatchInLegend = findobj(leg, 'type', 'patch'); 
+                    % to find the patch objects in your legend. You can then set their transparency using 
+                    for l = 1:size(PatchInLegend,1)
+                        % start with alpha 0.5 and split the rest between 0.5-1.0
 
-                % to find the patch objects in your legend. You can then set their transparency using 
-                for l = 1:size(PatchInLegend,1)
-                    % start with alpha 0.5 and split the rest between 0.5-1.0
-                    val = 0.25 + (0.5-(0.5/noLevels) * (l - 1));
-                    set(PatchInLegend(l), 'facea', val);               
+                        val = 0.25 + (0.5-(0.5/noLevels) * (l - 1));
+                        set(PatchInLegend(l), 'facea', val);               
+                    end
                 end
             end
             

@@ -86,7 +86,7 @@ classdef Physics
             end
             
             shearStressExceedances = NewDepomod.Physics.shearStress(flowSpeed, varargin{:}) - tauCrit;
-            shearStressExceedances(shearStressExceedances<0)=0.0
+            shearStressExceedances(shearStressExceedances<0)=0.0;
             
             er = erosionConstant.*shearStressExceedances.^erosionExponent;
         end

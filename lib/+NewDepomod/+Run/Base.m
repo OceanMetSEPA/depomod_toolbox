@@ -458,8 +458,8 @@ classdef Base < Depomod.Run.Base
             noHours = 24.0*days;
 
             EmBZModel = R.modelFile;
-            EmBZModel.ModelTime.endTime = num2str((noHours + particleConsolidationTime) * 60 * 60 * 1000);  % milliseconds
-            EmBZModel.ModelTime.releasePeriod = num2str(noHours * 60 * 60 * 1000); % milliseconds
+            EmBZModel.ModelTime.endTime = num2str(ceil((noHours + particleConsolidationTime) * 60 * 60 * 1000));  % milliseconds
+            EmBZModel.ModelTime.releasePeriod = num2str(ceil(noHours * 60 * 60 * 1000)); % milliseconds
 
             EmBZModel.toFile;             
         end
