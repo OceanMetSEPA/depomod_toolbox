@@ -189,6 +189,9 @@ classdef Site
         end
         
         function [meanE, meanN] = meanCagePosition(S)
+            % Is this correct. Is this the mean cage position of the mean
+            % position of the groups?
+            
             cumE = 0;
             cumN = 0;
             
@@ -201,6 +204,162 @@ classdef Site
 
             meanE = cumE/S.size;
             meanN = cumN/S.size;
+        end
+        
+        function ma = majorAxis(S)
+            cages = S.consolidatedCages.cages;
+            cage_xy = [];
+
+            for c = 1:length(cages)
+                cage_xy(c,1) =  cages{c}.x;
+                cage_xy(c,2) =  cages{c}.y;
+            end
+
+            % discover major axis of cage layout
+            pcaStruct.covar = cov(cage_xy(:,1), cage_xy(:,2));
+            [pcaStruct.eigenVector, pcaStruct.eigenValue] = eig(pcaStruct.covar); % eigenvector
+
+            if pcaStruct.eigenValue(2,2) > pcaStruct.eigenValue(1,1)
+                pcaStruct.cols = [2 1];
+            else
+                pcaStruct.cols = [1 2];
+            end;
+
+            f = pcaStruct.eigenVector(1,pcaStruct.cols(1));
+            g = pcaStruct.eigenVector(2,pcaStruct.cols(1));
+
+            ma = atan2(f,g);
+
+            if mean(cage_xy(:,2))<0
+                ma = ma + pi;
+            end
+
+            ma = ma * 180 / pi;      % convert to degrees
+            ma = mod(ma + 360, 360); % make sure axis is between 0 and 360
+            
+            % Avoid completely vertical and horizintal axes
+            % Makes trigonometry difficult
+            if ma == 0 | ma == 90 | ma == 180 | ...
+                    ma == 270 | ma == 360
+                ma = ma + 1;
+                ma = mod(ma + 360, 360);
+            end
+        end
+        
+        function ob = orthogonalBearings(S)
+            ma = S.majorAxis;
+            ob = [ma, ma + 90, ma + 180, ma + 270];
+
+            ob = mod(ob+360, 360);
+        end
+        
+        function c = corners(S)
+            cages = S.consolidatedCages.cages;
+            
+            cageLength = cages{1}.length;
+
+            if cageLength == 0
+                cageLength = cages{1}.width;
+            end
+
+            cageLength = cageLength/2.0;
+    
+            cage_xy = [];
+
+            for c = 1:length(cages)
+                cage_xy(c,1) =  cages{c}.x;
+                cage_xy(c,2) =  cages{c}.y;
+            end
+                        
+            min_x = min(cage_xy(:,1));
+            max_x = max(cage_xy(:,1));
+            
+            ob = S.orthogonalBearings;
+            
+            intercepts = zeros(2,3);
+            
+            for o = 1:2
+                theta = ob(o);
+                
+                for l = -1:2:1
+                    m = (cosd(theta)/sind(theta));
+                    
+                    for c = 1:length(cages)
+                        pointCheckData = [];
+                        
+                        x = cage_xy(c,1);
+                        y = cage_xy(c,2);
+                        
+                        intercept = y - m*x;
+                        this_intercept = intercept + l * cageLength/sind(theta);
+
+                        x_s = (min_x-100):(max_x+100);
+                        y_s = (cosd(theta)/sind(theta)).*x_s + this_intercept;
+
+                        for c2 = 1:length(cages)
+                            x2 = cage_xy(c2,1) ;
+                            y2 = cage_xy(c2,2) ;
+
+                            % https://math.stackexchange.com/questions/274712/calculate-on-which-side-of-a-straight-line-is-a-given-point-located
+                            d = (x2 - x_s(1))*(y_s(end) - y_s(1))-(y2 - y_s(1))*(x_s(end) - x_s(1));
+
+                            if d < 1 & d > -1
+                                pointCheckData(c2) = 0; % accomodate rounding error for points on the line
+                            else
+                                pointCheckData(c2) = sign(d);
+                            end
+                        end
+                        
+                        nonZeroPointCheckData = pointCheckData(pointCheckData~=0);
+
+                        if all(nonZeroPointCheckData > 0) | all(nonZeroPointCheckData < 0)
+
+                            if l == 1 & nonZeroPointCheckData(1) == intercepts(o,1)
+                                continue;
+                            end
+
+                            if l == -1
+                                intercepts(o,1) = this_intercept;
+                            else
+                                intercepts(o,2) = this_intercept;
+                            end
+
+                            break
+                        end 
+                    end
+                end
+            end
+            
+            c = zeros(4,2);
+
+            count = 1;
+            
+            for in1 = 1:2
+                for in2 = 1:2
+                
+                    m1 = ob(1);
+                    m2 = ob(2);
+                    
+                    i1 = intercepts(1,in1);
+                    i2 = intercepts(2,in2);
+                    
+                    x = (i2 - i1)/((cosd(m1)/sind(m1)) - (cosd(m2)/sind(m2)));
+
+                    y = ((cosd(m1)/sind(m1)))*x + i1;
+
+                    c(count,1)=x;
+                    c(count,2)=y;
+                    
+                    count = count + 1;
+                end
+            end
+
+            % counter-clockwise order
+            c = c([1 2 4 3], :);
+        end
+        
+        function BB = boundingBox(S)
+           BB = Depomod.Layout.BoundingBox.createFromCages(S); 
         end
         
         function sizeInBytes = toFile(S, filePath)
