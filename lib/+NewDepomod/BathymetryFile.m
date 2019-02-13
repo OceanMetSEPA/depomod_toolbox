@@ -167,6 +167,20 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             boolMatrix = B.data < depth;
         end
         
+        function boolMatrix = underCageIndexes(B, cages)
+            [e,n] = B.cellCentres;
+            
+            boolMatrix = logical(zeros(size(e)));
+            
+            corners = cages.boundingBox.Corners;
+            
+            for y = 1:size(e,1)
+                for x = 1:size(e,2)
+                    boolMatrix(y,x) = inpolygon(e(y,x), n(y,x), corners(:,1),corners(:,2));
+                end
+            end
+        end
+        
         function adjustSeabedDepths(B, value, varargin)
             
             indexes = B.seabedIndexes;

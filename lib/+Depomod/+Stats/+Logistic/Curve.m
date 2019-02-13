@@ -1,7 +1,7 @@
 classdef Curve < dynamicprops
     
     properties
-        Parameters = []; % x_0, L, k
+        Parameters = []; % L, k, x_0
     end
     
     methods (Static = true)
@@ -36,9 +36,21 @@ classdef Curve < dynamicprops
             );
         end
         
-        function plot(C, x)
+        function plot(C, x, varargin)
+            Colour = 'y';
+            LineWidth = 1.0;
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+                switch varargin{i}
+                    case 'Colour' % 
+                        Colour = varargin{i+1};
+                    case 'LineWidth' % 
+                        LineWidth = varargin{i+1};
+                end
+            end
+            
             y = C.solution(x);
-            plot(x, y, 'b-', 'LineWidth', 1.0);
+            plot(x, y, [Colour, '-'], 'LineWidth', LineWidth);
         end
     end
     

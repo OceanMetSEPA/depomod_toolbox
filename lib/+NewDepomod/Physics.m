@@ -49,7 +49,7 @@ classdef Physics
                 case 'smooth'
                     uStar = flowSpeed./(NewDepomod.Physics.shearVelocityRoughSmoothFactor * log10(z/(5*z0)));
                 case 'low' % Law of the Wall
-                    uStar = (flowSpeed.*NewDepomod.Physics.vonKarmanConstant)./(log10(z/z0));
+                    uStar = (flowSpeed.*NewDepomod.Physics.vonKarmanConstant)./(log(z/z0));
                 otherwise
                     error('Specified regime not supported')
             end

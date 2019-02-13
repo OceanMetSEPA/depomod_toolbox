@@ -4,9 +4,10 @@ classdef Transect < dynamicprops
         Origin     = []; % OSGB E/N
         UnitVector = []; % 1 m components
         Bearing    = []; % Degrees, clockwise, relative to north
-        Stations   = {};
-        Survey     = {};
+        Stations@Depomod.Survey.Station;
+        Survey@Depomod.Survey.TransectSurvey;
         LogisticFit@Depomod.Stats.Logistic.Fit;
+        ProxyTransectIdx = []; % reference to parent survey
     end
     
     methods (Static = true)
@@ -76,7 +77,7 @@ classdef Transect < dynamicprops
             end
             
             T.setUnitVector;
-            T.setStationCoordinates
+            T.setStationCoordinates;
         end
     end
     
@@ -124,7 +125,7 @@ classdef Transect < dynamicprops
             end
             
             station.Transect = T;
-            T.Stations{end+1} = station;
+            T.Stations(end+1) = station;
         end
         
         function p = points(T)
@@ -133,8 +134,8 @@ classdef Transect < dynamicprops
             p = [];
             
             for s = 1:T.size
-               p(s,1) = T.Stations{s}.Easting;
-               p(s,2) = T.Stations{s}.Northing;
+               p(s,1) = T.Stations(s).Easting;
+               p(s,2) = T.Stations(s).Northing;
             end
         end
         
@@ -143,7 +144,7 @@ classdef Transect < dynamicprops
             d = [];
             
             for s = 1:T.size
-               d(s) = T.Stations{s}.Distance;
+               d(s) = T.Stations(s).Distance;
             end
         end
         
@@ -151,8 +152,14 @@ classdef Transect < dynamicprops
            v = [];
            
            for s = 1:T.size
-               v(s) = T.Stations{s}.value;
+               v(s) = T.Stations(s).value;
            end
+        end
+        
+        function setValuesFromSur(T, sur)
+            for s = 1:T.size
+                T.Stations(s).addSampleFromSur(sur);
+            end
         end
         
         function [e,n] = coordinatesAtDistance(T, distance)
@@ -175,13 +182,30 @@ classdef Transect < dynamicprops
             points = T.points;
             
             if isempty(T.Origin)
-               warning('No origin set for transect. Assuming first station is origin');
-               
-               T.Origin = points(1,:)                
+                if isempty(T.Survey.Cages)
+                   warning('No origin set for transect and no cage informationa available. Assuming first station is origin');
+
+                   T.Origin = points(1,:);   
+                else
+
+                   T.setOriginFromCages;  
+                end
             end
             
             for s = 1:T.size
-               T.Stations{s}.Distance = sqrt((T.Stations{s}.Easting-T.Origin(1))^2 + (T.Stations{s}.Northing-T.Origin(2))^2); 
+               T.Stations(s).Distance = sqrt((T.Stations(s).Easting-T.Origin(1))^2 + ...
+                   (T.Stations(s).Northing-T.Origin(2))^2); 
+            end
+        end
+        
+        function setOriginFromCages(T)
+            if isempty(T.Survey.Cages)
+                error('Cannot calculate transect origin point as no cage information is available')
+            else
+                [eo,no] = T.Survey.Cages.nearestCageEdgeLocationToPoint(...
+                    T.Stations(1).Easting, T.Stations(1).Northing);
+                
+                T.Origin = [eo, no];
             end
         end
         
@@ -194,8 +218,8 @@ classdef Transect < dynamicprops
             for s = 1:T.size
                [e,n] = T.coordinatesAtDistance(distances(s));
                
-               T.Stations{s}.Easting  = e;
-               T.Stations{s}.Northing = n;
+               T.Stations(s).Easting  = e;
+               T.Stations(s).Northing = n;
             end
         end
         
@@ -244,14 +268,32 @@ classdef Transect < dynamicprops
             T.setBearing(bearing);
         end
         
+        function shiftPoints(T, varargin)
+            for s = 1:T.size
+                T.Stations(s).shift(varargin{:});
+            end
+            
+            [new_origin_e, new_origin_n] = ...
+                Depomod.Survey.Station.shiftPoint(...
+                    T.Origin(1), T.Origin(2), varargin{:});
+            
+            T.Origin(1) = new_origin_e;
+            T.Origin(2) = new_origin_n;
+        end
+        
+        function bool = allStationsPassing(T)
+            bool = all(T.values >= 0.64);
+        end
+        
         function i = firstPassingStation(T)
             i = [];
-            idxs = T.values > 0.64;
+            idxs = find(T.values > 0.64);
             i = idxs(1);
         end
         
         function d = firstPassingDistance(T)
-            d = T.distances(T.firstPassingStation);
+            distances = T.distances;
+            d = distances(T.firstPassingStation);
         end
         
         function [e,n] = firstPassingPoint(T)
@@ -290,7 +332,7 @@ classdef Transect < dynamicprops
                 points(:,2), ...
                 repmat(10,size(points,1),1), ...
                 repmat(15,size(points,1),1), ...
-                'g', 'filled')
+                'g', 'filled');
 
 %             text(points(:,1)+25,points(:,2),...
 %                 arrayfun(@num2str, T.values, 'Uniform', false),'Color','w')

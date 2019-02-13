@@ -87,6 +87,24 @@ classdef BoundingSide< dynamicprops
             distance = BS.length/2.0;
             [e,n] = BS.coordinatesAtDistance(distance);
         end
+        
+        function [e,n] = lineIntersectPoint(BS, x, y)
+            
+            endpoints = BS.Endpoints;
+            
+            s1_x = x(2)-x(1);     
+            s1_y = y(2)-y(1);
+            s2_x = endpoints(2,1)-endpoints(1,1);     
+            s2_y = endpoints(2,2)-endpoints(1,2) ;
+
+            sg = (-s1_y * (x(1) - endpoints(1,1)) + s1_x * (y(1) - endpoints(1,2))) / (-s2_x * s1_y + s1_x * s2_y);
+            tg = ( s2_x * (y(1) - endpoints(1,2)) - s2_y * (x(1) - endpoints(1,1))) / (-s2_x * s1_y + s1_x * s2_y);
+
+            if (sg >= 0 && sg <= 1 && tg >= 0 && tg <= 1)
+                e = x(1) + (tg * s1_x);
+                n = y(1) + (tg * s1_y);  
+            end
+        end
     end
     
 end

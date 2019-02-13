@@ -5,7 +5,7 @@ classdef Station < dynamicprops
         Northing@double;
         Transect@Depomod.Survey.Transect;
         Distance@double;
-        Samples = {};
+        Samples@Depomod.Survey.Sample;
     end
     
     
@@ -14,7 +14,39 @@ classdef Station < dynamicprops
             % Pass in easting/northing to create station
             % Optional array of values
             
-            S = Depomod.Survey.Station('easting', e, 'northing', n, varargin{:})
+            S = Depomod.Survey.Station('easting', e, 'northing', n, varargin{:});
+        end
+        
+        function [new_e, new_n] = shiftPoint(e, n, varargin)
+            x = [];
+            y = [];
+            bearing = [];
+            distance = [];
+
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+                switch varargin{i}
+                    case 'x' % 
+                        x = varargin{i+1};
+                    case 'y' % 
+                        y = varargin{i+1};
+                    case 'distance' % 
+                        distance = varargin{i+1};
+                    case 'bearing' % 
+                        bearing = varargin{i+1};
+                end
+            end 
+
+            if isempty(x) | isempty(y)
+                if isempty(bearing) | isempty(distance)
+                    error('Shifting stations requires either an x and y shift or a bearing and distance.')
+                else
+                    x = distance*sind(bearing);
+                    y = distance*cosd(bearing);
+                end
+            end
+
+            new_e = e + x;
+            new_n = n + y;   
         end
     end
     
@@ -56,8 +88,17 @@ classdef Station < dynamicprops
             S.Distance = distance;
         end
         
+        function addSampleFromSur(S, sur)
+            for s = 1:S.size
+                S.Samples(s) = {};
+            end
+
+            value = sur.valueAt(S.Easting, S.Northing);
+            S.Samples(1) = Depomod.Survey.Sample(value, 'station', S);
+        end
+        
         function addSample(S, sample)
-            S.Samples{end+1} = sample;
+            S.Samples(end+1) = sample;
         end
         
         function s = size(S)
@@ -68,7 +109,7 @@ classdef Station < dynamicprops
             v = [];
             
             for s = 1:S.size
-                v(s) = S.Samples{s}.Value;
+                v(s) = S.Samples(s).Value;
             end
         end
         
@@ -80,6 +121,14 @@ classdef Station < dynamicprops
         function v = value(S)
             v = S.mean;
         end
+        
+        function shift(S, varargin)
+            [new_e, new_n] = Depomod.Survey.Station.shiftPoint(S.Easting, S.Northing, varargin{:});
+            
+            S.Easting  = new_e;
+            S.Northing = new_n;            
+        end
+        
     end
     
 end

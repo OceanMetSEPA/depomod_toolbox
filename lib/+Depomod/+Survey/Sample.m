@@ -1,10 +1,10 @@
 classdef Sample < dynamicprops
     
     properties
-        Value@double
-        Unit@char
-        Description@char
-        Station@Depomod.Survey.Station
+        Value@double;
+        Unit@char;
+        Description@char;
+        Station@Depomod.Survey.Station;
     end
     
     methods

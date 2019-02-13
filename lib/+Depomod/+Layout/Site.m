@@ -93,7 +93,7 @@ classdef Site
               end
             end
                         
-            cages      = S.consolidatedCages.cages
+            cages      = S.consolidatedCages.cages;
             cageLength = cages{1}.length;
 
             if cageLength == 0 % deal with rectangular cages
@@ -130,9 +130,9 @@ classdef Site
             end
             
             if plotPerimeter
-                figure
-                plot(x,y)
-                daspect([1 1 1])
+                figure;
+                plot(x,y);
+                daspect([1 1 1]);
             end
         end
         
@@ -175,6 +175,27 @@ classdef Site
                 end
             else
                 a = polyarea(x, y);
+            end
+        end
+        
+        function [e,n, distance] = nearestCageEdgeLocationToPoint(S, x, y)
+            [ep,np] = S.cagePerimeter('radialDistance', 0);
+
+            e = [];
+            n = [];
+
+            distance = 99999999 ;
+            th = 0:pi/50:2*pi;
+
+            for ss = 1:numel(ep)
+               
+                d = sqrt((ep(ss) - x)^2 + (np(ss) - y)^2);
+
+                if d < distance
+                    distance = d;
+                    e = ep(ss);
+                    n = np(ss);
+                end
             end
         end
         
@@ -542,9 +563,7 @@ classdef Site
             group_node.appendChild(grid_depth_node);
             group_node.appendChild(grid_bearing_node);
             group_node.appendChild(grid_cage_type_node);
-            
-%             xmlwrite(filePath, templateCages);   
-            
+                        
             % use this method to remove annoying whitespace characters
             % added by MATLAB (https://uk.mathworks.com/matlabcentral/newsreader/view_thread/245555)
             docStr = xmlwrite(templateCages);

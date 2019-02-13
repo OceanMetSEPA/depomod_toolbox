@@ -3,8 +3,8 @@ classdef BoundingBox < dynamicprops
     properties
         Centre  = [];
         Corners = [];
-        Sides   = {};
-        Cages   = {};
+        Sides@Depomod.Layout.BoundingSide;
+        Cages@Depomod.Layout.Site;
         MajorAxis@double;
     end
     
@@ -33,7 +33,7 @@ classdef BoundingBox < dynamicprops
                     endIdx = 1;
                 end
                 
-               BB.Sides{bs} = Depomod.Layout.BoundingSide(BB.Corners([startIdx endIdx], :));                
+               BB.Sides(bs) = Depomod.Layout.BoundingSide(BB.Corners([startIdx endIdx], :));                
             end
             
             BB.setCentre;
@@ -74,10 +74,34 @@ classdef BoundingBox < dynamicprops
             end
         end
         
+        function pl = perimeterLength(BB)
+            sl = BB.sideLengths;
+            pl = 2*(sl(1)+sl(2));
+        end
+        
         function l = sideLengths(BB)
             l = [];
-            l(1) = BB.Sides{1}.length;
-            l(2) = BB.Sides{2}.length;
+            l(1) = BB.Sides(1).length;
+            l(2) = BB.Sides(2).length;
+        end
+        
+        function [sideIdx, sideDistance] = perimeterDistance2SideDistance(BB, distance)
+            thisSide = 2;
+            thisDistance = BB.Sides(thisSide).length/2.0;
+            sideRemainingDistance = BB.Sides(thisSide).length - thisDistance;
+            
+            while sideRemainingDistance < distance
+                distance = distance - sideRemainingDistance;
+                thisSide = thisSide+1;
+                if thisSide == 5
+                    thisSide = 1;
+                end
+                thisDistance = 0;
+                sideRemainingDistance =  BB.Sides(thisSide).length;
+            end
+            
+            sideIdx = thisSide;
+            sideDistance = thisDistance+distance;
         end
         
         function sb = sideBearings(BB, idx)
@@ -103,7 +127,6 @@ classdef BoundingBox < dynamicprops
                 sb = BB.sideBearings(s);
                 
                 if sb(2) > sb(1) % includes 0/360 mark
-                    disp('this one')
                     if (bearing < sb(1) & bearing >= 0) | ...
                             (bearing > sb(2) & bearing <= 360)
                         break
@@ -118,6 +141,8 @@ classdef BoundingBox < dynamicprops
         
         function [e,n] = bearingIntersectCoordinates(BB, bearing) 
             % bearings relative to box centre
+
+            side      = BB.Sides(BB.bearingIntersectSide(bearing));
             
             mid_e = BB.Centre(1);
             mid_n = BB.Centre(2);
@@ -134,22 +159,8 @@ classdef BoundingBox < dynamicprops
 
             radial_x(2) = mid_e + direction * (9999 * cosd(atand(radial_m)));
             radial_y    = radial_m.*radial_x + radial_c; 
-
-            side      = BB.Sides{BB.bearingIntersectSide(bearing)};
-            endpoints = side.Endpoints;
             
-            s1_x = radial_x(2)-radial_x(1);     
-            s1_y = radial_y(2)-radial_y(1);
-            s2_x = endpoints(2,1)-endpoints(1,1);     
-            s2_y = endpoints(2,2)-endpoints(1,2) ;
-
-            sg = (-s1_y * (radial_x(1) - endpoints(1,1)) + s1_x * (radial_y(1) - endpoints(1,2))) / (-s2_x * s1_y + s1_x * s2_y);
-            tg = ( s2_x * (radial_y(1) - endpoints(1,2)) - s2_y * (radial_x(1) - endpoints(1,1))) / (-s2_x * s1_y + s1_x * s2_y);
-
-            if (sg >= 0 && sg <= 1 && tg >= 0 && tg <= 1)
-                e = radial_x(1) + (tg * s1_x);
-                n = radial_y(1) + (tg * s1_y);  
-            end
+            [e,n] = side.lineIntersectPoint(radial_x, radial_y);
         end
         
         function a = area(BB)

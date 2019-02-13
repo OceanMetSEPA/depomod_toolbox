@@ -1,7 +1,7 @@
 classdef MonteCarlo < dynamicprops
     
     properties
-        Curves = {};
+        Curves@Depomod.Stats.Logistic.Curve;
         Fit@Depomod.Stats.Logistic.Fit;
     end
     
@@ -10,7 +10,7 @@ classdef MonteCarlo < dynamicprops
             MC.Fit = logisticFit;
             
             for c = 1:N
-               MC.Curves{c} = logisticFit.randomCurve;                
+               MC.Curves(c) = logisticFit.randomCurve;                
             end
         end
         
@@ -23,7 +23,7 @@ classdef MonteCarlo < dynamicprops
             
             for c = 1:MC.size
                for v = 1:numel(x)
-                   s(c,v) = MC.Curves{c}.solution(x(v));                   
+                   s(c,v) = MC.Curves(c).solution(x(v));                   
                end
             end
         end
@@ -33,7 +33,7 @@ classdef MonteCarlo < dynamicprops
             
             for c = 1:MC.size
                for v = 1:numel(y)
-                   s(c,v) = MC.Curves{c}.inverseSolution(y(v));                   
+                   s(c,v) = MC.Curves(c).inverseSolution(y(v));                   
                end
             end
         end    
@@ -50,7 +50,7 @@ classdef MonteCarlo < dynamicprops
         
         function plot(MC)
             for c = 1:MC.size
-                MC.Curves{c}.plot(MC.Fit.X(1):MC.Fit.X(end))
+                MC.Curves(c).plot(MC.Fit.X(1):MC.Fit.X(end))
                 hold on;
             end
             
