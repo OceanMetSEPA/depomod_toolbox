@@ -47,10 +47,10 @@ classdef ModelFit < dynamicprops
             surveyData = MF.Survey.toMatrix;
             modelData  = MF.ModelSurvey.toMatrix;
             
-            MF.Eastings  = surveyData(:,3);
-            MF.Northings = surveyData(:,4);
-            MF.Values      = surveyData(:,6);
-            MF.ModelValues = modelData(:,6);                   
+            MF.Eastings  = surveyData(:,6);
+            MF.Northings = surveyData(:,7);
+            MF.Values      = surveyData(:,9);
+            MF.ModelValues = modelData(:,9);                   
         end
         
         function r = residuals(MF)
@@ -65,8 +65,19 @@ classdef ModelFit < dynamicprops
             r = MF.ModelValues./MF.Values;
         end
         
+        function mr = meanRatio(MF)
+            r = MF.absoluteRatios;
+            isValid = isfinite(r) & ~isnan(r);
+            
+            if sum(isValid) < numel(MF.Values)*0.75
+                mr = NaN;
+            else
+                mr = mean(r(isValid));
+            end
+        end
+        
         function ar = absoluteRatios(MF)
-            ar = abs(log(MF.ModelValues./MF.Values));
+            ar = 10.^abs(log10(MF.ModelValues./MF.Values));
         end
         
         function m = mean(MF)
@@ -100,6 +111,7 @@ classdef ModelFit < dynamicprops
         function rmse = zeroRMSE(MF)
             rmse = sqrt(mean((MF.Values).^2));
         end
+
     end
     
 end

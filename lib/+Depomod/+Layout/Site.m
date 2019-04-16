@@ -572,6 +572,26 @@ classdef Site
             fprintf(openDoc,'%s\n',docStr);
             fclose(openDoc);            
         end
+        
+        function m = toMatrix(S)
+           cages = S.consolidatedCages.cages
+           m = cell(numel(cages),10);
+           
+           for c = 1:numel(cages)
+              cage = cages{c};
+              
+              m{c,1} = c;
+              m{c,2} = cage.x;
+              m{c,3} = cage.y;
+              m{c,4} = cage.length;
+              m{c,5} = cage.width;
+              m{c,6} = cage.height;
+              m{c,7} = cage.depth;
+              m{c,8} = cage.inputsId;
+              m{c,9} = cage.proportion;
+              m{c,10} = cage.inProduction;              
+           end
+        end
     end
     
 end

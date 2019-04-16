@@ -15,7 +15,7 @@ classdef SpanningEllipse < dynamicprops
         function SE = SpanningEllipse(points)
             SE.EnclosingPoints = points;
             
-            [SE.A, SE.Centre] = MinVolEllipse(points', .01);
+            [SE.A, SE.Centre] = Depomod.Stats.Utils.MinVolEllipse(points', .01);
             [SE.U SE.D SE.V] = svd(SE.A);
 
             SE.MajorSemiAxis = 1/sqrt(SE.D(1,1));

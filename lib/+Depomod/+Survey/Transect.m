@@ -4,10 +4,10 @@ classdef Transect < dynamicprops
         Origin     = []; % OSGB E/N
         UnitVector = []; % 1 m components
         Bearing    = []; % Degrees, clockwise, relative to north
-        Stations@Depomod.Survey.Station;
-        Survey@Depomod.Survey.TransectSurvey;
+        Stations@Depomod.Survey.Station; 
+        Survey@Depomod.Survey.TransectSurvey; % reference to parent survey
         LogisticFit@Depomod.Stats.Logistic.Fit;
-        ProxyTransectIdx = []; % reference to parent survey
+        ProxyTransectIdx = []; 
     end
     
     methods (Static = true)
@@ -126,6 +126,10 @@ classdef Transect < dynamicprops
             
             station.Transect = T;
             T.Stations(end+1) = station;
+            
+            if ~isempty(T.UnitVector)
+                T.setStationCoordinates;
+            end
         end
         
         function p = points(T)
@@ -286,14 +290,22 @@ classdef Transect < dynamicprops
         end
         
         function i = firstPassingStation(T)
-            i = [];
+            i = NaN;
             idxs = find(T.values > 0.64);
-            i = idxs(1);
+            if ~isempty(idxs)
+                i = idxs(1);
+            end
         end
         
         function d = firstPassingDistance(T)
             distances = T.distances;
-            d = distances(T.firstPassingStation);
+            idx = T.firstPassingStation;
+            
+            if ~isnan(idx)
+               d = distances(idx);
+            else
+               d = NaN; 
+            end
         end
         
         function [e,n] = firstPassingPoint(T)
@@ -322,7 +334,17 @@ classdef Transect < dynamicprops
         end
         
         function plot(T, varargin)
+           transectLabel = [];
+           values        = 0;
            
+           for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+                switch varargin{i}
+                    case 'transectLabel' % 
+                        transectLabel = varargin{i+1};
+                    case 'values' % 
+                        values = varargin{i+1};
+                end
+            end
            % work on plotting options with varargin
             
            points = T.points;
@@ -333,9 +355,19 @@ classdef Transect < dynamicprops
                 repmat(10,size(points,1),1), ...
                 repmat(15,size(points,1),1), ...
                 'g', 'filled');
-
-%             text(points(:,1)+25,points(:,2),...
-%                 arrayfun(@num2str, T.values, 'Uniform', false),'Color','w')
+        
+            if ~isempty(transectLabel)
+                ue = T.UnitVector(1);
+                un = T.UnitVector(2);
+                
+                text(points(end,1)+25*ue,points(end,2)+25*un,...
+                    transectLabel, 'Color', 'w')
+            end
+            
+            if values
+                text(points(:,1)+25,points(:,2),...
+                    arrayfun(@num2str, T.values, 'Uniform', false),'Color','w')
+            end
         end
     end
     

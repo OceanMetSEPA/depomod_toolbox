@@ -470,10 +470,10 @@ classdef (Abstract) Base < handle
             % I the samples (>1) option is used, the returned value
             % constitutes an average of n values located around the
             % requested point. These values are located at the point itself
-            % plus n points at a particular offset distance in equal directions. 
-            % By default the offset distance is 10 m. This can be changed by 
-            % passing in the *offset* argument with the required offset 
-            % distance for the replicates.
+            % plus 4 points at a particular offset distance in the N, E, S
+            % and W directions. By default the offset distance is 10 m.
+            % This can be changed by passing in the *offset* argument with
+            % the required offset distance for the replicates.
             
             if isempty(S.interpolatedGrid)
                 S.interpolate;

@@ -268,7 +268,7 @@ classdef Collection < dynamicprops
             end
             
             if isempty(newRunLabel)
-                newRunLabel = num2str(newRunNumber)
+                newRunLabel = num2str(newRunNumber);
             end
             
             if ismember(newRunLabel, C.labels)

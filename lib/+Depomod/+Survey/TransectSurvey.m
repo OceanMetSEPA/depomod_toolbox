@@ -312,10 +312,13 @@ classdef TransectSurvey < dynamicprops
                for s = 1:TS.Transects(t).size
                   m(count,1) = t;
                   m(count,2) = s;
-                  m(count,3) = TS.Transects(t).Stations(s).Easting;
-                  m(count,4) = TS.Transects(t).Stations(s).Northing;
-                  m(count,5) = TS.Transects(t).Stations(s).Distance;
-                  m(count,6) = TS.Transects(t).Stations(s).value;
+                  m(count,3) = TS.Transects(t).Origin(1);
+                  m(count,4) = TS.Transects(t).Origin(2);
+                  m(count,5) = TS.Transects(t).Bearing;
+                  m(count,6) = TS.Transects(t).Stations(s).Easting;
+                  m(count,7) = TS.Transects(t).Stations(s).Northing;
+                  m(count,8) = TS.Transects(t).Stations(s).Distance;
+                  m(count,9) = TS.Transects(t).Stations(s).value;
                   
                   count = count + 1;
                end
@@ -323,7 +326,23 @@ classdef TransectSurvey < dynamicprops
         end
         
         function plot(TS, varargin)
+            transectLabels = 0;
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+                switch varargin{i}
+                    case 'transectLabels' % 
+                        transectLabels = varargin{i+1};
+                    case 'values' % 
+                        values = varargin{i+1};
+                end
+            end
+            
             for t = 1:TS.size
+                if transectLabels
+                    varargin{end+1} = 'transectLabel';
+                    varargin{end+1} = num2str(t);
+                end
+                
                 TS.Transects(t).plot(varargin{:});
             end
         end

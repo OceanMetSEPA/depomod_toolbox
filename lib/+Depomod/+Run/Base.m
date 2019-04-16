@@ -228,8 +228,18 @@ classdef (Abstract) Base < handle
                 end
             end
             
-            set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+            mv = version('-release');
+            
+            if str2num(mv(1:4)) < 2015 | ...
+                    (str2num(mv(1:4)) == 2015 & isequal(mv(5), 'a'))
+                
+                set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
+                set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+            else               
+                ax = gca;
+                ax.XAxis.Exponent = 0;
+                ax.YAxis.Exponent = 0;
+            end
             
             if plotCages
                 cages = R.cages.consolidatedCages.cages;
@@ -340,8 +350,8 @@ classdef (Abstract) Base < handle
                 end
             end
             
-            set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+%             set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
+%             set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
             
             if plotCages
                 cages = R.cages.consolidatedCages.cages;

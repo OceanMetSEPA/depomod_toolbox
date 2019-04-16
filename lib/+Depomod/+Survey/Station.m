@@ -93,7 +93,7 @@ classdef Station < dynamicprops
                 S.Samples(s) = {};
             end
 
-            value = sur.valueAt(S.Easting, S.Northing);
+            value = sur.valueAt(S.Easting, S.Northing, 'samples', 9);
             S.Samples(1) = Depomod.Survey.Sample(value, 'station', S);
         end
         
