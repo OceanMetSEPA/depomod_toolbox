@@ -478,9 +478,9 @@ classdef Base < Depomod.Run.Base
         end
         
         function clearOutputTimes(R)
-            EmBZConfig = R.configurationFile;
-            EmBZConfig.Transports.recordTimes='';
-            EmBZConfig.toFile;
+            Config = R.configurationFile;
+            Config.Transports.recordTimes='';
+            Config.toFile;
         end
 
         function setDailyOutputTimes(R)
@@ -709,7 +709,7 @@ classdef Base < Depomod.Run.Base
             delete(R.modelPath);
             delete(R.runtimePath);
             delete(R.inputsFilePath);
-            
+
             if exist(R.configPath, 'file')
                 delete(R.configPath);
             end

@@ -261,6 +261,10 @@ classdef Collection < dynamicprops
               end
             end
             
+            if contains(newRunLabel, '-')
+                error('Cannot create new run. Hyphen character not supported in run labels.')
+            end
+            
             if isnumeric(template)
                 templateRun = C.number(template);
             else

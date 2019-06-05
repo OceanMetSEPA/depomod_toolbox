@@ -78,13 +78,17 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                 linspace(originN,maxN,ngridj) ...
             );
             
+%             if contour
+%                 [~,pl] = contourf(X,Y,flipud(B.data), 'LineStyle', 'none');
+%             else
+%                 pl = pcolor(X,Y,flipud(B.data));
+%             end
             if contour
-                [~,pl] = contourf(X,Y,flipud(B.data));
+               contourf(X,Y,flipud(B.data), 'LineStyle', 'none');
             else
-                pl = pcolor(X,Y,flipud(B.data));
+               pcolor(X,Y,flipud(B.data));
             end
-            
-            daspect([1 1 1])
+            daspect([1 1 1]);
             
             shading flat;
             
@@ -92,8 +96,20 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             c = colorbar;
             ylabel(c,'depth (m)');
             
-            set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick'))); 
+            mv = version('-release');
+            
+            if str2num(mv(1:4)) < 2015 | ...
+                    (str2num(mv(1:4)) == 2015 & isequal(mv(5), 'a'))
+                
+                set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
+                set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+            else               
+                ax = gca;
+                ax.XRuler.Exponent = 0;
+                ax.YRuler.Exponent = 0;
+                xtickformat('%8.f');
+                ytickformat('%8.f');
+            end
         end
         
         function map = colormap(B)

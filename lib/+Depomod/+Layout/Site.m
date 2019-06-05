@@ -244,7 +244,7 @@ classdef Site
                 pcaStruct.cols = [2 1];
             else
                 pcaStruct.cols = [1 2];
-            end;
+            end
 
             f = pcaStruct.eigenVector(1,pcaStruct.cols(1));
             g = pcaStruct.eigenVector(2,pcaStruct.cols(1));
@@ -425,7 +425,7 @@ classdef Site
                 ];
 
             % get group - this might provide group level attributes
-            group = S.cageGroups{1}
+            group = S.cageGroups{1};
 
             for c = 1:S.sizeCages
 

@@ -77,7 +77,7 @@ classdef (Abstract) Base < handle
                   version = varargin{i+1};
               end
             end
-            
+                        
             subclass = Depomod.Sur.Base.filename2Subclass(path, version);
             s = eval(subclass);
                         

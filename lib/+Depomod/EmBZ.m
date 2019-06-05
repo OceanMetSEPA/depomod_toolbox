@@ -164,7 +164,7 @@ classdef EmBZ
             % treatment each tonne of biomass will require 5 kg of medicated feed per day for the seven days 
             % of the treatment".
 
-            % dose rate = 50 ?g / kg 
+            % dose rate = 50 ug / kg 
             %           = 50 mg / t 
             %           = 0.05 g / t
 

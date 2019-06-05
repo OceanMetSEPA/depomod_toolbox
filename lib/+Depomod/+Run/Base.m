@@ -109,6 +109,8 @@ classdef (Abstract) Base < handle
         
         function F = plot(R,varargin)
             
+            mv = version('-release');
+            
             x0=0;
             y0=0;
             width=600;
@@ -152,12 +154,12 @@ classdef (Abstract) Base < handle
                         
             F = figure('visible', visible);
             R.project.bathymetry.plot('contour', contour);    
-            daspect([1 1 1])
+            daspect([1 1 1]);
             hold on
             set(gcf,'units','points','position',[x0,y0,width,height]);
             box on
             grid on
-            set(gca,'layer','top')
+            set(gca,'layer','top');
             xlabel('Easting');
             ylabel('Northing');
             
@@ -200,7 +202,7 @@ classdef (Abstract) Base < handle
                             y(1,end+1) = contour(2,j);
                         end
                                                 
-                        figure(F)
+                        figure(F);
                         validIndexes = ~isnan(x) & ~isnan(y);
                         contourhandle = fill(x(validIndexes),y(validIndexes), color, 'FaceAlpha', val, 'LineStyle', ':');
 
@@ -214,7 +216,11 @@ classdef (Abstract) Base < handle
                 end
                 
                 if ~isempty(legendContours)
-                    leg = legend(legendContours,legendlabels);
+                    if str2num(mv(1:4)) < 2017
+                        leg = legend(legendContours,legendlabels);
+                    else
+                        leg = legend(legendContours,legendlabels, 'AutoUpdate', 'off');
+                    end
 
                     PatchInLegend = findobj(leg, 'type', 'patch'); 
 
@@ -239,12 +245,14 @@ classdef (Abstract) Base < handle
                 ax = gca;
                 ax.XAxis.Exponent = 0;
                 ax.YAxis.Exponent = 0;
+                xtickformat('%8.f');
+                ytickformat('%8.f');
             end
             
             if plotCages
                 cages = R.cages.consolidatedCages.cages;
 
-                figure(F)
+                figure(F);
                 scatter3(...
                     cellfun(@(c) c.x, cages), ...
                     cellfun(@(c) c.y, cages), ...
@@ -256,113 +264,12 @@ classdef (Abstract) Base < handle
                     'Clipping', 'on' ...
                     );
                 
-                set(gca,'layer','top')
+                set(gca,'layer','top');
             end
             
-            drawnow
+            drawnow;
         end
         
-        
-        
-        function F = patch(R,varargin)
-            
-            x0=0;
-            y0=0;
-            width=600;
-            height=600;
-            
-            sur       = [];
-            impact    = 1;
-            plotCages = 1;
-            visible   = 'on';
-            contour   = 1;
-            levels    = [];
-            
-            for i = 1:2:length(varargin)
-              switch varargin{i}
-                case 'x0'
-                  x0 = varargin{i+1};
-                case 'y0'
-                  y0 = varargin{i+1};
-                case 'width'
-                  width = varargin{i+1};
-                case 'height'
-                  height = varargin{i+1};
-                case 'levels'
-                  levels = varargin{i+1};
-                case 'impact'
-                  impact = varargin{i+1};
-                case 'cages'
-                  plotCages = varargin{i+1};
-                case 'sur'
-                  sur = varargin{i+1};
-                  impact = 1; % if sur passed, definately plot an impact
-                case 'visible'
-                  visible = varargin{i+1};
-                case 'contour'
-                  contour = varargin{i+1};
-              end
-            end
-                        
-            F = figure('visible', visible);
-            R.project.bathymetry.plot('contour', contour);    
-            daspect([1 1 1])
-            hold on
-            set(gcf,'units','points','position',[x0,y0,width,height]);
-            box on
-            grid on
-            set(gca,'layer','top')
-            xlabel('Northing');
-            ylabel('Easting');
-            
-            t=title([R.project.name, ': run - ', num2str(R.label)]);
-            set(t,'Interpreter','none'); % escape underscores in title            
-            
-            if isempty(sur)
-                try
-                    sur = R.sur;
-                catch
-                    impact = 0;
-                end
-            end
-            
-            if impact & ~isempty(sur)
-                if isempty(levels)
-                    levels = sur.defaultPlotLevels;
-                end
-                
-                noLevels = length(levels);
-                
-                legendContours = [];
-                legendlabels   = {};
-
-                pcolor(sur.X, sur.Y, sur.Z)
-
-                leg = legend(legendContours,legendlabels);
-
-                PatchInLegend = findobj(leg, 'type', 'patch'); 
-
-                % to find the patch objects in your legend. You can then set their transparency using 
-                for l = 1:size(PatchInLegend,1)
-                    % start with alpha 0.5 and split the rest between 0.5-1.0
-                    val = 0.5 + (0.5-(0.5/noLevels) * (l - 1));
-                    set(PatchInLegend(l), 'facea', val);               
-                end
-            end
-            
-%             set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-%             set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
-            
-            if plotCages
-                cages = R.cages.consolidatedCages.cages;
-
-                figure(F)
-                scatter3(cellfun(@(c) c.x, cages), cellfun(@(c) c.y, cages),repmat(max(max(R.project.bathymetry.data))+1,length(cages),1), 'ko', 'MarkerFaceColor', 'k', 'LineWidth', 2.0, 'Visible', 'on', 'Clipping', 'on');
-                set(gca,'layer','top')
-            end
-            
-            drawnow
-        end
     end
 
 end
