@@ -471,10 +471,10 @@ classdef Base < Depomod.Run.Base
         end
         
         function syncCageID(R)            
-            EmBZInputs = R.inputsFile;
-            EmBZInputs.FeedInputs.uuid = R.cages.consolidatedCages.cage(1).inputsId;
+            Inputs = R.inputsFile;
+            Inputs.FeedInputs.uuid = R.cages.consolidatedCages.cage(1).inputsId;
 
-            EmBZInputs.toFile;
+            Inputs.toFile;
         end
         
         function clearOutputTimes(R)

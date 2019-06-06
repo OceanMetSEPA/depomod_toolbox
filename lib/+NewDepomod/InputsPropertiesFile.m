@@ -103,16 +103,8 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
                 switch varargin{i}
-                    case 'feedWaterPercentage' % 
-                        feedWaterPercentage = varargin{i+1};
                     case 'feedWastePercentage' % 
                         feedWastePercentage = varargin{i+1};
-                    case 'feedAbsorbedPercentage' % 
-                        feedAbsorbedPercentage = varargin{i+1};
-                    case 'feedCarbonPercentage' % 
-                        feedCarbonPercentage = varargin{i+1};
-                    case 'faecesCarbonPercentage' % 
-                        faecesCarbonPercentage = varargin{i+1};
                     case 'days' % 
                         days = varargin{i+1};
                 end
@@ -146,7 +138,7 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
 
             % Add to the main data table (only the the required number of
             % rows)
-            IPF.data(treatmentSteps+1:totalHours, 6) = expExcretionProfile(expExcretionSteps)
+            IPF.data(treatmentSteps+1:totalHours, 6) = expExcretionProfile(expExcretionSteps);
             
             IPF.data(treatmentSteps+1:totalHours, 3) = 0.0;
             
