@@ -621,7 +621,7 @@ classdef Base < Depomod.Run.Base
             try
                 t = cellfun(@str2num, strsplit(config.Transports.recordTimes, ','));
             catch
-                t = []
+                t = [];
             end
         end
         
