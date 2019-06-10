@@ -261,10 +261,6 @@ classdef Collection < dynamicprops
               end
             end
             
-            if contains(newRunLabel, '-')
-                error('Cannot create new run. Hyphen character not supported in run labels.')
-            end
-            
             if isnumeric(template)
                 templateRun = C.number(template);
             else
@@ -277,6 +273,8 @@ classdef Collection < dynamicprops
             
             if ismember(newRunLabel, C.labels)
                 error('Cannot create new run. Supplied label already exists');
+            elseif contains(newRunLabel, '-')
+                error('Cannot create new run. Hyphen character not supported in run labels.')
             end
             
             newModelPath  = regexprep(templateRun.modelPath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']);

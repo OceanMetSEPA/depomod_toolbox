@@ -187,26 +187,27 @@ classdef (Abstract) Base < handle
                 for l = 1:noLevels
                     level = levels(l);
 
-                    contour = sur.contour(level);
+                    contr = sur.contour(level);
 
                     val = 0.1 + ((0.5/noLevels) * (l));
 
                     i = 1;
+                    contourhandle  = [];
 
-                    while i <= size(contour,2)
+                    while i <= size(contr,2)
                         x = [];
                         y = [];
 
-                        for j = i+1:i+contour(2,i)
-                            x(1,end+1) = contour(1,j);
-                            y(1,end+1) = contour(2,j);
+                        for j = i+1:i+contr(2,i)
+                            x(1,end+1) = contr(1,j);
+                            y(1,end+1) = contr(2,j);
                         end
                                                 
                         figure(F);
                         validIndexes = ~isnan(x) & ~isnan(y);
                         contourhandle = fill(x(validIndexes),y(validIndexes), color, 'FaceAlpha', val, 'LineStyle', ':');
 
-                        i = i + contour(2,i) + 1;
+                        i = i + contr(2,i) + 1;
                     end
                     
                     if exist('contourhandle', 'var') & ~isempty(contourhandle)

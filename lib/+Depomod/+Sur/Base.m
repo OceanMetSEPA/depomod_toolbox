@@ -572,7 +572,7 @@ classdef (Abstract) Base < handle
                 dist = sqrt(S.domainSizeX^2 + S.domainSizeY^2); % max distance in domain
                 
                 % Now, attempt to calculate distance from contour
-                [c,h]  = S.contour(value);
+                c  = S.contour(value);
                 
                 if ~isempty(c)
 
@@ -624,7 +624,7 @@ classdef (Abstract) Base < handle
                   surf(S.X, S.Y, S.Z);
                   shading interp;
                 case 'contour'
-                  contourf(S.X, S.Y, S.Z);
+                  contourf(S.X, S.Y, S.Z, 'LineStyle', 'none');
             end
             
             

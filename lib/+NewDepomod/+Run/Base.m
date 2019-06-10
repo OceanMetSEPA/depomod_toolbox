@@ -444,7 +444,7 @@ classdef Base < Depomod.Run.Base
         end
                             
         function setRunDurationDays(R, days, varargin)
-            consolidationDays = 0
+            consolidationDays = 0;
             
             for i = 1:2:length(varargin)
               switch varargin{i}
@@ -457,11 +457,12 @@ classdef Base < Depomod.Run.Base
             particleConsolidationTime = 24.0*consolidationDays; 
             noHours = 24.0*days;
 
-            EmBZModel = R.modelFile;
-            EmBZModel.ModelTime.endTime = num2str(ceil((noHours + particleConsolidationTime) * 60 * 60 * 1000));  % milliseconds
-            EmBZModel.ModelTime.releasePeriod = num2str(ceil(noHours * 60 * 60 * 1000)); % milliseconds
+            model = R.modelFile;
+            model.ModelTime.startTime = num2str(0);
+            model.ModelTime.endTime = num2str(ceil((noHours + particleConsolidationTime) * 60 * 60 * 1000));  % milliseconds
+            model.ModelTime.releasePeriod = num2str(ceil(noHours * 60 * 60 * 1000)); % milliseconds
 
-            EmBZModel.toFile;             
+            model.toFile;             
         end
         
         function syncRunDurationWithInputs(R, varargin)
