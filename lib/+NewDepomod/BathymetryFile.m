@@ -78,16 +78,12 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                 linspace(originN,maxN,ngridj) ...
             );
             
-%             if contour
-%                 [~,pl] = contourf(X,Y,flipud(B.data), 'LineStyle', 'none');
-%             else
-%                 pl = pcolor(X,Y,flipud(B.data));
-%             end
             if contour
-               contourf(X,Y,flipud(B.data), 'LineStyle', 'none');
+                [~,pl] = contourf(X,Y,flipud(B.data), 'LineStyle', 'none');
             else
-               pcolor(X,Y,flipud(B.data));
+                pl = pcolor(X,Y,flipud(B.data));
             end
+
             daspect([1 1 1]);
             
             shading flat;

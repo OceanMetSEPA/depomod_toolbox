@@ -207,8 +207,20 @@ classdef BathymetryMikeMesh < handle
             ylabel(c,'depth (m)');
             caxis([maxDepth minDepth])
             
-            set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
-            set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+            mv = version('-release');
+            
+            if str2num(mv(1:4)) < 2015 | ...
+                    (str2num(mv(1:4)) == 2015 & isequal(mv(5), 'a'))
+                
+                set(gca,'XTickLabel',sprintf('%3.f|',get(gca, 'XTick')));
+                set(gca,'YTickLabel',sprintf('%3.f|',get(gca, 'YTick')));
+            else               
+                ax = gca;
+                ax.XRuler.Exponent = 0;
+                ax.YRuler.Exponent = 0;
+                xtickformat('%8.f');
+                ytickformat('%8.f');
+            end
         end
         
         function boolMatrix = shallowSeabedIndexes(B, depth)
