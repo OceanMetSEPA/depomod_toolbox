@@ -281,7 +281,15 @@ classdef Collection < dynamicprops
 
             copyfile(templateRun.modelPath, newModelPath);
 
-            copyfile(templateRun.cagesPath, regexprep(templateRun.cagesPath, '\-(\w+)', ['-', newRunLabel]));
+            newCagesPath = regexprep(templateRun.cagesPath, '\-(\w+)', ['-', newRunLabel]);
+            
+            % dont overwrite
+            if exist(newCagesPath, 'file')
+                warning('Cage file already exists. Using existing cages')
+            else
+                copyfile(templateRun.cagesPath, newCagesPath);
+            end
+            
             copyfile(templateRun.inputsFilePath, regexprep(templateRun.inputsFilePath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']));
             copyfile(templateRun.runtimePath, regexprep(templateRun.runtimePath, '-(\w+)\-(NONE|EMBZ|TFBZ)', ['-', newRunLabel, '-$2']));
 
