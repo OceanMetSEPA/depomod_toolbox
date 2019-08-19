@@ -191,7 +191,7 @@ classdef Collection < dynamicprops
             
             if v == 1
                 for rfn = 1:length(C.filenames)
-                    AutoDepomod.Run.Base.parseRunNumber(C.filenames{rfn})
+                    AutoDepomod.Run.Base.parseRunNumber(C.filenames{rfn});
                     C.labels{rfn,1} = num2str(AutoDepomod.Run.Base.parseRunNumber(C.filenames{rfn}));
                 end
             elseif v == 2

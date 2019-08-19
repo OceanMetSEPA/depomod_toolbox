@@ -61,7 +61,7 @@ classdef EmBZ
               switch varargin{i}
                 case 'extendDays'
                   extendDays = varargin{i+1};
-                case 'plt'
+                case 'plot'
                   plt = varargin{i+1};
               end
             end

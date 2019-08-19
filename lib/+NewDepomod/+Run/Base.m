@@ -466,9 +466,9 @@ classdef Base < Depomod.Run.Base
         end
         
         function syncRunDurationWithInputs(R, varargin)
-            hours = str2num(R.inputsFile.FeedInputs.numberOfTimeSteps)
+            hours = str2num(R.inputsFile.FeedInputs.numberOfTimeSteps);
             
-            R.setRunDurationDays(hours/24.0, varargin{:})
+            R.setRunDurationDays(hours/24.0, varargin{:});
         end
         
         function syncCageID(R)            
@@ -556,6 +556,7 @@ classdef Base < Depomod.Run.Base
         function s = sur(R, varargin) % shortcut method/backwards compatibility
             type      = 'solids';
             
+            verbose   = 1;
             gIndex    = 0;
             timestamp = [];
             resultsPath = R.resultsPath;
@@ -571,6 +572,8 @@ classdef Base < Depomod.Run.Base
                   timestamp = varargin{i+1};
                 case 'resultsPath'
                   resultsPath = varargin{i+1};
+                case 'verbose'
+                  verbose = varargin{i+1};
               end
             end
             
@@ -578,6 +581,10 @@ classdef Base < Depomod.Run.Base
                 s = {};
                 
                 for t = 1:length(timestamp)
+                    if verbose
+                        disp(['Reading sur file at ', num2str(timestamp(t))])
+                    end
+                    
                     s{t} = R.initializeSur(R.surPath(type, 'g', gIndex, 't', timestamp(t), 'resultsPath', resultsPath));
                 end
             else

@@ -24,3 +24,6 @@ Model.writeIntermediateFiles=false
 Transports.dropOutOfDomain=false
 RelseaseManager.numberOfParticlesPerCageScopingRuns=1
 RelseaseManager.releaseCycleMode=SINGLERELEASE
+Transports.recordSurfaces=true
+Transports.record.units=s
+Transports.recordTimes=

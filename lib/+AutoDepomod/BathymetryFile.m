@@ -140,7 +140,7 @@ classdef BathymetryFile < handle
             end
             
             shading flat;
-            
+
             colormap(bone);
             map = colormap;
             map(end,:) = [0 0.3 0];

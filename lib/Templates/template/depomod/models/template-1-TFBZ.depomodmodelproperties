@@ -13,3 +13,5 @@ ModelTime.endTime=1728000000
 ModelTime.releasePeriod=1296000000
 ModelTime.startTime=0
 ModelTime.timeUnitsSiConversionFactor=0.001
+Transports.aggregateSurfaces=false
+Transports.aggregateTimes= 

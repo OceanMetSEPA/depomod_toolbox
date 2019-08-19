@@ -48,12 +48,38 @@ classdef (Abstract) Base
             cage.length  = str2double(columns{6});
             cage.width   = str2double(columns{5});
             cage.height  = str2double(columns{7});
+            
+            % ensure identical dimensions if circular.
+            if cage.width ~= cage.length
+                val = max([cage.width, cage.length]);
+               
+                cage.length  = val;
+                cage.width   = val;
+            end
         end
         
     end
     
     methods
+        function s = shape(C)
+            s = 'square';
+            
+            if isequal(class(C), 'Depomod.Layout.Cage.Circle')
+                s = 'circle';
+            end
+        end
         
+        function bool = isCircle(C)
+            bool = isequal(C.shape, 'circle')
+        end
+        
+        function bool = isSquare(C)
+            bool = isequal(C.shape, 'square')
+        end
+        
+        function bool = isRectangular(C)
+            bool = isequal(C.shape, 'square')
+        end                
        
     end
     

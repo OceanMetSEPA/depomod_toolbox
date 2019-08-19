@@ -65,11 +65,18 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                 end   
             end
             
-            originE = str2num(B.Domain.spatial.minX);
-            originN = str2num(B.Domain.spatial.minY);
-            maxE    = str2num(B.Domain.spatial.maxX);
-            maxN    = str2num(B.Domain.spatial.maxY);
-            
+            if 0%(isfield(B.Domain.spatial,'bounds'))
+                originE = str2num(B.Domain.spatial.bounds.minX);
+                originN = str2num(B.Domain.spatial.bounds.minY);
+                maxE    = str2num(B.Domain.spatial.bounds.maxX);
+                maxN    = str2num(B.Domain.spatial.bounds.maxY);
+            else
+                originE = str2num(B.Domain.spatial.minX);
+                originN = str2num(B.Domain.spatial.minY);
+                maxE    = str2num(B.Domain.spatial.maxX);
+                maxN    = str2num(B.Domain.spatial.maxY);
+            end
+
             ngridi = str2num(B.Domain.data.numberOfElementsX);
             ngridj = str2num(B.Domain.data.numberOfElementsY);            
             
