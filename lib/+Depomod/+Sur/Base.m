@@ -271,7 +271,7 @@ classdef (Abstract) Base < handle
             y = S.Y(yi);
         end
         
-        function a = area(S, level)
+        function a = area(S, level, varargin)
             % Returns the area covered by a specified contour level as described by the .sur file
             % data.
             %
@@ -296,13 +296,20 @@ classdef (Abstract) Base < handle
             %      2.357746604253981e+05
             %
 
+            contourArea = 0;
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+                switch varargin{i}
+                    case 'contourArea' % Set easting if passed in explicitly
+                        contourArea = varargin{i+1};
+                end
+            end  
+            
             if ~exist('level','var')
                 level = 0;
             end
 
-            if level == 0
-                a = S.domainSizeX * S.domainSizeY; % entire km2
-            else
+            if contourArea 
                 
                 c = S.contour(level);
                 
@@ -328,6 +335,8 @@ classdef (Abstract) Base < handle
                     a = a + thisArea;
                 end
                 
+            else
+                a = sum(sum(S.Z>level))*S.cellSizeX*S.cellSizeY;
             end
         end
         
@@ -438,6 +447,7 @@ classdef (Abstract) Base < handle
             %
 
             ave = S.volume(level)/S.area(level);
+%             ave = S.volume(level)/S.area(level, 'contourArea', 0);
         end
         
         function [gc] = numberOfGridCells(S)
@@ -614,7 +624,7 @@ classdef (Abstract) Base < handle
               end
             end  
             
-            figure;
+%             figure;
                         
             switch type
                 case 'pcolor'
@@ -626,7 +636,6 @@ classdef (Abstract) Base < handle
                 case 'contour'
                   contourf(S.X, S.Y, S.Z, 'LineStyle', 'none');
             end
-            
             
             title(S.path);
         end

@@ -121,7 +121,8 @@ classdef (Abstract) Base < handle
             plotCages = 1;
             cageSize  = 1;
             visible   = 'on';
-            contour   = 1;
+            bathyContour  = 1;
+            impactContour = 0;
             levels    = [];
             color     = 'red';
             
@@ -148,15 +149,17 @@ classdef (Abstract) Base < handle
                   impact = 1; % if sur passed, definately plot an impact
                 case 'visible'
                   visible = varargin{i+1};
-                case 'contour'
-                  contour = varargin{i+1};
+                case 'bathyContour'
+                  bathyContour = varargin{i+1};
+                case 'impactContour'
+                  impactContour = varargin{i+1};
                 case 'color'
                   color = varargin{i+1};
               end
             end
                         
             F = figure('visible', visible);
-            R.project.bathymetry.plot('contour', contour);    
+            R.project.bathymetry.plot('contour', bathyContour);    
             daspect([1 1 1]);
             hold on
             set(gcf,'units','points','position',[x0,y0,width,height]);
@@ -183,56 +186,85 @@ classdef (Abstract) Base < handle
                 end
                 
                 noLevels = length(levels);
-                
                 legendContours = [];
                 legendlabels   = {};
+                
+                if impactContour
 
-                for l = 1:noLevels
-                    level = levels(l);
-
-                    contr = sur.contour(level);
-
-                    val = 0.1 + ((0.5/noLevels) * (l));
-
-                    i = 1;
-                    contourhandle  = [];
-
-                    while i <= size(contr,2)
-                        x = [];
-                        y = [];
-
-                        for j = i+1:i+contr(2,i)
-                            x(1,end+1) = contr(1,j);
-                            y(1,end+1) = contr(2,j);
-                        end
-                                                
-                        figure(F);
-                        validIndexes = ~isnan(x) & ~isnan(y);
-                        contourhandle = fill(x(validIndexes),y(validIndexes), color, 'FaceAlpha', val, 'LineStyle', ':');
-
-                        i = i + contr(2,i) + 1;
-                    end
+                    % Plot impact as a contour
                     
-                    if exist('contourhandle', 'var') & ~isempty(contourhandle)
-                        legendContours(end+1) = contourhandle;
-                        legendlabels{end+1}   = [ num2str(level), ' ', sur.defaultUnit];
+                    for l = 1:noLevels
+                        level = levels(l);
+
+                        contr = sur.contour(level);
+
+                        val = 0.1 + ((0.5/noLevels) * (l));
+
+                        i = 1;
+                        contourhandle  = [];
+
+                        while i <= size(contr,2)
+                            x = [];
+                            y = [];
+
+                            for j = i+1:i+contr(2,i)
+                                x(1,end+1) = contr(1,j);
+                                y(1,end+1) = contr(2,j);
+                            end
+
+                            figure(F);
+                            validIndexes = ~isnan(x) & ~isnan(y);
+                            contourhandle = fill(x(validIndexes),y(validIndexes), color, 'FaceAlpha', val, 'LineStyle', ':');
+
+                            i = i + contr(2,i) + 1;
+                        end
+
+                        if exist('contourhandle', 'var') & ~isempty(contourhandle)
+                            legendContours(end+1) = contourhandle;
+                            legendlabels{end+1}   = [ num2str(level), ' ', sur.defaultUnit];
+                        end
                     end
+                else
+                    % Plot impact cellwise
+                    
+                    [E,N] = R.project.bathymetry.cellNodes;
+
+                    Z = sur.Z;
+                    Z(Z==0)=NaN;
+                    Z = reshape(fliplr(flipud(Z)), 1, []);
+                   
+                    for l = 1:noLevels
+                        level = levels(l);
+                        
+                        idxs=Z>level;
+
+                        patchHandle = patch(E(idxs,[1 3 4 2])',N(idxs,[1 3 4 2])', ...
+                            'r', ...
+                            'EdgeColor','none', ...
+                            'FaceAlpha',0.25 ...
+                        );
+                    
+                        if exist('patchHandle', 'var') & ~isempty(patchHandle)
+                            legendContours(end+1) = patchHandle;
+                            legendlabels{end+1}   = [ num2str(level), ' ', sur.defaultUnit];
+                        end
+                        
+                     end                    
                 end
                 
                 if ~isempty(legendContours)
                     if str2num(mv(1:4)) < 2017
                         leg = legend(legendContours,legendlabels);
                     else
-                        leg = legend(legendContours,legendlabels, 'AutoUpdate', 'off');
+                        [~,leg] = legend(legendContours,legendlabels, 'AutoUpdate', 'off');
                     end
 
-                    PatchInLegend = findobj(leg, 'type', 'patch'); 
+                    PatchInLegend = findobj(leg, 'type', 'patch')
 
-                    % to find the patch objects in your legend. You can then set their transparency using 
                     for l = 1:size(PatchInLegend,1)
-                        % start with alpha 0.5 and split the rest between 0.5-1.0
+                        % start with alpha 0.25 and split the rest between 0.5-1.0
 
-                        val = 0.25 + (0.5-(0.5/noLevels) * (l - 1));
+                        val = 0.75 - (0.5-(0.5/noLevels) * (l - 1));
                         set(PatchInLegend(l), 'facea', val);               
                     end
                 end
