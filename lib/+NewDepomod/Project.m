@@ -61,9 +61,9 @@ classdef Project < Depomod.Project
         
         function p = templatePath()
             packageDir = what('+NewDepomod\');
-            dirPathParts = strsplit(packageDir.path, '\');
-
-            p = [strjoin(dirPathParts(1:end-1), '\'), '\Templates'];
+%             dirPathParts = strsplit(packageDir.path, '\');
+%             p = [strjoin(dirPathParts(1:end-1), '\'), '\Templates'];
+            p = strrep(packageDir.path, '+NewDepomod', 'Templates');
         end
         
         function P = templateProject()
