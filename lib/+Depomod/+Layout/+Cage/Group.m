@@ -76,7 +76,7 @@ classdef Group
         end
         
         function s = size(G)
-            s = length(G.cages);
+            s = numel(G.cages);
         end         
         
         function [meanE, meanN] = meanCagePosition(G)
@@ -92,6 +92,33 @@ classdef Group
 
             meanE = cumE/G.size;
             meanN = cumN/G.size;
+        end
+        
+        function m = spacingMatrix(S)
+            % cage wise relative distances
+            
+            c = S.cages;
+            
+            m = zeros(numel(c), numel(c));
+            
+            for i = 1:numel(c)
+                cagei = c{i};
+                for j = 1:numel(c)
+                    cagej = c{j};
+                    m(i,j) = sqrt((cagei.x-cagej.x)^2 + (cagei.y-cagej.y)^2);
+                end
+            end
+        end
+        
+        function s = spacing(G)
+            % returns notional spacing of cages.
+            % Assumes that cages are symetrically spaced and identifies
+            % mean distance of each cage to nearest neighbouring cage
+            
+            m = G.spacingMatrix ;
+            m = sort(m,2);
+           
+            s = mean(m(:,2));           
         end
         
     end

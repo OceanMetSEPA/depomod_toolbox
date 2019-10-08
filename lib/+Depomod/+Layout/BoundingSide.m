@@ -32,7 +32,7 @@ classdef BoundingSide< dynamicprops
             BS.setBearingsFromPoints;
             
             if ~isempty(boundingBox)
-                BB.BoundingBox = boundingBox;
+                BS.BoundingBox = boundingBox;
             end
         end
         
@@ -86,6 +86,48 @@ classdef BoundingSide< dynamicprops
         function [e,n] = midpoint(BS)
             distance = BS.length/2.0;
             [e,n] = BS.coordinatesAtDistance(distance);
+        end
+        
+        function [cages, cageInfo] = cages(BS)
+           % returns the cages which are positioned along the bounding
+           % side. Specifically, the distance from the cage midpoint to the
+           % side is calculated and any cages which have their midpoint a
+           % half-width away are included. A 5 m tolterance is presumed.
+           
+           cages = BS.BoundingBox.Cages.consolidatedCages.cages;
+           
+           cageInfo = [];
+           
+           for i = 1:BS.BoundingBox.Cages.sizeCages
+               x = cages{i}.x;
+               y = cages{i}.y;
+               width = cages{i}.width;
+               
+               bearing = BS.OutwardBearing;
+            
+               radial_m    = (cosd(bearing)/sind(bearing));
+               radial_c    = y - radial_m * x;
+               radial_x(1) = x;
+
+               direction = 1;
+
+               if bearing > 180 & bearing < 360
+                   direction = -1;
+               end
+
+               radial_x(2) = x + direction * (9999 * cosd(atand(radial_m)));
+               radial_y    = radial_m.*radial_x + radial_c; 
+
+               [e,n] = BS.lineIntersectPoint(radial_x, radial_y);
+               
+               distance = sqrt((e-x)^2+(n-y)^2);
+               
+               cageInfo(i,1) = distance;
+               cageInfo(i,2) = width/2.0;
+               cageInfo(i,3) = abs(distance - width/2.0) < 5;
+           end
+           
+           cages = cages(logical(cageInfo(:,3))); 
         end
         
         function [e,n] = lineIntersectPoint(BS, x, y)

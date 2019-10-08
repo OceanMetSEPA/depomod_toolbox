@@ -65,7 +65,13 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                 end   
             end
             
-            if 0%(isfield(B.Domain.spatial,'bounds'))
+            % Don't allow contour plot with completely uniform bathymetry
+            % (including where no coastline is present)
+            if all(B.data == B.data(1,1))
+                contour = 0;
+            end
+            
+            if (isfield(B.Domain.spatial,'bounds'))
                 originE = str2num(B.Domain.spatial.bounds.minX);
                 originN = str2num(B.Domain.spatial.bounds.minY);
                 maxE    = str2num(B.Domain.spatial.bounds.maxX);
@@ -84,7 +90,7 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
                 linspace(originE,maxE,ngridi), ...
                 linspace(originN,maxN,ngridj) ...
             );
-            
+
             if contour
                 [~,pl] = contourf(X,Y,flipud(B.data), 'LineStyle', 'none');
             else
@@ -95,8 +101,8 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             
             shading flat;
             
-            colormap(B.colormap);
-            c = colorbar;
+            colormap(B.colormap)
+            c = colorbar
             ylabel(c,'depth (m)');
             
             mv = version('-release');
@@ -116,7 +122,11 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
         end
         
         function map = colormap(B)
-            map = colormap(bone(ceil(max(B.data(:)-min(B.data(:))))));
+            map = colormap(...
+                bone(...
+                    max(...
+                       [ceil(max(B.data(:))-min(B.data(:))),1]...
+                       )));
             
             if max(B.data(:)) >= 10
                 % colour the land green

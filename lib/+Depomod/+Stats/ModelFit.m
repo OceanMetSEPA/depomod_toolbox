@@ -37,6 +37,40 @@ classdef ModelFit < dynamicprops
             
             MF.setDataFromSurveys;
         end
+        
+        function MF = createFromMultiSurveys(surveys, modelSurveys, varargin)
+            MF = Depomod.Stats.ModelFit;
+            MF.OffsetX = 0;
+            MF.OffsetY = 0;
+            
+            for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
+                switch varargin{i}
+                    case 'offsetX' % 
+                        MF.OffsetX = varargin{i+1};
+                    case 'offsetY' % 
+                        MF.OffsetY = varargin{i+1};
+                end
+            end
+            
+            for s = 1:numel(surveys)
+                mf = Depomod.Stats.ModelFit;
+                mf.Survey      = surveys{s};
+                mf.ModelSurvey = modelSurveys{s}
+                mf.OffsetX = MF.OffsetX;
+                mf.OffsetY = MF.OffsetY;
+                
+                mf.setDataFromSurveys;
+                
+                surveyData = mf.Survey.toMatrix;
+                modelData  = mf.ModelSurvey.toMatrix;
+
+                MF.Eastings    = vertcat(MF.Eastings,    surveyData(:,6));
+                MF.Northings   = vertcat(MF.Northings,   surveyData(:,7));
+                MF.Values      = vertcat(MF.Values,      surveyData(:,9));
+                MF.ModelValues = vertcat(MF.ModelValues, modelData(:,9));  
+            end
+            
+        end
     end
     
     methods

@@ -33,7 +33,8 @@ classdef BoundingBox < dynamicprops
                     endIdx = 1;
                 end
                 
-               BB.Sides(bs) = Depomod.Layout.BoundingSide(BB.Corners([startIdx endIdx], :));                
+               BB.Sides(bs) = Depomod.Layout.BoundingSide(BB.Corners([startIdx endIdx], :),...
+                   'boundingBox', BB);                
             end
             
             BB.setCentre;
@@ -173,9 +174,16 @@ classdef BoundingBox < dynamicprops
             BB.Centre(2) = mean(BB.Corners(:,2));
         end
         
-        function plot(BB)
+        function plotCorners(BB)
             e = BB.Centre(1);
             n = BB.Centre(2);
+            
+            % offset text by 25 m from point in direction of coner bearing
+            bearings = BB.cornerBearings;
+            unitVectors = [sind(bearings'), cosd(bearings')];
+            % double this offset for westward pointing corners to account
+            % for text width
+            textOffset  = (unitVectors(:,1) < 0) + 1;
             
             scatter3(e, n, 10, 15, 'y', 'filled');
             
@@ -187,11 +195,42 @@ classdef BoundingBox < dynamicprops
                 'g', 'filled');
 
              text(...
-                 BB.Corners(:,1)+25,...
-                 BB.Corners(:,2),...
+                 BB.Corners(:,1)+25.*textOffset.*unitVectors(:,1),...
+                 BB.Corners(:,2)+25.*textOffset.*unitVectors(:,2),...
                  arrayfun(@num2str, 1:4, 'Uniform', false),...
                  'Color',...
-                 'w');
+                 'g');
+        end
+        
+        function plotSides(BB)
+            
+            for i = 1:4
+                j = i+1;
+                
+                if i == 4
+                    j = 1;
+                end
+                
+                plot(...
+                    [BB.Corners(i,1) BB.Corners(j,1)], ...
+                    [BB.Corners(i,2) BB.Corners(j,2)], ...
+                    'y');
+
+                % offset text by 25 m from point in direction of coner bearing
+                [e,n]      = BB.Sides(i).midpoint;
+                bearing    = BB.Sides(i).OutwardBearing;
+                unitVector = [sind(bearing), cosd(bearing)];
+                % double this offset for westward pointing corners to account
+                % for text width
+                textOffset = (unitVector(1) < 0) + 1;
+                
+                text(...
+                    e+25*textOffset*unitVector(1),...
+                    n+25*textOffset*unitVector(2),...
+                    num2str(i),...
+                    'Color',...
+                    'y');
+            end
         end
         
     end

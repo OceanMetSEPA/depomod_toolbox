@@ -146,7 +146,7 @@ classdef (Abstract) Base < handle
                   cageSize = varargin{i+1};
                 case 'sur'
                   sur = varargin{i+1};
-                  impact = 1; % if sur passed, definately plot an impact
+                  impact = 1; % if sur passed, definitely plot an impact
                 case 'visible'
                   visible = varargin{i+1};
                 case 'bathyContour'
@@ -159,7 +159,7 @@ classdef (Abstract) Base < handle
             end
                         
             F = figure('visible', visible);
-            R.project.bathymetry.plot('contour', bathyContour);    
+            R.project.bathymetry.plot('contour', bathyContour); 
             daspect([1 1 1]);
             hold on
             set(gcf,'units','points','position',[x0,y0,width,height]);

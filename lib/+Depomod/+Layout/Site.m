@@ -1,4 +1,4 @@
-classdef Site
+classdef Site < dynamicprops
     
     properties
         cageGroups = {};
@@ -199,7 +199,7 @@ classdef Site
             end
         end
         
-        function cc = consolidatedCages(S)
+        function cc = consolidatedCages(S)            
             cc = Depomod.Layout.Cage.Group;
             
             for g = 1:S.size
@@ -207,6 +207,13 @@ classdef Site
                     cc.cages{end+1} = S.group(g).cage(c);
                 end
             end
+        end
+        
+        function consolidateCages(S)
+            cages = S.consolidatedCages;
+            
+            S.cageGroups = {};
+            S.cageGroups{1} = cages;            
         end
         
         function [meanE, meanN] = meanCagePosition(S)
@@ -383,6 +390,17 @@ classdef Site
            BB = Depomod.Layout.BoundingBox.createFromCages(S); 
         end
         
+        function s = cageSpacing(S)
+            % Returns the notional cage spacing for each cage group
+            
+            s = [];
+            
+            for g = 1:S.size 
+                group = S.group(g);
+                s(g)  = group.spacing;
+            end
+        end
+                
         function sizeInBytes = toFile(S, filePath)
             % this currently only tries to write 1 cage group
             
