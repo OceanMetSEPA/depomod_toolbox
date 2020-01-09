@@ -3,6 +3,7 @@ classdef (Abstract) Base
     properties
         x@double;
         y@double;
+        angle@double; % TS added this property 20191209
         length@double
         width@double;
         height@double;
@@ -19,7 +20,7 @@ classdef (Abstract) Base
             
             if isequal(type, 'CIRCULAR')
                 cage = Depomod.Layout.Cage.Circle;
-            elseif isequal(type, 'SQUARE') | isequal(type, 'RECTANGULAR')
+            elseif isequal(type, 'SQUARE') || isequal(type, 'RECTANGULAR')
                 cage = Depomod.Layout.Cage.Square;
             end
             
@@ -45,6 +46,7 @@ classdef (Abstract) Base
             
             cage.x       = str2double(columns{1});
             cage.y       = str2double(columns{2});
+            cage.angle   = str2double(columns{3}); % TS changed this 20191209
             cage.length  = str2double(columns{6});
             cage.width   = str2double(columns{5});
             cage.height  = str2double(columns{7});
@@ -70,15 +72,15 @@ classdef (Abstract) Base
         end
         
         function bool = isCircle(C)
-            bool = isequal(C.shape, 'circle')
+            bool = isequal(C.shape, 'circle');
         end
         
         function bool = isSquare(C)
-            bool = isequal(C.shape, 'square')
+            bool = isequal(C.shape, 'square');
         end
         
         function bool = isRectangular(C)
-            bool = isequal(C.shape, 'square')
+            bool = isequal(C.shape, 'square');
         end                
        
     end
