@@ -120,16 +120,18 @@ classdef Site < dynamicprops
                     otherwise
                         error('%s calculation not implemented',cageShape)
                 end
+                if ~ispolycw(cageStruct(ss).x,cageStruct(ss).y)
+                    [cageStruct(ss).x,cageStruct(ss).y]=poly2cw(cageStruct(ss).x,cageStruct(ss).y);
+                end
             end
+            
             [x, y] = polybool('union', cageStruct(1).x, cageStruct(1).y, cageStruct(1).x, cageStruct(1).y);
             
-            for ss = 2:length(cages)
-                
+            for ss = 2:length(cages)                
                 x1 = x;
                 y1 = y;
                 x2 = cageStruct(ss).x;
                 y2 = cageStruct(ss).y;
-                
                 [x, y] = polybool('union', x1, y1, x2, y2);
             end
             if plotPerimeter
@@ -137,7 +139,7 @@ classdef Site < dynamicprops
                 plot(x,y);
                 daspect([1 1 1]);
             end
-        end
+          end
         
         function a = compositeArea(S, varargin)
             radialDistance  = 100; % m
@@ -181,31 +183,31 @@ classdef Site < dynamicprops
         
         function [e,n, distance] = nearestCageEdgeLocationToPoint(S, x, y)
             % Find nearest point on perimeter to x,y
-              [ep,np] = S.cagePerimeter('radialDistance', 0);
-              % We can redo Andy's distance calculation without a loop:
-              dist=sqrt((ep-x).^2+(np-y).^2); % Distance between x,y and all points on perimeter
-              k=find(dist==min(dist));
-              k=k(1); % in case we're equidistant between points, just pick first one
-              e=ep(k);
-              n=np(k);
-              distance=dist(k);
-%             [ep,np] = S.cagePerimeter('radialDistance', 0);
-%             e = [];
-%             n = [];
-%             
-%             distance = 99999999 ;
-%             %            th = 0:pi/50:2*pi;
-%             
-%             for ss = 1:numel(ep)
-%                 
-%                 d = sqrt((ep(ss) - x)^2 + (np(ss) - y)^2);
-%                 
-%                 if d < distance
-%                     distance = d;
-%                     e = ep(ss);
-%                     n = np(ss);
-%                 end
-%             end
+            [ep,np] = S.cagePerimeter('radialDistance', 0);
+            % We can redo Andy's distance calculation without a loop:
+            dist=sqrt((ep-x).^2+(np-y).^2); % Distance between x,y and all points on perimeter
+            k=find(dist==min(dist));
+            k=k(1); % in case we're equidistant between points, just pick first one
+            e=ep(k);
+            n=np(k);
+            distance=dist(k);
+            %             [ep,np] = S.cagePerimeter('radialDistance', 0);
+            %             e = [];
+            %             n = [];
+            %
+            %             distance = 99999999 ;
+            %             %            th = 0:pi/50:2*pi;
+            %
+            %             for ss = 1:numel(ep)
+            %
+            %                 d = sqrt((ep(ss) - x)^2 + (np(ss) - y)^2);
+            %
+            %                 if d < distance
+            %                     distance = d;
+            %                     e = ep(ss);
+            %                     n = np(ss);
+            %                 end
+            %             end
         end
         
         function cc = consolidatedCages(S)
@@ -400,7 +402,7 @@ classdef Site < dynamicprops
             
             if ~exist('filePath', 'var')
                 filePath = S.path;
-                warning('No file path given. Existing source file will be overwritten.')
+                warning('Site.m : No file path given. Existing source file will be overwritten.')
             end
             
             % get an XML cage template
