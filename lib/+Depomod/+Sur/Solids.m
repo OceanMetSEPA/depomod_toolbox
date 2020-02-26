@@ -9,7 +9,8 @@ classdef Solids < Depomod.Sur.Base
          
     properties
         rawDataValueCol   = 'outCol1'; % column in the raw data that holds the flux data
-        defaultPlotLevels = [4,192,1553,10000];
+        %defaultPlotLevels = [4,192,1553,10000];
+        defaultPlotLevels = [1,250,1000]; % Defaults for new standards (20200226)
         defaultUnit       = 'g m^{-2}';
     end
         
