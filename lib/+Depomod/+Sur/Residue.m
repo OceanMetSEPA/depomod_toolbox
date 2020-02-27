@@ -28,9 +28,11 @@ classdef Residue < Depomod.Sur.Base
          
     properties
         rawDataValueCol   = 'outCol2'; % column in the raw data holds the concentration data
-        %defaultPlotLevels = [0.1, 0.763, 2.0, 10.0 25.0]; % Defaults for old Depomod
         defaultPlotLevels = [0.00604, 0.01183 0.763]; % Gunda suggested these defaults 20200226
-        %defaultUnit       = 'ug kg^{-1}';
+        % They correspond to:
+        % 0.00604 µg/kg : wet weight (new EQS, equivalent to 12ng/kg dry weight)
+        % 0.01183 µg/kg : new UKTag EQS
+        % 0.763 µg/kg   : old EQS
         defaultUnit       = 'µg kg^{-1}';
     end
         
