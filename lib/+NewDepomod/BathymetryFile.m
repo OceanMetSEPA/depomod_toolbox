@@ -102,7 +102,7 @@ classdef BathymetryFile < NewDepomod.DataPropertiesFile
             shading flat;
             
             colormap(B.colormap)
-            c = colorbar
+            c = colorbar;
             ylabel(c,'depth (m)');
             
             mv = version('-release');
