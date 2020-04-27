@@ -33,7 +33,8 @@ classdef Residue < Depomod.Sur.Base
         % 0.00604 µg/kg : wet weight (new EQS, equivalent to 12ng/kg dry weight)
         % 0.01183 µg/kg : new UKTag EQS
         % 0.763 µg/kg   : old EQS
-        defaultUnit       = 'µg kg^{-1}';
+        % defaultUnit       = 'µg kg^{-1}';
+        defaultUnit=sprintf('%cg kg^{-1}',181); % mu symbol gets corrupted by itself for some reason. 181 is ascii value for µ
     end
         
     methods      
