@@ -226,7 +226,34 @@ classdef (Abstract) Base < handle
                 else
                     % Plot impact cellwise
                     
-                    [E,N] = R.project.bathymetry.cellNodes;
+%                    [E,N] = R.project.bathymetry.cellNodes;
+                    % Using E,N coordinates from above gives unrealistic (e.g. impact on land) when
+                    % bathy size < sur size.
+                    % Here we generate x,y vectors covering extent of domain with size matching
+                    % sur.Z value. This seems to fix things.
+                    % Andy used double for loop to populate E,N. But can do it by manipulating meshgrid.
+                    dom=R.project.bathymetry.Domain.spatial;
+                    minX=str2double(dom.minX);
+                    minY=str2double(dom.minY);
+                    maxX=str2double(dom.maxX);
+                    maxY=str2double(dom.maxY);
+                    Nx=length(sur.X)+1;
+                    Ny=length(sur.Y)+1;
+                    X=linspace(minX,maxX,Nx);
+                    Y=linspace(minY,maxY,Ny);
+                    [xg,yg]=meshgrid(X,Y);
+                    x1=xg(1:end-1,1:end-1);
+                    x2=xg(2:end,2:end);
+                    x1=x1(:);
+                    x2=x2(:);
+                    E=[x1,x1,x2,x2];
+                    
+                    y1=yg(1:end-1,1:end-1);
+                    y2=yg(2:end,2:end);
+                    y1=y1(:);
+                    y2=y2(:);
+                    N=[y1,y2,y1,y2];
+                    % End of X,Y manipulation
                     Z = sur.Z;
                     Z(Z==0)=NaN;
                     
