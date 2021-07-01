@@ -1,0 +1,16 @@
+Model.iterationParameter=OVERTREATMENTFACTOR
+Model.run.compound=EMBZ
+Model.run.number=1
+Model.run.numberOfParticles=10
+Model.run.plugLoadPeriod=5352
+Model.run.runType=REFINING
+Model.run.tag=1
+Model.run.tide=N
+Model.run.useNumber=true
+ModelTime.delta=60000
+ModelTime.endTime=10195200000
+ModelTime.releasePeriod=10195200000
+ModelTime.startTime=0
+ModelTime.timeUnitsSiConversionFactor=0.001
+Transports.aggregateSurfaces=false
+Transports.aggregateTimes= 
