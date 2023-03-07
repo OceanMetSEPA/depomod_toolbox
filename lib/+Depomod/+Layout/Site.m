@@ -171,9 +171,9 @@ classdef Site < dynamicprops
                 a = polyarea(x(1:(idx(1)-1)), y(1:(idx(1)-1)));
                 for pidx = 1:numel(idx)
                     if pidx == numel(idx)
-                        a = a + polyarea(x((idx(pidx)+1):end), y((idx(pidx)+1):end));
+                        a = a - polyarea(x((idx(pidx)+1):end), y((idx(pidx)+1):end));
                     else
-                        a = a + polyarea(x((idx(pidx)+1):(idx(pidx+1)-1)), y((idx(pidx)+1):(idx(pidx+1)-1)));
+                        a = a - polyarea(x((idx(pidx)+1):(idx(pidx+1)-1)), y((idx(pidx)+1):(idx(pidx+1)-1)));
                     end
                 end
             else
