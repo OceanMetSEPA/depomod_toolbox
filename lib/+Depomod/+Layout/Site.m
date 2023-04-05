@@ -125,14 +125,22 @@ classdef Site < dynamicprops
                 end
             end
             
-            [x, y] = polybool('union', cageStruct(1).x, cageStruct(1).y, cageStruct(1).x, cageStruct(1).y);
+            %[x, y] = polybool('union', cageStruct(1).x, cageStruct(1).y, cageStruct(1).x, cageStruct(1).y);
+            A = polyshape(cageStruct(1).x,cageStruct(1).y,'Simplify',false); 
+            [x,y] = boundary(A);
+
             
             for ss = 2:length(cages)                
                 x1 = x;
                 y1 = y;
                 x2 = cageStruct(ss).x;
                 y2 = cageStruct(ss).y;
-                [x, y] = polybool('union', x1, y1, x2, y2);
+                %[x, y] = polybool('union', x1, y1, x2, y2);
+                B = polyshape(x1,y1,'Simplify',false); 
+                C = polyshape(x2,y2,'Simplify',false); 
+                D = union(B,C);
+                [x,y] = boundary(D);
+
             end
             if plotPerimeter
                 figure;
