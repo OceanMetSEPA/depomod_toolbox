@@ -73,9 +73,9 @@ classdef Project < Depomod.Project
     end
     
     properties
-        location@NewDepomod.PropertiesFile;
-        bathymetry% @NewDepomod.BathymetryFile
-        flowmetry@NewDepomod.FlowmetryFile
+        location NewDepomod.PropertiesFile;
+        bathymetry% NewDepomod.BathymetryFile
+        flowmetry NewDepomod.FlowmetryFile
     end
     
     methods
