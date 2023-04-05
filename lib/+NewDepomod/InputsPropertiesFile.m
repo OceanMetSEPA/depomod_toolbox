@@ -34,7 +34,8 @@ classdef InputsPropertiesFile < NewDepomod.DataPropertiesFile
             IPF.FeedInputs.stockingDensity = num2str(biomass * 1000.0 / IPF.run.cages.cageVolume);
             
             feedWaterPercentage = 9;
-            feedWastePercentage = 3;
+            %feedWastePercentage = 3;
+            feedWastePercentage = 1;
             feedAbsorbedPercentage = 85;
             feedCarbonPercentage   = 49;
             faecesCarbonPercentage = 30;
