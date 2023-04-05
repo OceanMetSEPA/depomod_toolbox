@@ -124,16 +124,16 @@ classdef Base < Depomod.Run.Base
     end
     
     properties
-        modelFile@NewDepomod.PropertiesFile;
-        physicalPropertiesFile@NewDepomod.PropertiesFile;
-        configurationFile@NewDepomod.PropertiesFile;
-        runtimeFile@NewDepomod.PropertiesFile;
-        inputsFile@NewDepomod.InputsPropertiesFile;
-        iterationInputsFile@NewDepomod.InputsPropertiesFile;
-        exportedTimeSeriesFile@NewDepomod.TimeSeriesFile;
-        consolidatedTimeSeriesFile@NewDepomod.TimeSeriesFile;
-        solidsSur@Depomod.Sur.Solids;
-        carbonSur@Depomod.Sur.Solids;
+        modelFile NewDepomod.PropertiesFile;
+        physicalPropertiesFile NewDepomod.PropertiesFile;
+        configurationFile NewDepomod.PropertiesFile;
+        runtimeFile NewDepomod.PropertiesFile;
+        inputsFile NewDepomod.InputsPropertiesFile;
+        iterationInputsFile NewDepomod.InputsPropertiesFile;
+        exportedTimeSeriesFile NewDepomod.TimeSeriesFile;
+        consolidatedTimeSeriesFile NewDepomod.TimeSeriesFile;
+        solidsSur Depomod.Sur.Solids;
+        carbonSur Depomod.Sur.Solids;
         label; % generalisation of run number
         iterationRunNumber = [];
         modelFileName = '';
