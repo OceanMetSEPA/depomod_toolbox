@@ -3,9 +3,12 @@ classdef Java
     properties (Constant = true)
         versionName    = 'newDEPOMOD'
         versionNo      = 2;
-        runCommand     = '"C:\Program Files\depomodruntimecontainer\bin\depomodruntimecontainer"';
+        % runCommand     = '"C:\Program Files\depomodruntimecontainer\bin\depomodruntimecontainer"';
         exportCommand  = 'newDEPOMOD\scripts\RunExporter.bat';
     end
+	properties
+		runCommand     = '"C:\Program Files\depomodruntimecontainer\bin\depomodruntimecontainer"';
+	end
     
     methods (Static = true)
         function [newProject, oldProject] = export(run, newProjectPath, varargin)
@@ -101,13 +104,15 @@ classdef Java
         end
                 
         function command = run(J, varargin)
-            command = J.runCommandStringWithOptions(varargin{:});
+            
             commandStringOnly = 0;
             runInBackground   = 1;
             verbose           = 1;
             
             for i = 1:2:length(varargin) % only bother with odd arguments, i.e. the labels
               switch varargin{i}
+				case 'runCommand'
+					J.runCommand = varargin{i+1};
                 case 'commandStringOnly'
                   commandStringOnly = varargin{i+1};
                 case 'runInBackground'
@@ -116,6 +121,8 @@ classdef Java
                   verbose = varargin{i+1};
               end
             end
+			
+			command = J.runCommandStringWithOptions(varargin{:});
             
             if ~commandStringOnly 
                 if verbose

@@ -672,6 +672,7 @@ classdef Base < Depomod.Run.Base
             
             jv = NewDepomod.Java;
 
+			runCommand = '"C:\Program Files\depomodruntimecontainer\bin\depomodruntimecontainer"'
             commandStringOnly = 0;
             singleRunOnly = 1;
             showConsoleOutput = 1;
@@ -680,20 +681,23 @@ classdef Base < Depomod.Run.Base
 
             for i = 1:2:length(varargin)
               switch varargin{i}
-                case 'commandStringOnly'
-                  commandStringOnly = varargin{i+1};
+				case 'runCommand'
+					runCommand = varargin{i+1}
+				case 'commandStringOnly'
+					commandStringOnly = varargin{i+1};
                 case 'singleRunOnly'
-                  singleRunOnly = varargin{i+1};
+					singleRunOnly = varargin{i+1};
                 case 'showConsoleOutput'
-                  showConsoleOutput = varargin{i+1};
+					showConsoleOutput = varargin{i+1};
                 case 'noSplash'
-                  noSplash = varargin{i+1};
+					noSplash = varargin{i+1};
                 case 'runInBackground'
-                  runInBackground = varargin{i+1};
+					runInBackground = varargin{i+1};
               end
             end
 
             cmd = jv.run(...
+				'runCommand', runCommand, ...
                 'singleRunOnly', singleRunOnly, ...
                 'commandStringOnly', commandStringOnly, ...
                 'modelRunTimeFile',    R.runtimePath, ...
