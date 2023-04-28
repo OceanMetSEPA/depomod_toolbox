@@ -1,11 +1,11 @@
 classdef (Abstract) Project < dynamicprops
     
     properties
-        name@char;
-        path@char;
-        solidsRuns@Depomod.Run.Collection;
-        EmBZRuns@Depomod.Run.Collection;
-        TFBZRuns@Depomod.Run.Collection;
+        name char;
+        path char;
+        solidsRuns Depomod.Run.Collection;
+        EmBZRuns Depomod.Run.Collection;
+        TFBZRuns Depomod.Run.Collection;
     end
     
      methods (Static = true)
