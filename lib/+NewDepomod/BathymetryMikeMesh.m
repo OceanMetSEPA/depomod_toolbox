@@ -154,12 +154,17 @@ classdef BathymetryMikeMesh < handle
         
         function h = plot(BMM, varargin)
             mesh = 0;
-            
+            % TPA 08/05/2023
+            numCElems = 0;
+
             if ~isempty(varargin)
                 for i = 1:2:size(varargin,2) % only bother with odd arguments, i.e. the labels
                     switch varargin{i}
-                      case 'mesh'
-                        mesh = varargin{i + 1};
+                        case 'mesh'
+                            mesh = varargin{i + 1};
+                        % TPA 08/05/2023
+                        case 'contour'
+                            numCElems = varargin{i + 1};
                     end
                 end   
             end
@@ -171,8 +176,13 @@ classdef BathymetryMikeMesh < handle
             
             minDepth = max(BMM.NodeZ);
             maxDepth = min(BMM.NodeZ);
-            numCElems = ceil(minDepth) - floor(maxDepth);
-            
+            % TPA 08/05/2023: Encase in "if" to allow effective plotting of a contour by
+            % supplying number of levels as 'bathyContour' argument to main
+            % plot function
+            if numCElems == 0 || numCElems == 1
+                numCElems = ceil(minDepth) - floor(maxDepth);
+            end
+ 
             cmap = colormap(flipud(bone(numCElems)));
             
             bathyColour = zeros(numel(BMM.NodeZ),3);
@@ -189,8 +199,8 @@ classdef BathymetryMikeMesh < handle
                 end
                 
             end
-                        
-            bathyHandle=trisurf(tri,x,y,z,'FaceVertexCData',bathyColour,'FaceColor', 'interp','EdgeColor','none','FaceAlpha',0.7);
+
+            bathyHandle=trisurf(tri,x,y,z,'FaceVertexCData',bathyColour,'FaceColor', 'interp','EdgeColor','none','FaceAlpha',1);
             hold on;
             view(2);
             
@@ -221,6 +231,11 @@ classdef BathymetryMikeMesh < handle
                 xtickformat('%8.f');
                 ytickformat('%8.f');
             end
+            
+            % TPA 08/05/2023: Note that the above attempt to colour the land green does
+            % nothing for an irregular mesh. The line below works, at the
+            % expense of putting extra green around the water boundary too
+            set(gca,'Color',[0 0.3 0])
         end
         
         function boolMatrix = shallowSeabedIndexes(B, depth)

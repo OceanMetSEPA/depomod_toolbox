@@ -232,11 +232,26 @@ classdef (Abstract) Base < handle
                     % Here we generate x,y vectors covering extent of domain with size matching
                     % sur.Z value. This seems to fix things.
                     % Andy used double for loop to populate E,N. But can do it by manipulating meshgrid.
-                    dom=R.project.bathymetry.Domain.spatial;
-                    minX=str2double(dom.minX);
-                    minY=str2double(dom.minY);
-                    maxX=str2double(dom.maxX);
-                    maxY=str2double(dom.maxY);
+                    try
+                        dom=R.project.bathymetry.Domain.spatial;
+                        minX=str2double(dom.minX);
+                        minY=str2double(dom.minY);
+                        maxX=str2double(dom.maxX);
+                        maxY=str2double(dom.maxY);
+                    catch
+%                     dom=R.project.bathymetry.Domain.spatial;
+                        try
+                            minX=str2double(min(R.project.bathymetry.NodeX));
+                            minY=str2double(min(R.project.bathymetry.NodeY));
+                            maxX=str2double(max(R.project.bathymetry.NodeX));
+                            maxY=str2double(max(R.project.bathymetry.NodeY));
+                        catch
+                            print('Cannot define model extent')
+                        end
+                    end
+                    set(gca,'Xlim',[minX,maxX])
+                    set(gca,'Ylim',[minY,maxY])
+
                     Nx=length(sur.X)+1;
                     Ny=length(sur.Y)+1;
                     X=linspace(minX,maxX,Nx);
@@ -298,9 +313,9 @@ classdef (Abstract) Base < handle
                 
                 if ~isempty(legendContours)
                     if str2num(mv(1:4)) < 2017
-                        leg = legend(legendContours,legendlabels);
+                        leg = legend(legendContours,legendlabels,'color','w');
                     else
-                        [~,leg] = legend(legendContours,legendlabels, 'AutoUpdate', 'off');
+                        [~,leg] = legend(legendContours,legendlabels, 'AutoUpdate', 'off','color','w');
                     end
                     
                     PatchInLegend = findobj(leg, 'type', 'patch');
@@ -405,6 +420,8 @@ classdef (Abstract) Base < handle
                     end
                 end
                 
+                set(gca,'Xlim',[min(R.project.bathymetry.NodeX),max(R.project.bathymetry.NodeX)])
+                set(gca,'Ylim',[min(R.project.bathymetry.NodeY),max(R.project.bathymetry.NodeY)])
                 set(gca,'layer','top');
                 
             end
